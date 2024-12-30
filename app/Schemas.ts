@@ -31,4 +31,5 @@ export const RenderUploadSchema = z.object({
 	request_contact: z.string(),
 	date: z.string(),
 	entries: z.array(EntrySchema),
+	company: z.string(),
 });
