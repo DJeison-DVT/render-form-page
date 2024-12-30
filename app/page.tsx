@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { useForm, useFieldArray, UseFormReturn } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { EntrySchema, RenderUploadSchema } from "@/app/Schemas";
+import { EntrySchema, RenderUploadSchema, initializeEntry, initializeRenderUpload } from "@/app/Schemas";
 import { Form } from "@/components/ui/form";
 import ContactInformation from "@/app/components/formPage/ContactInformation";
 import CompanySelection from "@/app/components/formPage/CompanySelection";
@@ -13,12 +13,7 @@ import EntryForm from "./components/formPage/EntryForm";
 export default function Home() {
   const form = useForm<z.infer<typeof RenderUploadSchema>>({
     resolver: zodResolver(RenderUploadSchema),
-    defaultValues: {
-      approval_contact: "",
-      request_contact: "",
-      date: new Date().toISOString().split("T")[0],
-      entries: [],
-    },
+    defaultValues: initializeRenderUpload(),
   });
 
   const { fields, append, remove } = useFieldArray({
@@ -43,7 +38,7 @@ export default function Home() {
   const handleNextSlide = () => {
 
     if (!(currentSlide < slides.length - 1)) {
-      append({ name: "", sizes: "", concept: "", unitary_price: 0, range: "" });
+      append(initializeEntry());
     }
     setCurrentSlide(currentSlide + 1);
 
@@ -64,9 +59,9 @@ export default function Home() {
             <div>{slides[currentSlide].content}</div>
           </div>
           <div className="absolute bottom-12 right-12 flex justify-end gap-4">
-            {currentSlide > 0 && (
+            {currentSlide > 1 && (
               <button
-                className="cursor-pointer bg-gray-800/90 mt-auto text-white rounded-full hover:bg-gray-700/90 transition h-fit p-3 flex justify-center items-center text-xl"
+                className="cursor-pointer bg-gray-800/90 mt-auto text-white rounded-full hover:bg-gray-700/90 transition h-fit p-4 flex justify-center items-center text-xl"
               >
                 Subir
               </button>

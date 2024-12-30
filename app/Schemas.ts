@@ -17,7 +17,7 @@ export const EntrySchema = z.object({
 	// 	)
 	// 	.refine(
 	// 		(file) => ACCEPTED_IMAGE_TYPES.includes(file?.type),
-	// 		"Only .jpg, .jpeg, .png and .webp formats are supported."
+	// "Solo se admiten formatos .jpg, .jpeg, .png y .webp."
 	// 	),
 	name: z.string(),
 	sizes: z.string(),
@@ -33,3 +33,24 @@ export const RenderUploadSchema = z.object({
 	entries: z.array(EntrySchema),
 	company: z.string(),
 });
+
+export function initializeEntry() {
+	return {
+		name: "",
+		sizes: "",
+		concept: "",
+		unitary_price: 0,
+		range: "",
+		image: null,
+	};
+}
+
+export function initializeRenderUpload() {
+	return {
+		approval_contact: "",
+		request_contact: "",
+		date: "",
+		entries: [initializeEntry()],
+		company: "",
+	};
+}
