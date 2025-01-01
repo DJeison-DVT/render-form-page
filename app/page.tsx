@@ -49,14 +49,16 @@ export default function Home() {
     <>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <div className="h-screen flex flex-col items-center justify-center">
+          <div className="h-fit flex flex-col items-center justify-center">
             {slides[currentSlide].title && (
               <h2 className="text-2xl font-bold mb-4">{slides[currentSlide].title}</h2>
             )}
+
             <div>{slides[currentSlide].content}</div>
           </div>
-          <div className="absolute bottom-12 right-12 flex justify-end gap-4">
-            <div className="flex flex-col space-y-2 gap-2">
+
+          <div className="fixed bottom-4 right-4 flex justify-end gap-4">
+            <div className="flex flex-col space-y-2">
               {currentSlide > 1 && (
                 <button
                   className="cursor-pointer bg-gray-800/90 text-white rounded-full hover:bg-gray-700/90 transition w-12 h-12 flex justify-center items-center text-xl"
@@ -64,6 +66,7 @@ export default function Home() {
                   <Upload />
                 </button>
               )}
+
               <div
                 onClick={handlePreviousSlide}
                 className="cursor-pointer bg-gray-800/90 text-white rounded-full hover:bg-gray-700/90 transition w-12 h-12 flex justify-center items-center text-xl"

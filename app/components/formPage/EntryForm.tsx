@@ -5,6 +5,7 @@ import { UseFieldArrayAppend, UseFieldArrayRemove, UseFormReturn } from "react-h
 import { z } from "zod";
 import { X, Plus, CornerDownLeft } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Textarea } from "@/components/ui/textarea";
 
 function EntryForm({
     form,
@@ -18,10 +19,10 @@ function EntryForm({
     isEvaluating?: boolean
 }) {
     return (
-        <div>
-            <h4 className="text-3xl font-bold mb-2">Cotización</h4>
+        <div className="border p-4 m-4 rounded">
+            <h4 className="text-3xl font-bold mb-2 flex flex-col">Cotización</h4>
             {form.getValues().entries.map((entry, index) => (
-                <div key={index} className="mb-4 p-4 border flex gap-4">
+                <div key={index} className="p-2 flex gap-4">
                     {/* <FormField
                         control={form.control}
                         name={`entries.${index}.image`}
@@ -44,7 +45,7 @@ function EntryForm({
                         name={`entries.${index}.name`}
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Material</FormLabel>
+                                {index == 0 && <FormLabel>Material</FormLabel>}
                                 <FormControl>
                                     <Input placeholder="Material" {...field} />
                                 </FormControl>
@@ -57,7 +58,7 @@ function EntryForm({
                         name={`entries.${index}.sizes`}
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Medidas</FormLabel>
+                                {index == 0 && <FormLabel>Medidas</FormLabel>}
                                 <FormControl>
                                     <Input placeholder="22cm x 33cm x 40cm" {...field} />
                                 </FormControl>
@@ -70,9 +71,9 @@ function EntryForm({
                         name={`entries.${index}.concept`}
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Concepto</FormLabel>
+                                {index == 0 && <FormLabel>Concepto</FormLabel>}
                                 <FormControl>
-                                    <Input placeholder="Concepto" {...field} />
+                                    <Textarea placeholder="Concepto" {...field} className="min-w-96" />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -83,7 +84,7 @@ function EntryForm({
                         name={`entries.${index}.range`}
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Cantidad</FormLabel>
+                                {index == 0 && <FormLabel>Cantidad</FormLabel>}
                                 <FormControl>
                                     <Input placeholder="Cantidad" {...field} />
                                 </FormControl>
@@ -98,7 +99,7 @@ function EntryForm({
                                 name={`entries.${index}.unitary_price`}
                                 render={({ field: { value, onChange } }) => (
                                     <FormItem>
-                                        <FormLabel>Precio Unitario</FormLabel>
+                                        {index == 0 && <FormLabel>Precio Unitario</FormLabel>}
                                         <FormControl>
                                             <Input
                                                 type="number"
