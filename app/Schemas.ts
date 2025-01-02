@@ -9,16 +9,16 @@ const ACCEPTED_IMAGE_TYPES = [
 ];
 
 export const EntrySchema = z.object({
-	// image: z
-	// 	.any()
-	// 	.refine(
-	// 		(file) => file?.size <= MAX_FILE_SIZE,
-	// 		`El peso de la imagen es de 5MB maximo.`
-	// 	)
-	// 	.refine(
-	// 		(file) => ACCEPTED_IMAGE_TYPES.includes(file?.type),
-	// "Solo se admiten formatos .jpg, .jpeg, .png y .webp."
-	// 	),
+	image: z
+		.any()
+		.refine(
+			(file) => file?.size <= MAX_FILE_SIZE,
+			`El peso de la imagen es de 5MB maximo.`
+		)
+		.refine(
+			(file) => ACCEPTED_IMAGE_TYPES.includes(file?.type),
+			"Solo se admiten formatos .jpg, .jpeg, .png y .webp."
+		),
 	name: z.string(),
 	sizes: z.string(),
 	concept: z.string(),

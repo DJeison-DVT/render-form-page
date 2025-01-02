@@ -53,7 +53,6 @@ export default function Home() {
             {slides[currentSlide].title && (
               <h2 className="text-2xl font-bold mb-4">{slides[currentSlide].title}</h2>
             )}
-
             <div>{slides[currentSlide].content}</div>
           </div>
 
