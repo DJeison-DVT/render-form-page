@@ -1,0 +1,49 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model QuoteInformation {
+  id              String    @id @default(uuid())
+  company         String
+  approvalContact String
+  requestContact  String
+  createdAt       DateTime  @default(now()) @db.Timestamp(6)
+  updatedAt       DateTime  @default(now()) @updatedAt @db.Timestamp(6)
+  finalizedAt     DateTime?
+
+  quotes Quote[]
+}
+
+model Quote {
+  id         Int       @id @default(autoincrement())
+  createdAt  DateTime  @default(now()) @db.Timestamp(6)
+  rejectedAt DateTime?
+
+  quoteInformationId String
+  quoteInformation   QuoteInformation @relation(fields: [quoteInformationId], references: [id], onDelete: Cascade)
+  entries            Entry[]
+}
+
+model Entry {
+  id           Int     @id @default(autoincrement())
+  imageUrl     String?
+  name         String
+  sizes        String
+  concept      String
+  range        String
+  unitaryPrice Float?
+
+  quoteId Int
+  quote   Quote @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+}
