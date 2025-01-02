@@ -1,7 +1,7 @@
 import { initializeEntry, RenderUploadSchema } from "@/app/Schemas";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { UseFieldArrayAppend, UseFieldArrayRemove, UseFormReturn } from "react-hook-form";
+import { UseFieldArrayAppend, UseFieldArrayInsert, UseFieldArrayRemove, UseFormReturn } from "react-hook-form";
 import { z } from "zod";
 import { X, Plus, CornerDownLeft } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -10,11 +10,13 @@ import { Textarea } from "@/components/ui/textarea";
 function EntryForm({
     form,
     fieldArrayAppend,
+    fieldArrayInsert,
     fieldArrayRemove,
     isEvaluating = false,
 }: {
     form: UseFormReturn<z.infer<typeof RenderUploadSchema>>
     fieldArrayAppend: UseFieldArrayAppend<z.infer<typeof RenderUploadSchema>>
+    fieldArrayInsert: UseFieldArrayInsert<z.infer<typeof RenderUploadSchema>>
     fieldArrayRemove: UseFieldArrayRemove
     isEvaluating?: boolean
 }) {
@@ -120,7 +122,17 @@ function EntryForm({
                         <TooltipProvider>
                             <Tooltip>
                                 <TooltipTrigger>
-                                    <CornerDownLeft />
+                                    <CornerDownLeft onClick={() => {
+                                        const currentEntry = form.getValues().entries[index];
+                                        const newEntry = { ...currentEntry };
+                                        newEntry.range = "";
+                                        fieldArrayInsert(index, newEntry);
+                                        form.setValue(
+                                            `entries.${index + 1}`,
+                                            newEntry,
+                                            { shouldValidate: true, shouldDirty: true }
+                                        );
+                                    }} />
                                 </TooltipTrigger>
                                 <TooltipContent>
                                     <p>Copiar Entrada</p>
@@ -132,7 +144,6 @@ function EntryForm({
                                 <TooltipTrigger>
                                     <X className={form.getValues().entries.length <= 1 ? "text-gray-400" : ""} onClick={() => {
                                         if (form.getValues().entries.length == 1) return
-                                        console.log(fieldArrayRemove)
                                         fieldArrayRemove(index)
                                     }} />
                                 </TooltipTrigger>
@@ -146,7 +157,6 @@ function EntryForm({
                                 <Tooltip>
                                     <TooltipTrigger>
                                         <Plus onClick={() => {
-                                            console.log(fieldArrayAppend)
                                             fieldArrayAppend(initializeEntry())
                                         }} />
                                     </TooltipTrigger>

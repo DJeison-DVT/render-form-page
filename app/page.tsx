@@ -17,7 +17,7 @@ export default function Home() {
     defaultValues: initializeRenderUpload(),
   });
 
-  const { fields, append: fieldArrayAppend, remove: fieldArrayRemove } = useFieldArray({
+  const { fields, append: fieldArrayAppend, insert: fieldArrayInsert, remove: fieldArrayRemove } = useFieldArray({
     control: form.control,
     name: "entries",
   });
@@ -29,7 +29,7 @@ export default function Home() {
   const slides = [
     { title: "Compañía", content: <CompanySelection form={form} /> },
     { title: "Información de contacto", content: <ContactInformation form={form} /> },
-    { title: "", content: <EntryForm form={form} fieldArrayAppend={fieldArrayAppend} fieldArrayRemove={fieldArrayRemove} /> },
+    { title: "", content: <EntryForm form={form} fieldArrayAppend={fieldArrayAppend} fieldArrayInsert={fieldArrayInsert} fieldArrayRemove={fieldArrayRemove} /> },
   ];
 
   const [currentSlide, setCurrentSlide] = useState(0);
