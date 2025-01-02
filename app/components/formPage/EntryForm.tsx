@@ -47,7 +47,7 @@ function EntryForm({
                             <FormItem>
                                 {index == 0 && <FormLabel>Material</FormLabel>}
                                 <FormControl>
-                                    <Input placeholder="Material" {...field} />
+                                    <Input placeholder="Exhibidor" {...field} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -73,7 +73,7 @@ function EntryForm({
                             <FormItem>
                                 {index == 0 && <FormLabel>Concepto</FormLabel>}
                                 <FormControl>
-                                    <Textarea placeholder="Concepto" {...field} className="min-w-96" />
+                                    <Textarea placeholder="Exhibidor de piso fabricado con..." {...field} className="min-w-96" />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -86,7 +86,7 @@ function EntryForm({
                             <FormItem>
                                 {index == 0 && <FormLabel>Cantidad</FormLabel>}
                                 <FormControl>
-                                    <Input placeholder="Cantidad" {...field} />
+                                    <Input placeholder="Piezas" {...field} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>

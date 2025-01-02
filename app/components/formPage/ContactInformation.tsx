@@ -37,7 +37,7 @@ function ContactInformation({
                     </FormItem>
                 )}
             />
-        </>
+        </ >
     );
 }
 

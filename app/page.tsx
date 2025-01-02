@@ -49,7 +49,7 @@ export default function Home() {
     <>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <div className="h-fit flex flex-col items-center justify-center">
+          <div className="flex flex-col items-center justify-center h-screen">
             {slides[currentSlide].title && (
               <h2 className="text-2xl font-bold mb-4">{slides[currentSlide].title}</h2>
             )}
