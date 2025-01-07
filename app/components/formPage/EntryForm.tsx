@@ -6,6 +6,7 @@ import { z } from "zod";
 import { X, Plus, CornerDownLeft } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Textarea } from "@/components/ui/textarea";
+import { useEffect } from "react";
 
 function EntryForm({
     form,
@@ -23,7 +24,6 @@ function EntryForm({
     return (
         <div className="h-screen pt-4">
             <div className="border p-4 rounded flex flex-col">
-                {/* Sticky Header */}
                 <div className="flex justify-between items-center bg-white z-10 sticky top-0 p-2 border-b">
                     <h4 className="text-3xl font-bold">Cotización</h4>
                     <TooltipProvider>

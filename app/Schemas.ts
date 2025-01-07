@@ -9,21 +9,24 @@ const ACCEPTED_IMAGE_TYPES = [
 ];
 
 export const EntrySchema = z.object({
-	image: z
-		.any()
-		.refine(
-			(file) => file?.size <= MAX_FILE_SIZE,
-			`El peso de la imagen es de 5MB maximo.`
-		)
-		.refine(
-			(file) => ACCEPTED_IMAGE_TYPES.includes(file?.type),
-			"Solo se admiten formatos .jpg, .jpeg, .png y .webp."
-		),
-	name: z.string(),
-	sizes: z.string(),
-	concept: z.string(),
+	image: z.union([
+		z
+			.any()
+			.refine(
+				(file) => file?.size <= MAX_FILE_SIZE,
+				`El peso de la imagen es de 5MB maximo.`
+			)
+			.refine(
+				(file) => ACCEPTED_IMAGE_TYPES.includes(file?.type),
+				"Solo se admiten formatos .jpg, .jpeg, .png y .webp."
+			),
+		z.null(),
+	]),
+	name: z.string().min(1, "El nombre no puede estar vacío."),
+	sizes: z.string().min(1, "Las dimensiones no pueden estar vacías."),
+	concept: z.string().min(1, "El concepto no puede estar vacío."),
 	unitary_price: z.number().optional(),
-	range: z.string().optional(),
+	range: z.string().min(1, "La cantidad no puede estar vacía."),
 });
 
 export const RenderUploadSchema = z.object({
