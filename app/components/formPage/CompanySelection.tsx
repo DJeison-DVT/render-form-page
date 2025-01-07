@@ -8,9 +8,19 @@ import { useEffect } from "react";
 
 function CompanySelection({
     form,
+    fullfilled,
 }: {
     form: UseFormReturn<z.infer<typeof RenderUploadSchema>>;
+    fullfilled: () => void;
 }) {
+    const company = form.watch("company");
+
+    useEffect(() => {
+        if (company) {
+            fullfilled();
+        }
+    }, [company, fullfilled])
+
     return (
         <>
             <FormField
