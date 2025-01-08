@@ -46,8 +46,8 @@ async function createQuoteInformation(
 			},
 		});
 	} catch (error) {
-		console.error("Error creating QuoteInformation:", error);
-		throw error;
+		console.error("Error in createQuoteInformation:", error);
+		throw new Error("Error al crear la cotización");
 	}
 }
 
