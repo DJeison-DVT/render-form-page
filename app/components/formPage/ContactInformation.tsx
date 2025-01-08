@@ -12,8 +12,8 @@ function ContactInformation({
     form: UseFormReturn<z.infer<typeof RenderUploadSchema>>;
     fullfilled: () => void;
 }) {
-    const approvalContact = form.watch("approval_contact");
-    const requestContact = form.watch("request_contact");
+    const approvalContact = form.watch("approvalContact");
+    const requestContact = form.watch("requestContact");
 
     useEffect(() => {
         if (approvalContact && requestContact) {
@@ -25,7 +25,7 @@ function ContactInformation({
         <>
             <FormField
                 control={form.control}
-                name="approval_contact"
+                name="approvalContact"
                 render={({ field }) => (
                     <FormItem>
                         <FormLabel>Approval Contact</FormLabel>
@@ -38,7 +38,7 @@ function ContactInformation({
             />
             <FormField
                 control={form.control}
-                name="request_contact"
+                name="requestContact"
                 render={({ field }) => (
                     <FormItem>
                         <FormLabel>Request Contact</FormLabel>

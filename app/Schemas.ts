@@ -30,8 +30,8 @@ export const EntrySchema = z.object({
 });
 
 export const RenderUploadSchema = z.object({
-	approval_contact: z.string(),
-	request_contact: z.string(),
+	approvalContact: z.string(),
+	requestContact: z.string(),
 	date: z.string(),
 	entries: z.array(EntrySchema),
 	company: z.string(),
@@ -50,8 +50,8 @@ export function initializeEntry() {
 
 export function initializeRenderUpload() {
 	return {
-		approval_contact: "",
-		request_contact: "",
+		approvalContact: "",
+		requestContact: "",
 		date: "",
 		entries: [initializeEntry()],
 		company: "",

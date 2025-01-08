@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useForm, useFieldArray, } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -10,6 +10,7 @@ import ContactInformation from "@/app/components/formPage/ContactInformation";
 import CompanySelection from "@/app/components/formPage/CompanySelection";
 import EntryForm from "./components/formPage/EntryForm";
 import { ChevronDown, ChevronUp, Upload } from "lucide-react";
+import { createQuoteInformation } from "@/lib/storage/database";
 
 export default function Home() {
   const [canContinue, setCanContinue] = useState(false);
@@ -22,7 +23,6 @@ export default function Home() {
     resolver: zodResolver(RenderUploadSchema),
     defaultValues: initializeRenderUpload(),
   });
-  const formData = form.watch()
 
   const { fields, append: fieldArrayAppend, insert: fieldArrayInsert, remove: fieldArrayRemove } = useFieldArray({
     control: form.control,
@@ -31,7 +31,11 @@ export default function Home() {
 
   function onSubmit(values: z.infer<typeof RenderUploadSchema>) {
     if (form.formState.isValid) {
-      console.log(values);
+      try {
+        createQuoteInformation(values.company, values.approvalContact, values.requestContact, values.entries);
+      } catch (error) {
+        console.error("Error creating QuoteInformation:", error);
+      }
     }
   }
 
