@@ -21,8 +21,19 @@ import {
 	TooltipProvider,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+	AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import PushableComponent from "@/components/ui/pushableComponent";
 
 function EntryForm({
@@ -38,6 +49,8 @@ function EntryForm({
 	fieldArrayRemove: UseFieldArrayRemove;
 	isEvaluating?: boolean;
 }) {
+	const [isModalOpen, setIsModalOpen] = useState(false);
+
 	return (
 		<div className="h-screen pt-4">
 			<div className="border p-4 rounded flex flex-col">
@@ -60,7 +73,6 @@ function EntryForm({
 						</Tooltip>
 					</TooltipProvider>
 				</div>
-
 				<div className="overflow-y-auto flex-grow">
 					{form.getValues().entries.map((entry, index) => (
 						<div key={index} className="p-2 flex gap-4">
@@ -274,17 +286,18 @@ function EntryForm({
 									}
 								>
 									<Tooltip>
-										<TooltipTrigger>
-											<PushableComponent
-												onClick={() => {
-													if (
-														form.getValues().entries
-															.length == 1
-													)
-														return;
-													fieldArrayRemove(index);
-												}}
-											>
+										<TooltipTrigger
+											asChild
+											onClick={() => {
+												if (
+													form.getValues().entries
+														.length > 1
+												) {
+													setIsModalOpen(true);
+												}
+											}}
+										>
+											<PushableComponent>
 												<Trash
 													className={
 														form.getValues().entries
@@ -299,6 +312,40 @@ function EntryForm({
 											<p>Borrar Entrada</p>
 										</TooltipContent>
 									</Tooltip>
+									<AlertDialog
+										open={isModalOpen}
+										onOpenChange={setIsModalOpen}
+									>
+										<AlertDialogContent>
+											<AlertDialogHeader>
+												<AlertDialogTitle>
+													Borrar Entrada
+												</AlertDialogTitle>
+												<AlertDialogDescription>
+													Esta acción no se puede
+													deshacer.
+												</AlertDialogDescription>
+											</AlertDialogHeader>
+											<AlertDialogFooter>
+												<AlertDialogCancel>
+													Cancelar
+												</AlertDialogCancel>
+												<AlertDialogAction
+													onClick={() => {
+														if (
+															form.getValues()
+																.entries
+																.length == 1
+														)
+															return;
+														fieldArrayRemove(index);
+													}}
+												>
+													Continuar
+												</AlertDialogAction>
+											</AlertDialogFooter>
+										</AlertDialogContent>
+									</AlertDialog>
 								</TooltipProvider>
 							</div>
 						</div>

@@ -5,7 +5,7 @@ const PushableComponent = ({
 	onClick,
 }: {
 	children: ReactNode;
-	onClick: () => void;
+	onClick?: () => void;
 }) => {
 	return (
 		<div
