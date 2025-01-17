@@ -59,7 +59,7 @@ export default function Home() {
   const slides = [
     { title: "Compañía", content: <CompanySelection form={form} fullfilled={fullfilledTab} /> },
     { title: "Información de contacto", content: <ContactInformation form={form} fullfilled={fullfilledTab} /> },
-    { title: "", content: <EntryForm form={form} fieldArrayAppend={fieldArrayAppend} fieldArrayInsert={fieldArrayInsert} fieldArrayRemove={fieldArrayRemove} /> },
+    { title: "", content: <EntryForm form={form} fieldArrayAppend={fieldArrayAppend} fieldArrayInsert={fieldArrayInsert} fieldArrayRemove={fieldArrayRemove} modal/> },
   ];
 
   const [currentSlide, setCurrentSlide] = useState(0);
