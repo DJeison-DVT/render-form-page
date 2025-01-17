@@ -51,4 +51,30 @@ async function createQuoteInformation(
 	}
 }
 
-export { createQuoteInformation };
+async function getQuoteInformation(id: string) {
+	try {
+		const quoteInformation = await prisma.quoteInformation.findUnique({
+			where: {
+				id,
+			},
+			include: {
+				quotes: {
+					include: {
+						entries: true,
+					},
+					orderBy: {
+						createdAt: "desc",
+					},
+					take: 1,
+				},
+			},
+		});
+
+		return { success: true, quoteInformation };
+	} catch (error) {
+		console.error("Error in getQuoteInformation:", error);
+		throw new Error("Error al obtener la cotización");
+	}
+}
+
+export { createQuoteInformation, getQuoteInformation };
