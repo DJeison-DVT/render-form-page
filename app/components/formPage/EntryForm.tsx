@@ -130,6 +130,7 @@ function EntryForm({
 											</p>
 										</div>
 									</FormControl>
+									<FormMessage />
 								</FormItem>
 							)}
 						/>

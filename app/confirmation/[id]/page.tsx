@@ -143,7 +143,7 @@ export default function Confirmation() {
 					sizes: entry.sizes,
 					concept: entry.concept,
 					range: entry.range,
-					unitary_price: entry.unitaryPrice ?? 0,
+					unitaryPrice: entry.unitaryPrice ?? 0,
 					image: null,
 				})),
 			};
@@ -250,7 +250,7 @@ export default function Confirmation() {
 							</div>
 							<div className="fixed bottom-4 right-4 flex justify-end gap-4">
 								<div className="flex gap-2">
-									{quote?.createdByRole == role && (
+									{quote?.createdByRole !== role && (
 										<>
 											{role === Role.PETITIONER && (
 												<button
