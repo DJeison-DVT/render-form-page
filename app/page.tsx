@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { set, z } from "zod";
+import { z } from "zod";
 import { RenderUploadSchema, initializeRenderUpload } from "@/app/Schemas";
 import { Form } from "@/components/ui/form";
 import ContactInformation from "@/app/components/formPage/ContactInformation";
@@ -12,8 +12,7 @@ import EntryForm from "./components/formPage/EntryForm";
 import { ChevronDown, ChevronUp, Upload } from "lucide-react";
 import { createQuoteInformation } from "@/lib/storage/database";
 import { useToast } from "@/hooks/use-toast";
-import Image from "next/image";
-import CompanyImage from "./components/CompanyImage";
+import Registered from "./components/Registered";
 
 export default function Home() {
 	const [canContinue, setCanContinue] = useState(false);
@@ -83,6 +82,7 @@ export default function Home() {
 					fieldArrayAppend={fieldArrayAppend}
 					fieldArrayInsert={fieldArrayInsert}
 					fieldArrayRemove={fieldArrayRemove}
+					disabled={disabled}
 					modal
 				/>
 			),
@@ -108,15 +108,7 @@ export default function Home() {
 	return (
 		<>
 			{registered ? (
-				<>
-					<div className="flex flex-col items-center justify-center h-screen">
-						<h2 className="text-2xl font-bold mb-4">
-							¡Gracias por tu cotización!
-						</h2>
-						<CompanyImage company={company} size={400} />
-						<p>En breve nos pondremos en contacto contigo.</p>
-					</div>
-				</>
+				<Registered company={company} />
 			) : (
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSubmit)}>

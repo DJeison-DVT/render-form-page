@@ -40,14 +40,14 @@ function EntryForm({
 	fieldArrayAppend,
 	fieldArrayInsert,
 	fieldArrayRemove,
-	isEvaluating = false,
+	disabled = false,
 	modal = false,
 }: {
 	form: UseFormReturn<z.infer<typeof RenderUploadSchema>>;
 	fieldArrayAppend: UseFieldArrayAppend<z.infer<typeof RenderUploadSchema>>;
 	fieldArrayInsert: UseFieldArrayInsert<z.infer<typeof RenderUploadSchema>>;
 	fieldArrayRemove: UseFieldArrayRemove;
-	isEvaluating?: boolean;
+	disabled?: boolean;
 	modal?: boolean;
 }) {
 	const [isModalOpen, setIsModalOpen] = useState(false);
@@ -88,6 +88,7 @@ function EntryForm({
 										<div className="flex flex-col items-center justify-center max-w-24">
 											<div className="w-24 h-24 border border-gray-300 rounded-md overflow-hidden flex items-center justify-center bg-gray-100">
 												<Input
+													disabled={disabled}
 													type="file"
 													id={`file-upload-${index}`}
 													onChange={(e) => {
@@ -142,6 +143,7 @@ function EntryForm({
 									)}
 									<FormControl>
 										<Input
+											disabled={disabled}
 											placeholder="Exhibidor"
 											{...field}
 										/>
@@ -160,6 +162,7 @@ function EntryForm({
 									)}
 									<FormControl>
 										<Input
+											disabled={disabled}
 											placeholder="22cm x 33cm x 40cm"
 											{...field}
 										/>
@@ -197,6 +200,7 @@ function EntryForm({
 									)}
 									<FormControl>
 										<Input
+											disabled={disabled}
 											placeholder="Piezas"
 											{...field}
 										/>
@@ -205,40 +209,26 @@ function EntryForm({
 								</FormItem>
 							)}
 						/>
-						{isEvaluating && (
-							<>
-								<FormField
-									control={form.control}
-									name={`entries.${index}.unitary_price`}
-									render={({
-										field: { value, onChange },
-									}) => (
-										<FormItem>
-											{index == 0 && (
-												<FormLabel>
-													Precio Unitario
-												</FormLabel>
-											)}
-											<FormControl>
-												<Input
-													type="number"
-													value={value}
-													placeholder="Precio Unitario"
-													onChange={(e) =>
-														onChange(
-															Number(
-																e.target.value
-															)
-														)
-													}
-												/>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
+						<FormField
+							control={form.control}
+							name={`entries.${index}.unitaryPrice`}
+							render={({ field }) => (
+								<FormItem>
+									{index == 0 && (
+										<FormLabel>Precio Unitario</FormLabel>
 									)}
-								/>
-							</>
-						)}
+									<FormControl>
+										<Input
+											disabled={disabled}
+											type="number"
+											{...field}
+											placeholder="Precio Unitario"
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
 						<div className="flex justify-around items-end gap-2 m-2">
 							<TooltipProvider>
 								<Tooltip>

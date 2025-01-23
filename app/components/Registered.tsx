@@ -1,0 +1,13 @@
+import CompanyImage from "./CompanyImage";
+
+export default function Registered({ company }: { company: string }) {
+	return (
+		<div className="flex flex-col items-center justify-center h-screen">
+			<h2 className="text-2xl font-bold mb-4">
+				¡Gracias por tu cotización!
+			</h2>
+			<CompanyImage company={company} size={400} />
+			<p>En breve nos pondremos en contacto contigo.</p>
+		</div>
+	);
+}

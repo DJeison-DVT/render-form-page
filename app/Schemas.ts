@@ -26,7 +26,10 @@ export const EntrySchema = z.object({
 	name: z.string().min(1, "El nombre no puede estar vacío."),
 	sizes: z.string().min(1, "Las dimensiones no pueden estar vacías."),
 	concept: z.string().min(1, "El concepto no puede estar vacío."),
-	unitary_price: z.number().optional(),
+	unitaryPrice: z.preprocess(
+		(val) => (val === "" ? 0 : Number(val)),
+		z.number().nonnegative().optional()
+	),
 	range: z.string().min(1, "La cantidad no puede estar vacía."),
 });
 
@@ -44,7 +47,7 @@ export function initializeEntry() {
 		name: "",
 		sizes: "",
 		concept: "",
-		unitary_price: 0,
+		unitaryPrice: 0,
 		range: "",
 		image: null,
 	};
