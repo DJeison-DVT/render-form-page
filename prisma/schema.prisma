@@ -26,9 +26,10 @@ model QuoteInformation {
 }
 
 model Quote {
-  id         Int       @id @default(autoincrement())
-  createdAt  DateTime  @default(now()) @db.Timestamp(6)
-  rejectedAt DateTime?
+  id            Int       @id @default(autoincrement())
+  createdAt     DateTime  @default(now()) @db.Timestamp(6)
+  rejectedAt    DateTime?
+  createdByRole Role
 
   quoteInformationId String
   quoteInformation   QuoteInformation @relation(fields: [quoteInformationId], references: [id], onDelete: Cascade)
@@ -46,4 +47,10 @@ model Entry {
 
   quoteId Int
   quote   Quote @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+}
+
+enum Role {
+  VALIDATOR
+  PETITIONER
+  SUPERVISOR
 }

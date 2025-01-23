@@ -1,37 +1,40 @@
 "use server";
 
-import { EntrySchema } from "@/app/Schemas";
+import { RenderUploadSchema } from "@/app/Schemas";
 import { prisma } from "@/lib/prisma";
+import { Role } from "@prisma/client";
 import { z } from "zod";
 
 async function createQuoteInformation(
-	company: string,
-	approvalContact: string,
-	requestContact: string,
-	entries: z.infer<typeof EntrySchema>[]
+	data: z.infer<typeof RenderUploadSchema>
 ) {
-	// TODO upload image to storage
-	for (const entry of entries) {
-		entry.image = "";
+	const parsedData = RenderUploadSchema.safeParse(data);
+
+	if (!parsedData.success) {
+		console.error("Validation Error:", parsedData.error);
+		throw new Error("Invalid data provided to createQuoteInformation");
 	}
+
+	const validData = parsedData.data;
 
 	try {
 		const quoteInformation = await prisma.quoteInformation.create({
 			data: {
-				company,
-				approvalContact,
-				requestContact,
+				company: validData.company,
+				approvalContact: validData.approvalContact,
+				requestContact: validData.requestContact,
 				quotes: {
 					create: {
+						createdByRole: validData.createdByRole,
 						createdAt: new Date(),
 						entries: {
-							create: entries.map((entry) => ({
-								imageUrl: entry.image,
-								name: entry.name,
-								sizes: entry.sizes,
+							create: validData.entries.map((entry) => ({
 								concept: entry.concept,
+								name: entry.name,
 								range: entry.range,
+								sizes: entry.sizes,
 								unitaryPrice: entry.unitary_price,
+								imageUrl: entry.image,
 							})),
 						},
 					},

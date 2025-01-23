@@ -45,12 +45,7 @@ export default function Home() {
 		if (form.formState.isValid) {
 			try {
 				setDisabled(true);
-				await createQuoteInformation(
-					values.company,
-					values.approvalContact,
-					values.requestContact,
-					values.entries
-				);
+				await createQuoteInformation(values);
 				setCompany(values.company);
 				setRegistered(true);
 

@@ -1,3 +1,4 @@
+import { Role } from "@prisma/client";
 import { z } from "zod";
 
 const MAX_FILE_SIZE = 5000000;
@@ -35,6 +36,7 @@ export const RenderUploadSchema = z.object({
 	date: z.string(),
 	entries: z.array(EntrySchema),
 	company: z.string(),
+	createdByRole: z.nativeEnum(Role),
 });
 
 export function initializeEntry() {
@@ -55,5 +57,6 @@ export function initializeRenderUpload() {
 		date: "",
 		entries: [initializeEntry()],
 		company: "",
+		createdByRole: Role.PETITIONER,
 	};
 }
