@@ -184,6 +184,7 @@ function EntryForm({
 										<Textarea
 											placeholder="Exhibidor de piso fabricado con..."
 											{...field}
+											disabled={disabled}
 											className="min-w-96"
 										/>
 									</FormControl>
@@ -240,14 +241,13 @@ function EntryForm({
 													form.getValues().entries[
 														index
 													];
-												const newEntry = {
-													...currentEntry,
-												};
-												newEntry.range = "";
-												fieldArrayInsert(
-													index,
-													newEntry
+												const newEntry = Object.assign(
+													{},
+													currentEntry
 												);
+												fieldArrayInsert(index, {
+													...newEntry,
+												});
 												form.setValue(
 													`entries.${index + 1}`,
 													newEntry,
