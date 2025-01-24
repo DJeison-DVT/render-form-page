@@ -196,6 +196,21 @@ export default function Confirmation() {
 		);
 	}
 
+	const TableInformation = ({
+		title,
+		value,
+	}: {
+		title: string;
+		value: string;
+	}) => (
+		<>
+			<td className="border bg-slate-100 px-4 py-2 font-semibold">
+				{title}:
+			</td>
+			<td className="border px-4 py-2">{value}</td>
+		</>
+	);
+
 	return (
 		<>
 			{registered && quoteInformation ? (
@@ -205,41 +220,63 @@ export default function Confirmation() {
 					<Form {...form}>
 						<form onSubmit={form.handleSubmit(onSubmitUpdate)}>
 							{quoteInformation && (
-								<div className="flex justify-around items-center p-4">
+								<div className="flex justify-around items-center p-8">
 									<CompanyImage
 										company={quoteInformation.company}
-										size={200}
+										size={150}
 									/>
 									<div>
-										<table className="table-auto border-collapse border border-gray-200 w-full">
+										<table className="table-auto border-collapse  w-full">
 											<tbody>
 												<tr>
-													<td className="border border-gray-200 px-4 py-2 font-semibold">
-														Fecha de la cotización:
-													</td>
-													<td className="border border-gray-200 px-4 py-2">
-														{quoteInformation.createdAt.toLocaleDateString()}
-													</td>
+													<TableInformation
+														title="Fecha de la cotización"
+														value={quoteInformation.createdAt.toLocaleDateString()}
+													/>
 												</tr>
 												<tr>
-													<td className="border border-gray-200 px-4 py-2 font-semibold">
-														Número de aprobación:
-													</td>
-													<td className="border border-gray-200 px-4 py-2">
-														{formatPhoneNumber(
-															quoteInformation.approvalContact
-														)}
-													</td>
+													<TableInformation
+														title="Numero de aprobación"
+														value={
+															formatPhoneNumber(
+																quoteInformation.approvalContact
+															) || ""
+														}
+													/>
+													<TableInformation
+														title="Cliente"
+														value={
+															quoteInformation.client
+														}
+													/>
+													<TableInformation
+														title="Proyecto"
+														value={
+															quoteInformation.project
+														}
+													/>
 												</tr>
 												<tr>
-													<td className="border border-gray-200 px-4 py-2 font-semibold">
-														Número de solicitud:
-													</td>
-													<td className="border border-gray-200 px-4 py-2">
-														{formatPhoneNumber(
-															quoteInformation.requestContact
-														)}
-													</td>
+													<TableInformation
+														title="Número de solicitud"
+														value={
+															formatPhoneNumber(
+																quoteInformation.requestContact
+															) || ""
+														}
+													/>
+													<TableInformation
+														title="Marca"
+														value={
+															quoteInformation.brand
+														}
+													/>
+													<TableInformation
+														title="Serial"
+														value={
+															quoteInformation.serial
+														}
+													/>
 												</tr>
 											</tbody>
 										</table>
