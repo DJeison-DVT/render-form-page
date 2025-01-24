@@ -34,12 +34,20 @@ export const EntrySchema = z.object({
 });
 
 export const RenderUploadSchema = z.object({
-	approvalContact: z.string(),
-	requestContact: z.string(),
+	approvalContact: z
+		.string()
+		.length(10, "El contacto de aprobación debe tener 10 dígitos."),
+	requestContact: z
+		.string()
+		.length(10, "El contacto de solicitud debe tener 10 dígitos."),
 	date: z.string(),
 	entries: z.array(EntrySchema),
 	company: z.string(),
 	createdByRole: z.nativeEnum(Role),
+	client: z.string().nonempty(),
+	brand: z.string().nonempty(),
+	project: z.string().nonempty(),
+	serial: z.string().nonempty(),
 });
 
 export function initializeEntry() {
@@ -61,5 +69,9 @@ export function initializeRenderUpload() {
 		entries: [initializeEntry()],
 		company: "",
 		createdByRole: Role.PETITIONER,
+		client: "",
+		brand: "",
+		project: "",
+		serial: "",
 	};
 }

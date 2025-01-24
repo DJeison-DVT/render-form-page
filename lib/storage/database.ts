@@ -31,6 +31,10 @@ async function createQuoteInformation(
 				company: validData.company,
 				approvalContact: validData.approvalContact,
 				requestContact: validData.requestContact,
+				client: validData.client,
+				brand: validData.brand,
+				project: validData.project,
+				serial: validData.serial,
 				quotes: {
 					create: {
 						createdByRole: validData.createdByRole,
