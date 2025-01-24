@@ -232,11 +232,12 @@ function EntryForm({
 							)}
 						/>
 						<div className="flex justify-around items-end gap-2 m-2">
-							<TooltipProvider>
+							<TooltipProvider disableHoverableContent={disabled}>
 								<Tooltip>
 									<TooltipTrigger>
 										<PushableComponent
 											onClick={() => {
+												if (disabled) return;
 												const currentEntry =
 													form.getValues().entries[
 														index
@@ -245,9 +246,10 @@ function EntryForm({
 													{},
 													currentEntry
 												);
-												fieldArrayInsert(index, {
-													...newEntry,
-												});
+												fieldArrayInsert(
+													index + 1,
+													newEntry
+												);
 												form.setValue(
 													`entries.${index + 1}`,
 													newEntry,
@@ -258,7 +260,13 @@ function EntryForm({
 												);
 											}}
 										>
-											<CornerDownLeft />
+											<CornerDownLeft
+												className={
+													disabled
+														? "text-gray-400 cursor-not-allowed"
+														: ""
+												}
+											/>
 										</PushableComponent>
 									</TooltipTrigger>
 									<TooltipContent>
@@ -268,7 +276,8 @@ function EntryForm({
 							</TooltipProvider>
 							<TooltipProvider
 								disableHoverableContent={
-									form.getValues().entries.length <= 1
+									form.getValues().entries.length <= 1 ||
+									disabled
 								}
 							>
 								<Tooltip>
@@ -277,7 +286,8 @@ function EntryForm({
 										onClick={() => {
 											if (
 												form.getValues().entries
-													.length > 1
+													.length > 1 &&
+												!disabled
 											) {
 												setIsModalOpen(true);
 											}
@@ -287,8 +297,8 @@ function EntryForm({
 											<Trash
 												className={
 													form.getValues().entries
-														.length <= 1
-														? "text-gray-400"
+														.length <= 1 || disabled
+														? "text-gray-400 cursor-not-allowed"
 														: ""
 												}
 											/>

@@ -15,6 +15,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Quote, QuoteInformation, Role } from "@prisma/client";
 import { CheckCheck, RefreshCw, Undo, Upload } from "lucide-react";
 import { useParams, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
@@ -38,6 +39,7 @@ export default function Confirmation() {
 	const searchParams = useSearchParams();
 	const role = searchParams.get("role") as Role;
 	const { toast } = useToast();
+	const router = useRouter();
 
 	const [loading, setLoading] = useState(true);
 	const [disabled, setDisabled] = useState(false);
@@ -132,12 +134,21 @@ export default function Confirmation() {
 				entries: response.quoteInformation.quotes[0]?.entries || [],
 			};
 
+			if (quoteInformation.finalizedAt) {
+				router.push(`/history/${id}`);
+			}
+
+			if (quoteInformation.quote.createdByRole === role) {
+				setDisabled(true);
+			}
+			setQuote(quoteInformation.quote);
+
 			const transformedData = {
 				approvalContact: quoteInformation.approvalContact,
 				requestContact: quoteInformation.requestContact,
 				date: quoteInformation.createdAt.toISOString().split("T")[0],
 				company: quoteInformation.company,
-				createdByRole: role,
+				createdByRole: quoteInformation.quote.createdByRole,
 				entries: quoteInformation.entries.map((entry) => ({
 					name: entry.name,
 					sizes: entry.sizes,
@@ -150,7 +161,6 @@ export default function Confirmation() {
 
 			form.reset(transformedData);
 			setQuoteInformation(quoteInformation);
-			setQuote(quoteInformation.quote);
 		} catch (error) {
 			const message =
 				error instanceof Error
