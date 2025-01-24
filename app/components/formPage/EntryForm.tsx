@@ -234,32 +234,31 @@ function EntryForm({
 						<div className="flex justify-around items-end gap-2 m-2">
 							<TooltipProvider disableHoverableContent={disabled}>
 								<Tooltip>
-									<TooltipTrigger>
-										<PushableComponent
-											onClick={() => {
-												if (disabled) return;
-												const currentEntry =
-													form.getValues().entries[
-														index
-													];
-												const newEntry = Object.assign(
-													{},
-													currentEntry
-												);
-												fieldArrayInsert(
-													index + 1,
-													newEntry
-												);
-												form.setValue(
-													`entries.${index + 1}`,
-													newEntry,
-													{
-														shouldValidate: true,
-														shouldDirty: true,
-													}
-												);
-											}}
-										>
+									<TooltipTrigger
+										asChild
+										onClick={() => {
+											if (disabled) return;
+											const currentEntry =
+												form.getValues().entries[index];
+											const newEntry = Object.assign(
+												{},
+												currentEntry
+											);
+											fieldArrayInsert(
+												index + 1,
+												newEntry
+											);
+											form.setValue(
+												`entries.${index + 1}`,
+												newEntry,
+												{
+													shouldValidate: true,
+													shouldDirty: true,
+												}
+											);
+										}}
+									>
+										<PushableComponent>
 											<CornerDownLeft
 												className={
 													disabled
