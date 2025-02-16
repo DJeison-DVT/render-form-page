@@ -50,6 +50,10 @@ export const RenderUploadSchema = z.object({
 	serial: z.string().nonempty(),
 });
 
+export const EntryUpdateSchema = z.object({
+	entries: z.array(EntrySchema),
+});
+
 export function initializeEntry() {
 	return {
 		name: "",
