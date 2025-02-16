@@ -127,7 +127,7 @@ export default function Confirmation() {
 			};
 
 			if (quoteInformation.finalizedAt) {
-				router.push(`/history/${id}`);
+				router.push(`/renders/history/${id}`);
 			}
 
 			if (quoteInformation.quote.createdByRole === role) {

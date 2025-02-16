@@ -8,11 +8,11 @@ import { RenderUploadSchema, initializeRenderUpload } from "@/app/Schemas";
 import { Form } from "@/components/ui/form";
 import ContactInformation from "@/app/components/formPage/ContactInformation";
 import CompanySelection from "@/app/components/formPage/CompanySelection";
-import EntryForm from "./components/formPage/EntryForm";
+import EntryForm from "@/app/components/formPage/EntryForm";
 import { ChevronDown, ChevronUp, Upload } from "lucide-react";
 import { createQuoteInformation } from "@/lib/storage/database";
 import { useToast } from "@/hooks/use-toast";
-import Registered from "./components/Registered";
+import Registered from "@/app/components/Registered";
 
 export default function Home() {
 	const [canContinue, setCanContinue] = useState(false);
@@ -69,7 +69,7 @@ export default function Home() {
 			),
 		},
 		{
-			title: "Información de contacto",
+			title: "Información de Proyecto",
 			content: (
 				<ContactInformation form={form} fullfilled={fullfilledTab} />
 			),
