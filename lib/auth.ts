@@ -8,9 +8,9 @@ import { registerUser } from "./storage/auth";
 import { object, string } from "zod";
 
 export const signInSchema = object({
-	email: string({ required_error: "Email is required" })
-		.min(1, "Email is required")
-		.email("Invalid email"),
+	phone: string({ required_error: "Se requiere un número de teléfono" })
+		.min(1, "Se requiere un número de teléfono")
+		.max(10),
 	password: string({ required_error: "Password is required" })
 		.min(1, "Password is required")
 		.min(8, "Password must be more than 8 characters")
@@ -45,21 +45,21 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 	providers: [
 		Credentials({
 			credentials: {
-				email: { label: "Email", type: "text" },
+				phone: { label: "Número de teléfono", type: "text" },
 				password: { label: "Contraseña", type: "password" },
 			},
 			authorize: async (credentials) => {
-				const { email, password } = await signInSchema.parseAsync(
+				const { phone, password } = await signInSchema.parseAsync(
 					credentials
 				);
 
 				let user = await prisma.user.findUnique({
-					where: { email },
+					where: { phone },
 				});
 
 				if (!user) {
-					// user = await registerUser(email, password);
-					throw new Error("User not found");
+					user = await registerUser(phone, password);
+					// throw new Error("User not found");
 				}
 
 				if (!user.password) {
@@ -78,7 +78,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
 				return {
 					id: user.id,
-					email: user.email,
+					phone: user.phone,
 					role,
 				};
 			},

@@ -3,13 +3,13 @@ import bcrypt from "bcrypt";
 
 const SALT_ROUNDS = 10;
 
-async function registerUser(email: string, password: string) {
-	if (!email || !password) {
-		throw new Error("Email and password are required");
+async function registerUser(phone: string, password: string) {
+	if (!phone || !password) {
+		throw new Error("Phone and password are required");
 	}
 
 	const existingUser = await prisma.user.findUnique({
-		where: { email },
+		where: { phone },
 	});
 
 	if (existingUser) {
@@ -20,7 +20,7 @@ async function registerUser(email: string, password: string) {
 
 	const user = await prisma.user.create({
 		data: {
-			email,
+			phone,
 			password: hashedPassword,
 		},
 	});

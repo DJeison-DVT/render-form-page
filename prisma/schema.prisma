@@ -90,15 +90,14 @@ model Session {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime? @map("email_verified")
-  image         String?
-  role          String    @default("USER")
-  password      String?
-  accounts      Account[]
-  sessions      Session[]
+  id       String    @id @default(cuid())
+  name     String?
+  phone    String?   @unique
+  image    String?
+  role     String    @default("USER")
+  password String?
+  accounts Account[]
+  sessions Session[]
 
   @@map("users")
 }
