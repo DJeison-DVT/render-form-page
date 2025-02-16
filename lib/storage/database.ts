@@ -162,9 +162,25 @@ async function finalizeQuote(id: string) {
 	}
 }
 
+async function getClients() {
+	try {
+		const clients = await prisma.quoteInformation.findMany({
+			distinct: ["client"],
+			select: {
+				client: true,
+			},
+		});
+		return { success: true, clients };
+	} catch (error) {
+		console.error("Error in getClients:", error);
+		throw new Error("Error al obtener los clientes");
+	}
+}
+
 export {
 	createQuoteInformation,
 	getQuoteInformation,
 	createQuote,
 	finalizeQuote,
+	getClients,
 };

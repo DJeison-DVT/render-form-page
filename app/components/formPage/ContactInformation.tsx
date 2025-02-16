@@ -1,3 +1,5 @@
+"use client";
+
 import { z } from "zod";
 import { RenderUploadSchema } from "@/app/Schemas";
 import {
@@ -9,8 +11,10 @@ import {
 } from "@/components/ui/form";
 import { UseFormReturn } from "react-hook-form";
 import { Input } from "@/components/ui/input";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Separator } from "@/components/ui/separator";
+import { Combobox, ComboboxOptions } from "@/components/ui/combobox";
+import { getClients } from "@/lib/storage/database";
 
 function ContactInformation({
 	form,
@@ -23,12 +27,61 @@ function ContactInformation({
 	const brand = form.watch("brand");
 	const project = form.watch("project");
 	const serial = form.watch("serial");
+	const [clients, setClients] = useState<ComboboxOptions[]>([]);
+	const [selectedClient, setSelectedClient] = useState<string>("");
 
 	useEffect(() => {
 		if (client && brand && project && serial) {
 			fullfilled();
 		}
 	}, [fullfilled, client, brand, project, serial]);
+
+	function handleAppendClient(label: ComboboxOptions["label"]) {
+		const newClient = {
+			value: label,
+			label,
+		};
+		clients.push(newClient);
+		setSelectedClient(newClient.value);
+		form.setValue("client", newClient.value);
+	}
+
+	const getClientOptions = async () => {
+		const result = await getClients();
+
+		if (!result.success) {
+			return;
+		}
+
+		const staticClients = [
+			"Cosmic",
+			"KCM",
+			"Lala",
+			"SCJ",
+			"Haribo",
+			"Newell",
+		];
+
+		let options: ComboboxOptions[] = result.clients.map((client) => ({
+			value: client.client,
+			label: client.client,
+		}));
+
+		for (const client of staticClients) {
+			if (!options.find((option) => option.value === client)) {
+				options.push({
+					value: client,
+					label: client,
+				});
+			}
+		}
+
+		setClients(options);
+	};
+
+	useEffect(() => {
+		getClientOptions();
+	}, []);
 
 	return (
 		<div className="flex gap-4 h-40">
@@ -40,7 +93,16 @@ function ContactInformation({
 						<FormItem>
 							<FormLabel>Cliente</FormLabel>
 							<FormControl>
-								<Input placeholder="Cliente" {...field} />
+								<Combobox
+									{...field}
+									options={clients}
+									onCreate={handleAppendClient}
+									selected={selectedClient}
+									onChange={(value) => {
+										setSelectedClient(value.value);
+										form.setValue("client", value.value);
+									}}
+								/>
 							</FormControl>
 							<FormMessage />
 						</FormItem>
