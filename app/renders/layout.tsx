@@ -1,5 +1,7 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
+import { SessionProvider } from "next-auth/react";
+import { SignOut } from "@/components/auth/signout-button";
 
 export default async function DashboardLayout({
 	children,
@@ -12,5 +14,12 @@ export default async function DashboardLayout({
 		redirect("/");
 	}
 
-	return <main>{children}</main>;
+	return (
+		<SessionProvider session={session}>
+			<div className="fixed bottom-4 left-4 flex justify-start gap-4">
+				<SignOut />
+			</div>
+			<main>{children}</main>
+		</SessionProvider>
+	);
 }

@@ -65,10 +65,10 @@ export function initializeEntry() {
 	};
 }
 
-export function initializeRenderUpload() {
+export function initializeRenderUpload(phone: string) {
 	return {
-		approvalContact: "",
-		requestContact: "",
+		approvalContact: process.env.NEXT_PUBLIC_APPROVAL_CONTACT,
+		requestContact: phone,
 		date: "",
 		entries: [initializeEntry()],
 		company: "",

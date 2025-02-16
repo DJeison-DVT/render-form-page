@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -13,10 +13,12 @@ import { ChevronDown, ChevronUp, Upload } from "lucide-react";
 import { createQuoteInformation } from "@/lib/storage/database";
 import { useToast } from "@/hooks/use-toast";
 import Registered from "@/app/components/Registered";
+import { useSession } from "next-auth/react";
 
 export default function Home() {
 	const [canContinue, setCanContinue] = useState(false);
 	const { toast } = useToast();
+	const { data: session } = useSession();
 	const [disabled, setDisabled] = useState(false);
 	const [registered, setRegistered] = useState(false);
 	const [company, setCompany] = useState("");
@@ -27,7 +29,7 @@ export default function Home() {
 
 	const form = useForm<z.infer<typeof RenderUploadSchema>>({
 		resolver: zodResolver(RenderUploadSchema),
-		defaultValues: initializeRenderUpload(),
+		defaultValues: initializeRenderUpload(session?.user.phone || ""),
 	});
 
 	const {
@@ -41,6 +43,8 @@ export default function Home() {
 	});
 
 	const onSubmit = async (values: z.infer<typeof RenderUploadSchema>) => {
+		// console.log(values);
+		// return;
 		if (form.formState.isValid) {
 			try {
 				setDisabled(true);

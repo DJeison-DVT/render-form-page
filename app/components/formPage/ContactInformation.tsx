@@ -19,65 +19,19 @@ function ContactInformation({
 	form: UseFormReturn<z.infer<typeof RenderUploadSchema>>;
 	fullfilled: () => void;
 }) {
-	const approvalContact = form.watch("approvalContact");
-	const requestContact = form.watch("requestContact");
 	const client = form.watch("client");
 	const brand = form.watch("brand");
 	const project = form.watch("project");
 	const serial = form.watch("serial");
 
 	useEffect(() => {
-		if (
-			approvalContact &&
-			requestContact &&
-			client &&
-			brand &&
-			project &&
-			serial
-		) {
+		if (client && brand && project && serial) {
 			fullfilled();
 		}
-	}, [
-		approvalContact,
-		requestContact,
-		fullfilled,
-		client,
-		brand,
-		project,
-		serial,
-	]);
+	}, [fullfilled, client, brand, project, serial]);
 
 	return (
 		<div className="flex gap-4 h-40">
-			<div className="flex flex-col gap-4">
-				<FormField
-					control={form.control}
-					name="approvalContact"
-					render={({ field }) => (
-						<FormItem>
-							<FormLabel>Contacto de Aprobación</FormLabel>
-							<FormControl>
-								<Input placeholder="2225542247" {...field} />
-							</FormControl>
-							<FormMessage />
-						</FormItem>
-					)}
-				/>
-				<FormField
-					control={form.control}
-					name="requestContact"
-					render={({ field }) => (
-						<FormItem>
-							<FormLabel>Contacto de Solicitud</FormLabel>
-							<FormControl>
-								<Input placeholder="552331233" {...field} />
-							</FormControl>
-							<FormMessage />
-						</FormItem>
-					)}
-				/>
-			</div>
-			<Separator orientation="vertical" className="h-full" />
 			<div className="flex flex-col gap-4">
 				<FormField
 					control={form.control}

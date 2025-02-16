@@ -10,7 +10,7 @@ import { object, string } from "zod";
 export const signInSchema = object({
 	phone: string({ required_error: "Se requiere un número de teléfono" })
 		.min(1, "Se requiere un número de teléfono")
-		.max(10),
+		.max(10, "En formato de 10 dígitos"),
 	password: string({ required_error: "Password is required" })
 		.min(1, "Password is required")
 		.min(8, "Password must be more than 8 characters")
@@ -21,17 +21,20 @@ declare module "next-auth" {
 	interface Session {
 		user: {
 			role: string;
+			phone: string;
 		} & DefaultSession["user"];
 	}
 
 	interface User {
 		role: string;
+		phone: string;
 	}
 }
 
 declare module "next-auth/jwt" {
 	interface JWT {
 		role: string;
+		phone: string;
 	}
 }
 
@@ -74,23 +77,31 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 					throw new Error("Invalid credentials");
 				}
 
-				const role = user.role || "USER";
-
-				return {
+				const userData = {
 					id: user.id,
 					phone: user.phone,
-					role,
+					role: user.role,
 				};
+
+				console.log("user data", userData);
+
+				return userData;
 			},
 		}),
 	],
 	callbacks: {
 		async jwt({ token, user }) {
-			if (user) token.role = user.role;
+			if (user) {
+				token.role = user.role;
+				token.phone = user.phone;
+			}
 			return token;
 		},
 		async session({ session, token }) {
-			if (session?.user) session.user.role = token.role;
+			if (session?.user) {
+				session.user.role = token.role;
+				session.user.phone = token.phone;
+			}
 			return session;
 		},
 	},
