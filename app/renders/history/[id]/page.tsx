@@ -17,7 +17,6 @@ export default function Page() {
 	}
 
 	const searchParams = useSearchParams();
-	const role = searchParams.get("role") as Role;
 	const { toast } = useToast();
 	const [loading, setLoading] = useState(true);
 	const [notFound, setNotFound] = useState(false);

@@ -20,9 +20,9 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
+import CommentDialog from "@/app/components/CommentDialog";
 import { useSession } from "next-auth/react";
 import Loading from "@/components/Loading";
-import CommentDialog from "@/app/components/CommentDialog";
 
 export default function Confirmation() {
 	const { id } = useParams();
@@ -35,9 +35,8 @@ export default function Confirmation() {
 	if (!session) {
 		return <Loading />;
 	}
+	const role = session.user.role as Role;
 
-	const searchParams = useSearchParams();
-	const role = searchParams.get("role") as Role;
 	const { toast } = useToast();
 	const router = useRouter();
 
@@ -237,12 +236,26 @@ export default function Confirmation() {
 												}
 											>
 												{role !== Role.VALIDATOR ? (
-													<div>
+													<div
+														className={`cursor-pointer bg-gray-800/90 text-white rounded-md hover:bg-gray-700/90 gap-2 p-1 px-2 transition flex justify-center items-center text-xl ${
+															form.formState
+																.isValid
+																? ""
+																: "opacity-50 pointer-events-none"
+														}`}
+													>
 														<RefreshCw />
 														Actualizar
 													</div>
 												) : (
-													<div>
+													<div
+														className={`cursor-pointer bg-gray-800/90 text-white rounded-md hover:bg-gray-700/90 gap-2 p-1 px-2 transition flex justify-center items-center text-xl ${
+															form.formState
+																.isValid
+																? ""
+																: "opacity-50 pointer-events-none"
+														}`}
+													>
 														<Undo />
 														Rechazar
 													</div>

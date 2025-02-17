@@ -140,7 +140,13 @@ export default function Home() {
 										upload={handleUpload}
 										disabled={disabled}
 									>
-										<div>
+										<div
+											className={`cursor-pointer bg-gray-800/90 text-white rounded-full hover:bg-gray-700/90 transition w-12 h-12 flex justify-center items-center text-xl ${
+												form.formState.isValid
+													? ""
+													: "opacity-50 pointer-events-none"
+											}`}
+										>
 											<Upload />
 										</div>
 									</CommentDialog>

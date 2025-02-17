@@ -72,7 +72,7 @@ async function createQuoteInformation(
 			1: quoteInformation.serial,
 			2: quoteInformation.project,
 			3: "aprobarla o rechazarla",
-			4: `https://localhost:3000/renders/confirmation/${quoteInformation.id}?role=VALIDATOR`,
+			4: `https://localhost:3000/renders/confirmation/${quoteInformation.id}`,
 		});
 	} catch (error) {
 		console.error("Error in createQuoteInformation:", error);
@@ -169,11 +169,7 @@ async function createQuote(
 					? "acutalizarla"
 					: "verificarla",
 
-			4: `https://localhost:3000/renders/confirmation/${quoteInfoId}?role=${
-				data.createdByRole == Role.VALIDATOR
-					? "PETITIONER"
-					: "VALIDATOR"
-			}`,
+			4: `https://localhost:3000/renders/confirmation/${quoteInfoId}`,
 		});
 
 		return { success: true, quote: newQuote };
