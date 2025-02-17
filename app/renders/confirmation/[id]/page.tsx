@@ -22,6 +22,7 @@ import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 import { useSession } from "next-auth/react";
 import Loading from "@/components/Loading";
+import CommentDialog from "@/app/components/CommentDialog";
 
 export default function Confirmation() {
 	const { id } = useParams();
@@ -143,16 +144,12 @@ export default function Confirmation() {
 			setQuote(quoteInformation.quote);
 
 			const transformedData = {
-				approvalContact: quoteInformation.approvalContact,
-				requestContact: quoteInformation.requestContact,
+				...quoteInformation,
 				date: quoteInformation.createdAt.toISOString().split("T")[0],
-				company: quoteInformation.company,
-				createdByRole: quoteInformation.quote.createdByRole,
+				createdByRole: role,
+				comment: "",
 				entries: quoteInformation.entries.map((entry) => ({
-					name: entry.name,
-					sizes: entry.sizes,
-					concept: entry.concept,
-					range: entry.range,
+					...entry,
 					unitaryPrice: entry.unitaryPrice ?? 0,
 					unitaryCost: entry.unitaryCost ?? 0,
 					image: null,
@@ -196,6 +193,13 @@ export default function Confirmation() {
 		);
 	}
 
+	const handleUpload = async () => {
+		const result = RenderUploadSchema.safeParse(form.getValues());
+		if (result.success) {
+			await onSubmitUpdate(form.getValues());
+		}
+	};
+
 	return (
 		<>
 			{registered && quoteInformation ? (
@@ -224,44 +228,48 @@ export default function Confirmation() {
 								<div className="flex gap-2">
 									{quote?.createdByRole !== role && (
 										<>
-											{role === Role.PETITIONER && (
-												<button
-													className={`cursor-pointer bg-gray-800/90 text-white rounded-md hover:bg-gray-700/90 gap-2 p-1 px-2 transition flex justify-center items-center text-xl ${
-														form.formState.isValid
-															? ""
-															: "opacity-50 pointer-events-none"
-													}`}
+											{role !== Role.VALIDATOR ? (
+												<CommentDialog
+													form={form}
+													disabled={disabled}
+													upload={handleUpload}
 												>
-													<RefreshCw />
-													Actualizar
-												</button>
-											)}
-											{role === Role.VALIDATOR && (
-												<>
-													<button
+													<div
 														className={`cursor-pointer bg-gray-800/90 text-white rounded-md hover:bg-gray-700/90 gap-2 p-1 px-2 transition flex justify-center items-center text-xl ${
 															form.formState
 																.isValid
 																? ""
 																: "opacity-50 pointer-events-none"
 														}`}
-														type="submit"
 													>
-														<Undo />
-														Rechazar
-													</button>
-													<div
-														className={
-															"cursor-pointer bg-gray-800/90 text-white rounded-md hover:bg-gray-700/90 gap-2 p-1 px-2 transition flex justify-center items-center text-xl"
-														}
-														onClick={() => {
-															onSubmitFinalize();
-														}}
-													>
-														<CheckCheck />
-														Finalizar
+														<RefreshCw />
+														Actualizar
 													</div>
-												</>
+												</CommentDialog>
+											) : (
+												<div
+													className={`cursor-pointer bg-gray-800/90 text-white rounded-md hover:bg-gray-700/90 gap-2 p-1 px-2 transition flex justify-center items-center text-xl ${
+														form.formState.isValid
+															? ""
+															: "opacity-50 pointer-events-none"
+													}`}
+												>
+													<Undo />
+													Rechazar
+												</div>
+											)}
+											{role === Role.VALIDATOR && (
+												<div
+													className={
+														"cursor-pointer bg-gray-800/90 text-white rounded-md hover:bg-gray-700/90 gap-2 p-1 px-2 transition flex justify-center items-center text-xl"
+													}
+													onClick={() => {
+														onSubmitFinalize();
+													}}
+												>
+													<CheckCheck />
+													Finalizar
+												</div>
 											)}
 										</>
 									)}

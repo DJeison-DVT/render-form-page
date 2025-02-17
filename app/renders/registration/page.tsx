@@ -15,7 +15,6 @@ import { useToast } from "@/hooks/use-toast";
 import Registered from "@/app/components/Registered";
 import { useSession } from "next-auth/react";
 import CommentDialog from "@/app/components/CommentDialog";
-import { Button } from "@/components/ui/button";
 
 export default function Home() {
 	const [canContinue, setCanContinue] = useState(false);
@@ -24,7 +23,6 @@ export default function Home() {
 	const [disabled, setDisabled] = useState(false);
 	const [registered, setRegistered] = useState(false);
 	const [company, setCompany] = useState("");
-	const [commentDialog, setCommentDialog] = useState(false);
 
 	const fullfilledTab = () => {
 		setCanContinue(true);
@@ -141,7 +139,11 @@ export default function Home() {
 										form={form}
 										upload={handleUpload}
 										disabled={disabled}
-									/>
+									>
+										<div className="cursor-pointer bg-gray-800/90 text-white rounded-full hover:bg-gray-700/90 transition w-12 h-12 flex justify-center items-center text-xl">
+											<Upload />
+										</div>
+									</CommentDialog>
 								)}
 								<div
 									onClick={handlePreviousSlide}

@@ -22,6 +22,7 @@ interface CommentDialogProps {
 	form: UseFormReturn<z.infer<typeof RenderUploadSchema>>;
 	upload: () => void;
 	disabled: boolean;
+	children: ReactNode;
 }
 
 export default function CommentDialog({
@@ -29,6 +30,7 @@ export default function CommentDialog({
 	rejection,
 	upload,
 	disabled,
+	children,
 }: CommentDialogProps) {
 	return (
 		<Dialog>
@@ -40,7 +42,7 @@ export default function CommentDialog({
 							: "opacity-50 pointer-events-none"
 					}`}
 				>
-					<Upload />
+					{children}
 				</div>
 			</DialogTrigger>
 			<DialogContent>
