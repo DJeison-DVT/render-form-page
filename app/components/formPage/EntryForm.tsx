@@ -34,6 +34,8 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
 import PushableComponent from "@/components/ui/pushableComponent";
+import { useSession } from "next-auth/react";
+import Loading from "@/components/Loading";
 
 function EntryForm({
 	form,
@@ -51,6 +53,11 @@ function EntryForm({
 	modal?: boolean;
 }) {
 	const [isModalOpen, setIsModalOpen] = useState(false);
+	const { data: session } = useSession();
+
+	if (!session) {
+		return <Loading />;
+	}
 
 	const content = (
 		<>
@@ -213,6 +220,24 @@ function EntryForm({
 						/>
 						<FormField
 							control={form.control}
+							name={`entries.${index}.unitaryCost`}
+							render={({ field }) => (
+								<FormItem>
+									{index == 0 && <FormLabel>Total</FormLabel>}
+									<FormControl>
+										<Input
+											disabled={true}
+											type="number"
+											className="w-24"
+											{...field}
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+						<FormField
+							control={form.control}
 							name={`entries.${index}.unitaryPrice`}
 							render={({ field }) => (
 								<FormItem>
@@ -223,8 +248,8 @@ function EntryForm({
 										<Input
 											disabled={disabled}
 											type="number"
+											className="w-24"
 											{...field}
-											placeholder="Precio Unitario"
 										/>
 									</FormControl>
 									<FormMessage />

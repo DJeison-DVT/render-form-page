@@ -33,6 +33,7 @@ model Quote {
   id            Int       @id @default(autoincrement())
   createdAt     DateTime  @default(now()) @db.Timestamp(6)
   rejectedAt    DateTime?
+  comment       String?
   createdByRole Role
 
   quoteInformationId String
@@ -41,13 +42,16 @@ model Quote {
 }
 
 model Entry {
-  id           Int     @id @default(autoincrement())
-  imageUrl     String?
-  name         String
-  sizes        String
-  concept      String
-  range        String
-  unitaryPrice Float?
+  id              Int     @id @default(autoincrement())
+  imageUrl        String?
+  name            String
+  material        String
+  materialSubtype String
+  sizes           String
+  concept         String
+  range           String
+  unitaryCost     Float?
+  unitaryPrice    Float?
 
   quoteId Int
   quote   Quote @relation(fields: [quoteId], references: [id], onDelete: Cascade)

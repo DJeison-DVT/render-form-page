@@ -20,12 +20,19 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
+import { useSession } from "next-auth/react";
+import Loading from "@/components/Loading";
 
 export default function Confirmation() {
 	const { id } = useParams();
 
 	if (!id || Array.isArray(id)) {
 		return <div>Error: ID invalido</div>;
+	}
+
+	const { data: session } = useSession();
+	if (!session) {
+		return <Loading />;
 	}
 
 	const searchParams = useSearchParams();
@@ -44,7 +51,7 @@ export default function Confirmation() {
 
 	const form = useForm<z.infer<typeof RenderUploadSchema>>({
 		resolver: zodResolver(RenderUploadSchema),
-		defaultValues: initializeRenderUpload(),
+		defaultValues: initializeRenderUpload(session.user.phone),
 	});
 
 	const {
@@ -147,6 +154,7 @@ export default function Confirmation() {
 					concept: entry.concept,
 					range: entry.range,
 					unitaryPrice: entry.unitaryPrice ?? 0,
+					unitaryCost: entry.unitaryCost ?? 0,
 					image: null,
 				})),
 			};

@@ -24,9 +24,17 @@ export const EntrySchema = z.object({
 		z.null(),
 	]),
 	name: z.string().min(1, "El nombre no puede estar vacío."),
+	material: z.string().min(1, "El material no puede estar vacío."),
+	materialSubtype: z
+		.string()
+		.min(1, "El subtipo de material no puede estar vacío."),
 	sizes: z.string().min(1, "Las dimensiones no pueden estar vacías."),
 	concept: z.string().min(1, "El concepto no puede estar vacío."),
 	unitaryPrice: z.preprocess(
+		(val) => (val === "" ? 0 : Number(val)),
+		z.number().nonnegative().optional()
+	),
+	unitaryCost: z.preprocess(
 		(val) => (val === "" ? 0 : Number(val)),
 		z.number().nonnegative().optional()
 	),
@@ -48,6 +56,7 @@ export const RenderUploadSchema = z.object({
 	brand: z.string().nonempty(),
 	project: z.string().nonempty(),
 	serial: z.string().nonempty(),
+	comment: z.string().optional(),
 });
 
 export const EntryUpdateSchema = z.object({
@@ -59,7 +68,10 @@ export function initializeEntry() {
 		name: "",
 		sizes: "",
 		concept: "",
+		material: "",
+		materialSubtype: "",
 		unitaryPrice: 0,
+		unitaryCost: 0,
 		range: "",
 		image: null,
 	};

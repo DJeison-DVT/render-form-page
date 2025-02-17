@@ -94,7 +94,12 @@ export default function QuoteTable({
 								<TableCell>{entry.range}</TableCell>
 								<TableCell>
 									{entry.unitaryPrice !== null
-										? `$${entry.unitaryPrice.toFixed(2)}`
+										? formatCurrencyMXN(entry.unitaryPrice)
+										: "N/A"}
+								</TableCell>
+								<TableCell>
+									{entry.unitaryCost !== null
+										? formatCurrencyMXN(entry.unitaryCost)
 										: "N/A"}
 								</TableCell>
 							</TableRow>
@@ -105,3 +110,10 @@ export default function QuoteTable({
 		</div>
 	);
 }
+
+const formatCurrencyMXN = (value: number) => {
+	return new Intl.NumberFormat("es-MX", {
+		style: "currency",
+		currency: "MXN",
+	}).format(value);
+};
