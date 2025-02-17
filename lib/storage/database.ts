@@ -4,6 +4,7 @@ import { RenderUploadSchema } from "@/app/Schemas";
 import { prisma } from "@/lib/prisma";
 import { Role } from "@prisma/client";
 import { z } from "zod";
+import { sendMessage } from "../messaging";
 
 const upsertImage = async (image: string) => {};
 
@@ -39,13 +40,17 @@ async function createQuoteInformation(
 					create: {
 						createdByRole: validData.createdByRole,
 						createdAt: new Date(),
+						comment: validData.comment || "",
 						entries: {
 							create: validData.entries.map((entry) => ({
 								concept: entry.concept,
 								name: entry.name,
 								range: entry.range,
 								sizes: entry.sizes,
+								material: entry.material,
+								materialSubtype: entry.materialSubtype,
 								unitaryPrice: entry.unitaryPrice,
+								unitaryCost: entry.unitaryCost,
 								imageUrl: entry.image,
 							})),
 						},
@@ -60,6 +65,11 @@ async function createQuoteInformation(
 				},
 			},
 		});
+
+		const message = `Cotización creada con folio ${quoteInformation.serial} del proyecto ${quoteInformation.project}\n
+		Para aprobarla o rechazarla, ingresa a la plataforma de cotizaciones con la siguiente liga: https://localhost:3000/renders/confirmation/${quoteInformation.id}?role=VALIDATOR`;
+
+		await sendMessage(quoteInformation.approvalContact, message);
 	} catch (error) {
 		console.error("Error in createQuoteInformation:", error);
 		throw new Error("Error al crear la cotización");
@@ -126,9 +136,12 @@ async function createQuote(
 						create: validData.entries.map((entry) => ({
 							name: entry.name,
 							sizes: entry.sizes,
+							material: entry.material,
+							materialSubtype: entry.materialSubtype,
 							concept: entry.concept,
 							range: entry.range,
 							unitaryPrice: entry.unitaryPrice,
+							unitaryCost: entry.unitaryCost,
 							imageUrl: entry.image,
 						})),
 					},
@@ -138,6 +151,24 @@ async function createQuote(
 				},
 			}),
 		]);
+
+		const message = `La cotización con folio ${data.serial} del proyecto ${
+			data.project
+		} ha sido actualizada\n
+		Para ${
+			data.createdByRole == Role.SUPERVISOR
+				? "acutalizarla"
+				: "verificarla"
+		}, ingresa a la plataforma de cotizaciones con la siguiente liga: https://localhost:3000/renders/confirmation/${rejectedQuoteId}?role=${
+			data.createdByRole == Role.VALIDATOR ? "PETITIONER" : "VALIDATOR"
+		}`;
+
+		await sendMessage(
+			data.createdByRole == Role.VALIDATOR
+				? data.requestContact
+				: data.approvalContact,
+			message
+		);
 
 		return { success: true, quote: newQuote };
 	} catch (error) {
