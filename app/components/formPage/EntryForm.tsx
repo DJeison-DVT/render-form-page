@@ -190,7 +190,7 @@ function EntryForm({
 									<FormControl>
 										<Input
 											disabled={disabled}
-											placeholder="22cm x 33cm x 40cm"
+											placeholder="300mm"
 											{...field}
 										/>
 									</FormControl>

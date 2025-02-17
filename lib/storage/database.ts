@@ -6,6 +6,8 @@ import { Role } from "@prisma/client";
 import { z } from "zod";
 import { sendMessage } from "../messaging";
 
+const MESSAGE_TEMPLATE = "HXfc4ad24055c6b81e14f92714ecc222a0";
+
 const upsertImage = async (image: string) => {};
 
 async function createQuoteInformation(
@@ -66,10 +68,12 @@ async function createQuoteInformation(
 			},
 		});
 
-		const message = `Cotización creada con folio ${quoteInformation.serial} del proyecto ${quoteInformation.project}\n
-		Para aprobarla o rechazarla, ingresa a la plataforma de cotizaciones con la siguiente liga: https://localhost:3000/renders/confirmation/${quoteInformation.id}?role=VALIDATOR`;
-
-		await sendMessage(quoteInformation.approvalContact, message);
+		await sendMessage(quoteInformation.approvalContact, MESSAGE_TEMPLATE, {
+			1: quoteInformation.serial,
+			2: quoteInformation.project,
+			3: "aprobarla o rechazarla",
+			4: `https://localhost:3000/renders/confirmation/${quoteInformation.id}?role=VALIDATOR`,
+		});
 	} catch (error) {
 		console.error("Error in createQuoteInformation:", error);
 		throw new Error("Error al crear la cotización");
@@ -152,23 +156,25 @@ async function createQuote(
 			}),
 		]);
 
-		const message = `La cotización con folio ${data.serial} del proyecto ${
-			data.project
-		} ha sido actualizada\n
-		Para ${
-			data.createdByRole == Role.SUPERVISOR
-				? "acutalizarla"
-				: "verificarla"
-		}, ingresa a la plataforma de cotizaciones con la siguiente liga: https://localhost:3000/renders/confirmation/${rejectedQuoteId}?role=${
-			data.createdByRole == Role.VALIDATOR ? "PETITIONER" : "VALIDATOR"
-		}`;
-
-		await sendMessage(
+		const target =
 			data.createdByRole == Role.VALIDATOR
 				? data.requestContact
-				: data.approvalContact,
-			message
-		);
+				: data.approvalContact;
+
+		await sendMessage(target, MESSAGE_TEMPLATE, {
+			1: data.serial,
+			2: data.project,
+			3:
+				data.createdByRole == Role.SUPERVISOR
+					? "acutalizarla"
+					: "verificarla",
+
+			4: `https://localhost:3000/renders/confirmation/${rejectedQuoteId}?role=${
+				data.createdByRole == Role.VALIDATOR
+					? "PETITIONER"
+					: "VALIDATOR"
+			}`,
+		});
 
 		return { success: true, quote: newQuote };
 	} catch (error) {
