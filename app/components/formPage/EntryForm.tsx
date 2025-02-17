@@ -82,7 +82,7 @@ function EntryForm({
 			</div>
 			<div className="overflow-y-auto flex-grow">
 				{form.getValues().entries.map((entry, index) => (
-					<div key={index} className="p-2 flex gap-4">
+					<div key={index} className="p-2 flex gap-4 relative">
 						<FormField
 							control={form.control}
 							name={`entries.${index}.image`}
@@ -162,6 +162,44 @@ function EntryForm({
 						/>
 						<FormField
 							control={form.control}
+							name={`entries.${index}.material`}
+							render={({ field }) => (
+								<FormItem>
+									{index == 0 && (
+										<FormLabel>Materia Prima</FormLabel>
+									)}
+									<FormControl>
+										<Input
+											disabled={disabled}
+											placeholder="Madera"
+											{...field}
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+						<FormField
+							control={form.control}
+							name={`entries.${index}.materialSubtype`}
+							render={({ field }) => (
+								<FormItem>
+									{index == 0 && (
+										<FormLabel>Subtipo</FormLabel>
+									)}
+									<FormControl>
+										<Input
+											disabled={disabled}
+											placeholder="22cm x 33cm x 40cm"
+											{...field}
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+						<FormField
+							control={form.control}
 							name={`entries.${index}.sizes`}
 							render={({ field }) => (
 								<FormItem>
@@ -211,6 +249,8 @@ function EntryForm({
 										<Input
 											disabled={disabled}
 											placeholder="Piezas"
+											className="w-24"
+											type="number"
 											{...field}
 										/>
 									</FormControl>
@@ -223,10 +263,12 @@ function EntryForm({
 							name={`entries.${index}.unitaryCost`}
 							render={({ field }) => (
 								<FormItem>
-									{index == 0 && <FormLabel>Total</FormLabel>}
+									{index == 0 && (
+										<FormLabel>Costo Unitario</FormLabel>
+									)}
 									<FormControl>
 										<Input
-											disabled={true}
+											disabled={disabled}
 											type="number"
 											className="w-24"
 											{...field}
@@ -256,7 +298,7 @@ function EntryForm({
 								</FormItem>
 							)}
 						/>
-						<div className="flex justify-around items-end gap-2 m-2">
+						<div className="flex justify-around items-end gap-2 m-2 absolute right-0 bottom-0">
 							<TooltipProvider disableHoverableContent={disabled}>
 								<Tooltip>
 									<TooltipTrigger

@@ -86,6 +86,7 @@ export function initializeRenderUpload(phone: string) {
 		company: "",
 		createdByRole: Role.PETITIONER,
 		client: "",
+		comment: "",
 		brand: "",
 		project: "",
 		serial: "",

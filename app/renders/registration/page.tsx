@@ -14,6 +14,8 @@ import { createQuoteInformation } from "@/lib/storage/database";
 import { useToast } from "@/hooks/use-toast";
 import Registered from "@/app/components/Registered";
 import { useSession } from "next-auth/react";
+import CommentDialog from "@/app/components/CommentDialog";
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
 	const [canContinue, setCanContinue] = useState(false);
@@ -22,6 +24,7 @@ export default function Home() {
 	const [disabled, setDisabled] = useState(false);
 	const [registered, setRegistered] = useState(false);
 	const [company, setCompany] = useState("");
+	const [commentDialog, setCommentDialog] = useState(false);
 
 	const fullfilledTab = () => {
 		setCanContinue(true);
@@ -109,6 +112,13 @@ export default function Home() {
 		setCanContinue(false);
 	};
 
+	const handleUpload = async () => {
+		const result = RenderUploadSchema.safeParse(form.getValues());
+		if (result.success) {
+			await onSubmit(form.getValues());
+		}
+	};
+
 	return (
 		<>
 			{registered ? (
@@ -127,17 +137,12 @@ export default function Home() {
 						<div className="fixed bottom-4 right-4 flex justify-end gap-4">
 							<div className="flex flex-col space-y-2">
 								{currentSlide > 1 && (
-									<button
-										className={`cursor-pointer bg-gray-800/90 text-white rounded-full hover:bg-gray-700/90 transition w-12 h-12 flex justify-center items-center text-xl ${
-											form.formState.isValid
-												? ""
-												: "opacity-50 pointer-events-none"
-										}`}
-									>
-										<Upload />
-									</button>
+									<CommentDialog
+										form={form}
+										upload={handleUpload}
+										disabled={disabled}
+									/>
 								)}
-
 								<div
 									onClick={handlePreviousSlide}
 									className={`cursor-pointer bg-gray-800/90 text-white rounded-full hover:bg-gray-700/90 transition w-12 h-12 flex justify-center items-center text-xl ${
@@ -148,7 +153,6 @@ export default function Home() {
 								>
 									<ChevronUp />
 								</div>
-
 								<div
 									onClick={handleNextSlide}
 									className={`cursor-pointer bg-gray-800/90 text-white rounded-full hover:bg-gray-700/90 transition w-12 h-12 flex justify-center items-center text-xl ${
