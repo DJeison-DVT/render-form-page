@@ -169,7 +169,7 @@ async function createQuote(
 					? "acutalizarla"
 					: "verificarla",
 
-			4: `https://localhost:3000/renders/confirmation/${rejectedQuoteId}?role=${
+			4: `https://localhost:3000/renders/confirmation/${quoteInfoId}?role=${
 				data.createdByRole == Role.VALIDATOR
 					? "PETITIONER"
 					: "VALIDATOR"

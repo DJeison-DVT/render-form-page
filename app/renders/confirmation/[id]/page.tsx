@@ -228,36 +228,26 @@ export default function Confirmation() {
 								<div className="flex gap-2">
 									{quote?.createdByRole !== role && (
 										<>
-											{role !== Role.VALIDATOR ? (
-												<CommentDialog
-													form={form}
-													disabled={disabled}
-													upload={handleUpload}
-												>
-													<div
-														className={`cursor-pointer bg-gray-800/90 text-white rounded-md hover:bg-gray-700/90 gap-2 p-1 px-2 transition flex justify-center items-center text-xl ${
-															form.formState
-																.isValid
-																? ""
-																: "opacity-50 pointer-events-none"
-														}`}
-													>
+											<CommentDialog
+												form={form}
+												disabled={disabled}
+												upload={handleUpload}
+												rejection={
+													role === Role.VALIDATOR
+												}
+											>
+												{role !== Role.VALIDATOR ? (
+													<div>
 														<RefreshCw />
 														Actualizar
 													</div>
-												</CommentDialog>
-											) : (
-												<div
-													className={`cursor-pointer bg-gray-800/90 text-white rounded-md hover:bg-gray-700/90 gap-2 p-1 px-2 transition flex justify-center items-center text-xl ${
-														form.formState.isValid
-															? ""
-															: "opacity-50 pointer-events-none"
-													}`}
-												>
-													<Undo />
-													Rechazar
-												</div>
-											)}
+												) : (
+													<div>
+														<Undo />
+														Rechazar
+													</div>
+												)}
+											</CommentDialog>
 											{role === Role.VALIDATOR && (
 												<div
 													className={
