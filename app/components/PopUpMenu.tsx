@@ -7,6 +7,9 @@ import { SignOut } from "@/components/auth/signout-button";
 import { auth } from "@/lib/auth";
 import { AlignJustify } from "lucide-react";
 import EmailForm from "./EmailForm";
+import { Separator } from "@/components/ui/separator";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 interface PopUpMenuProps {
 	onSubmit: () => void;
@@ -34,6 +37,18 @@ export default async function PopUpMenu() {
 
 					<p>{user.phone}</p>
 					{user.email ? <p>{user.email}</p> : <EmailForm />}
+				</div>
+				<Separator />
+				<div className="flex flex-col items-center py-2">
+					<Button variant="link">
+						<Link href="/renders/dashboard">Dashboard</Link>
+					</Button>
+					<Button variant="link">
+						<Link href="/renders/registration">Registro</Link>
+					</Button>
+				</div>
+				<div className="pb-2">
+					<Separator />
 				</div>
 				<SignOut />
 			</PopoverContent>
