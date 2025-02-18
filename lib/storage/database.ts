@@ -1,6 +1,6 @@
 "use server";
 
-import { RenderUploadSchema } from "@/app/Schemas";
+import { EmailSchema, RenderUploadSchema } from "@/app/Schemas";
 import { prisma } from "@/lib/prisma";
 import { Role } from "@prisma/client";
 import { z } from "zod";
@@ -210,10 +210,24 @@ async function getClients() {
 	}
 }
 
+async function updateEmail(phone: string, values: z.infer<typeof EmailSchema>) {
+	try {
+		await prisma.user.update({
+			where: { phone },
+			data: {
+				email: values.email,
+			},
+		});
+	} catch (error) {
+		throw new Error("Error al actualizar el email");
+	}
+}
+
 export {
 	createQuoteInformation,
 	getQuoteInformation,
 	createQuote,
 	finalizeQuote,
 	getClients,
+	updateEmail,
 };

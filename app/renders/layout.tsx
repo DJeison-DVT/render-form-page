@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { SessionProvider } from "next-auth/react";
-import { SignOut } from "@/components/auth/signout-button";
+import PopUpMenu from "@/app/components/PopUpMenu";
 
 export default async function DashboardLayout({
 	children,
@@ -16,8 +16,8 @@ export default async function DashboardLayout({
 
 	return (
 		<SessionProvider session={session}>
-			<div className="fixed bottom-4 left-4 flex justify-start gap-4">
-				<SignOut />
+			<div className="fixed top-4 left-4">
+				<PopUpMenu />
 			</div>
 			<main>{children}</main>
 		</SessionProvider>

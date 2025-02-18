@@ -97,6 +97,7 @@ model User {
   id       String    @id @default(cuid())
   name     String?
   phone    String    @unique
+  email    String?   @unique
   image    String?
   role     String    @default("USER")
   password String?

@@ -63,6 +63,10 @@ export const EntryUpdateSchema = z.object({
 	entries: z.array(EntrySchema),
 });
 
+export const EmailSchema = z.object({
+	email: z.string().email(),
+});
+
 export function initializeEntry() {
 	return {
 		name: "",

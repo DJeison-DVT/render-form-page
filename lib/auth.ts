@@ -22,12 +22,14 @@ declare module "next-auth" {
 		user: {
 			role: string;
 			phone: string;
+			email?: string;
 		} & DefaultSession["user"];
 	}
 
 	interface User {
 		role: string;
 		phone: string;
+		email?: string | null;
 	}
 }
 
@@ -35,6 +37,7 @@ declare module "next-auth/jwt" {
 	interface JWT {
 		role: string;
 		phone: string;
+		email?: string;
 	}
 }
 
@@ -59,10 +62,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 				let user = await prisma.user.findUnique({
 					where: { phone },
 				});
-
 				if (!user) {
-					user = await registerUser(phone, password);
-					// throw new Error("User not found");
+					// user = await registerUser(phone, password);
+					throw new Error("User not found");
 				}
 
 				if (!user.password) {
@@ -81,9 +83,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 					id: user.id,
 					phone: user.phone,
 					role: user.role,
+					email: user.email,
 				};
-
-				console.log("user data", userData);
 
 				return userData;
 			},
@@ -94,6 +95,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 			if (user) {
 				token.role = user.role;
 				token.phone = user.phone;
+				token.email = user.email || "";
 			}
 			return token;
 		},
@@ -101,6 +103,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 			if (session?.user) {
 				session.user.role = token.role;
 				session.user.phone = token.phone;
+				session.user.email = token.email || "";
 			}
 			return session;
 		},
