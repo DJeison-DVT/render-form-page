@@ -265,6 +265,29 @@ async function getPendingQuotes(phone: string, userRole: Role) {
 	}
 }
 
+async function getCompleteQuotes(phone: string) {
+	try {
+		const quoteInformations = await prisma.quoteInformation.findMany({
+			where: {
+				OR: [{ requestContact: phone }, { approvalContact: phone }],
+				finalizedAt: { not: null },
+			},
+			include: {
+				quotes: {
+					include: {
+						entries: true,
+					},
+				},
+			},
+		});
+
+		return { success: true, quoteInformations };
+	} catch (error) {
+		console.error("Error in getCompleteQuotes:", error);
+		throw new Error("Error al obtener las cotizaciones");
+	}
+}
+
 export {
 	createQuoteInformation,
 	getQuoteInformation,
@@ -273,4 +296,5 @@ export {
 	getClients,
 	updateEmail,
 	getPendingQuotes,
+	getCompleteQuotes,
 };

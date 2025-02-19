@@ -1,10 +1,9 @@
 import { auth } from "@/lib/auth";
-import { getPendingQuotes } from "@/lib/storage/database";
-import { Role } from "@prisma/client";
-import QuoteCard from "./components/QuoteCard";
+import { getCompleteQuotes } from "@/lib/storage/database";
+import QuoteCard from "../components/QuoteCard";
 import { QuoteInformationWithQuotes } from "@/lib/types";
+import { MoveLeft } from "lucide-react";
 import Link from "next/link";
-import { History } from "lucide-react";
 
 export default async function Dashboard() {
 	const session = await auth();
@@ -13,10 +12,7 @@ export default async function Dashboard() {
 		return null;
 	}
 
-	const result = await getPendingQuotes(
-		session.user.phone,
-		session.user.role as Role
-	);
+	const result = await getCompleteQuotes(session.user.phone);
 	if (!result.success) {
 		return null;
 	}
@@ -26,20 +22,19 @@ export default async function Dashboard() {
 	return (
 		<div className="h-screen flex flex-col justify-start items-center max-w-[80vw] mx-auto pt-[5vh] overflow-y-auto relative">
 			<div className="absolute top-0 right-0 py-8">
-				<Link href="/renders/dashboard/history">
+				<Link href="/renders/dashboard">
 					<div className="hover:bg-slate-200 rounded-lg transition-colors duration-200 cursor-pointer p-2">
-						<History size={32} />
+						<MoveLeft size={32} />
 					</div>
 				</Link>
 			</div>
-
-			<div className="text-3xl p-4">Cotizaciones pendientes</div>
+			<div className="text-3xl p-4">Cotizaciones Completadas</div>
 			<div className="flex flex-col items-center gap-4">
 				{quoteInformations.length > 0 &&
 					quoteInformations.map((quoteInformation) => (
 						<QuoteCard
 							quoteInformation={quoteInformation}
-							link={`/renders/confirmation/${quoteInformation.id}`}
+							link={`/renders/history/${quoteInformation.id}`}
 						/>
 					))}
 			</div>

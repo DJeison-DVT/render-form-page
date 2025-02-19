@@ -4,16 +4,14 @@ import Link from "next/link";
 
 interface QuoteCardProps {
 	quoteInformation: QuoteInformationWithQuotes;
+	link: string;
 }
 
-export default function QuoteCard({ quoteInformation }: QuoteCardProps) {
+export default function QuoteCard({ quoteInformation, link }: QuoteCardProps) {
 	const quote = quoteInformation.quotes[0];
 	const entriesLength = quote.entries.length;
 	return (
-		<Link
-			key={quoteInformation.id}
-			href={`/renders/confirmation/${quoteInformation.id}`}
-		>
+		<Link key={quoteInformation.id} href={link}>
 			<div className="flex justify-between items-center p-4 w-[900px] border-2 rounded-md border-gray-300 text-lg">
 				<div className="flex min-w-80">
 					<CompanyImage
