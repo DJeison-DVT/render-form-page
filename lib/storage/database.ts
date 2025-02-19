@@ -223,6 +223,48 @@ async function updateEmail(phone: string, values: z.infer<typeof EmailSchema>) {
 	}
 }
 
+async function getPendingQuotes(phone: string, userRole: Role) {
+	try {
+		const quoteInformations = await prisma.quoteInformation.findMany({
+			where: {
+				OR: [{ requestContact: phone }, { approvalContact: phone }],
+				finalizedAt: null,
+			},
+			include: {
+				quotes: {
+					include: {
+						entries: true,
+					},
+					orderBy: {
+						createdAt: "desc",
+					},
+					take: 1,
+				},
+			},
+		});
+
+		if (
+			userRole === "SUPERVISOR" ||
+			(userRole !== "VALIDATOR" && userRole !== "PETITIONER")
+		) {
+			return { success: true, quoteInformations };
+		}
+
+		const oppositeRole =
+			userRole === "PETITIONER" ? "VALIDATOR" : "PETITIONER";
+
+		const filteredQuotes = quoteInformations.filter(
+			(quoteInformation) =>
+				quoteInformation.quotes[0].createdByRole === oppositeRole
+		);
+
+		return { success: true, quoteInformations: filteredQuotes };
+	} catch (error) {
+		console.error("Error in getPendingQuotes:", error);
+		throw new Error("Error al obtener las cotizaciones");
+	}
+}
+
 export {
 	createQuoteInformation,
 	getQuoteInformation,
@@ -230,4 +272,5 @@ export {
 	finalizeQuote,
 	getClients,
 	updateEmail,
+	getPendingQuotes,
 };

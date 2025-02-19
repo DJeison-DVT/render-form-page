@@ -99,7 +99,7 @@ model User {
   phone    String    @unique
   email    String?   @unique
   image    String?
-  role     String    @default("USER")
+  role     Role      @default(PETITIONER)
   password String?
   accounts Account[]
   sessions Session[]
