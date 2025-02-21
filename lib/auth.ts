@@ -22,14 +22,13 @@ declare module "next-auth" {
 		user: {
 			role: string;
 			phone: string;
-			email?: string;
+			email: string;
 		} & DefaultSession["user"];
 	}
 
 	interface User {
 		role: string;
 		phone: string;
-		email?: string | null;
 	}
 }
 
@@ -37,7 +36,7 @@ declare module "next-auth/jwt" {
 	interface JWT {
 		role: string;
 		phone: string;
-		email?: string;
+		email: string;
 	}
 }
 
@@ -103,7 +102,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 			if (session?.user) {
 				session.user.role = token.role;
 				session.user.phone = token.phone;
-				session.user.email = token.email || "";
+				session.user.email = token.email;
 			}
 			return session;
 		},

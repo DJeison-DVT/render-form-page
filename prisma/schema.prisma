@@ -97,7 +97,7 @@ model User {
   id       String    @id @default(cuid())
   name     String?
   phone    String    @unique
-  email    String?   @unique
+  email    String    @unique
   image    String?
   role     Role      @default(PETITIONER)
   password String?

@@ -6,7 +6,6 @@ import {
 import { SignOut } from "@/components/auth/signout-button";
 import { auth } from "@/lib/auth";
 import { AlignJustify } from "lucide-react";
-import EmailForm from "./EmailForm";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -34,9 +33,8 @@ export default async function PopUpMenu() {
 					<p className="">
 						{user.role === "VALIDATOR" ? "VALIDADOR" : "USUARIO"}
 					</p>
-
 					<p>{user.phone}</p>
-					{user.email ? <p>{user.email}</p> : <EmailForm />}
+					<p>{user.email}</p>
 				</div>
 				<Separator />
 				<div className="flex flex-col items-center py-2">
