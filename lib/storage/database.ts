@@ -80,7 +80,7 @@ async function createQuoteInformation(
 	}
 }
 
-async function getQuoteInformation(id: string) {
+async function getQuoteInformation(id: string, single = false) {
 	try {
 		const quoteInformation = await prisma.quoteInformation.findUnique({
 			where: {
@@ -94,7 +94,7 @@ async function getQuoteInformation(id: string) {
 					orderBy: {
 						createdAt: "desc",
 					},
-					take: 1,
+					...(single && { take: 1 }),
 				},
 			},
 		});

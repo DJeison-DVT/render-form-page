@@ -115,7 +115,7 @@ export default function Confirmation() {
 		}
 
 		try {
-			const response = await getQuoteInformation(id);
+			const response = await getQuoteInformation(id, true);
 
 			if (!response || !response.success) {
 				setLoading(false);
@@ -212,6 +212,7 @@ export default function Confirmation() {
 									quoteInformation={quoteInformation}
 								/>
 							)}
+							<div>{quote?.comment}</div>
 							<div className="flex justify-center">
 								<div className="w-fit">
 									<EntryForm
