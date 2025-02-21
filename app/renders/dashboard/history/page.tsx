@@ -33,6 +33,7 @@ export default async function Dashboard() {
 				{quoteInformations.length > 0 &&
 					quoteInformations.map((quoteInformation) => (
 						<QuoteCard
+							key={quoteInformation.id}
 							quoteInformation={quoteInformation}
 							link={`/renders/history/${quoteInformation.id}`}
 						/>
