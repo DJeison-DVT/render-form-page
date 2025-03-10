@@ -8,8 +8,11 @@ import { sendMessage } from "../messaging";
 import { savePDF } from "./gcloud";
 
 const MESSAGE_TEMPLATE = "HX92dca13fd40b55ff25d9e3ffa3e10429";
+const APP_URL = process.env.APP_URL;
 
-const upsertImage = async (image: string) => {};
+const upsertImage = async (image: string) => {
+	return "";
+};
 
 async function createQuoteInformation(
 	data: z.infer<typeof ProposalUploadSchema>
@@ -64,7 +67,7 @@ async function createQuoteInformation(
 			await sendMessage(provider.phone, MESSAGE_TEMPLATE, {
 				1: quoteInformation.serial,
 				2: quoteInformation.project,
-				3: `http://localhost:3000/renders/confirmation/${quoteInformation.id}`,
+				3: `${APP_URL}/renders/confirmation/${quoteInformation.id}`,
 			});
 		}
 	} catch (error) {
@@ -151,6 +154,12 @@ async function getQuoteInformation(id: string, single = false) {
 			},
 			include: {
 				quotes: {
+					where: {
+						OR: [
+							{ providerQuotesUserId: null },
+							{ providerQuotesQuoteInformationId: null },
+						],
+					},
 					include: {
 						entries: true,
 					},
@@ -171,8 +180,9 @@ async function getQuoteInformation(id: string, single = false) {
 
 async function createQuote(
 	quoteInfoId: string,
-	rejectedQuoteId: number,
-	data: z.infer<typeof RenderUploadSchema>
+	data: z.infer<typeof RenderUploadSchema>,
+	rejectedQuoteId?: number,
+	link?: string
 ) {
 	const parsedData = RenderUploadSchema.safeParse(data);
 
@@ -182,12 +192,14 @@ async function createQuote(
 	}
 
 	const validData = parsedData.data;
-
+	let imageUrls: string[] = [];
 	for (const entry of validData.entries) {
 		if (entry.image) {
-			await upsertImage(entry.image);
+			const url = await upsertImage(entry.image);
+			imageUrls.push(url);
 		}
 	}
+
 	try {
 		const [updatedQuote, newQuote] = await prisma.$transaction([
 			prisma.quote.update({
@@ -200,7 +212,7 @@ async function createQuote(
 					createdByRole: validData.createdByRole as Role,
 					createdAt: new Date(),
 					entries: {
-						create: validData.entries.map((entry) => ({
+						create: validData.entries.map((entry, idx) => ({
 							name: entry.name,
 							sizes: entry.sizes,
 							material: entry.material,
@@ -209,7 +221,7 @@ async function createQuote(
 							range: entry.range,
 							unitaryPrice: entry.unitaryPrice,
 							unitaryCost: entry.unitaryCost,
-							imageUrl: entry.image,
+							imageUrl: imageUrls[idx] || "",
 						})),
 					},
 				},
@@ -220,20 +232,107 @@ async function createQuote(
 		]);
 
 		const target =
-			data.createdByRole == Role.VALIDATOR
-				? data.requestContact
-				: data.approvalContact;
+			data.createdByRole == Role.PETITIONER
+				? data.approvalContact
+				: data.requestContact;
 
 		await sendMessage(target, MESSAGE_TEMPLATE, {
 			1: data.serial,
 			2: data.project,
-			3: `http://localhost:3000/renders/confirmation/${quoteInfoId}`,
+			3: link ? link : `${APP_URL}/renders/confirmation/${quoteInfoId}`,
 		});
 
 		return { success: true, quote: newQuote };
 	} catch (error) {
 		console.error("Error in createQuoteInformation:", error);
 		throw new Error("Error al crear la cotización");
+	}
+}
+
+async function getQuoteProviders(id: string) {
+	try {
+		const quoteInformation = await prisma.quoteInformation.findUnique({
+			where: {
+				id,
+			},
+			include: {
+				ProviderQuotes: {
+					include: {
+						user: true,
+						quotes: {
+							include: {
+								entries: true,
+							},
+						},
+					},
+				},
+			},
+		});
+
+		return { success: true, quoteInformation };
+	} catch (error) {
+		console.error("Error in getQuoteInformation:", error);
+		throw new Error("Error al obtener la cotización");
+	}
+}
+
+async function createProviderQuote(
+	quoteInfoId: string,
+	userId: string,
+	data: z.infer<typeof RenderUploadSchema>,
+	options?: { rejectedQuoteId?: number }
+) {
+	try {
+		const result = await createQuote(
+			quoteInfoId,
+			data,
+			options?.rejectedQuoteId,
+			`${APP_URL}/renders/confirmation/provider/${quoteInfoId}`
+		);
+
+		const quote = result.quote;
+
+		await prisma.$transaction(async (transaction) => {
+			await transaction.quote.update({
+				where: { id: quote.id },
+				data: {
+					providerQuotesQuoteInformationId: quoteInfoId,
+					providerQuotesUserId: userId,
+				},
+			});
+			await transaction.providerQuotes.update({
+				where: {
+					quoteInformationId_userId: {
+						quoteInformationId: quoteInfoId,
+						userId,
+					},
+				},
+				data: {
+					quotes: {
+						connect: { id: quote.id },
+					},
+				},
+			});
+		});
+	} catch (error) {
+		console.error("Error in createProviderQuote:", error);
+		throw new Error("Error al crear la cotización");
+	}
+}
+
+async function selectProvider(quoteInfoId: string, userId: string) {
+	try {
+		await prisma.quoteInformation.update({
+			where: {
+				id: quoteInfoId,
+			},
+			data: {
+				providerId: userId,
+			},
+		});
+	} catch (error) {
+		console.error("Error in selectProvider:", error);
+		throw new Error("Error al seleccionar el proveedor");
 	}
 }
 
@@ -351,4 +450,7 @@ export {
 	getPendingQuotes,
 	getCompleteQuotes,
 	getUsers,
+	getQuoteProviders,
+	createProviderQuote,
+	selectProvider,
 };

@@ -1,6 +1,5 @@
 "use client";
 
-import CompanyImage from "@/app/components/CompanyImage";
 import EntryForm from "@/app/components/formPage/EntryForm";
 import QuoteInformationDisplay from "@/app/components/QuoteInformationDisplay";
 import Registered from "@/app/components/Registered";
@@ -8,23 +7,33 @@ import { initializeRenderUpload, RenderUploadSchema } from "@/app/Schemas";
 import { Form } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import {
-	createQuote,
-	finalizeQuote,
-	getQuoteInformation,
+	createProviderQuote,
+	getQuoteProviders,
+	selectProvider,
 } from "@/lib/storage/database";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Quote, QuoteInformation, Role } from "@prisma/client";
-import { CheckCheck, RefreshCw, Undo, Upload } from "lucide-react";
-import { useParams, useSearchParams } from "next/navigation";
-import { useRouter } from "next/navigation";
+import { CheckCheck, Undo, Upload } from "lucide-react";
+import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 import CommentDialog from "@/app/components/CommentDialog";
 import { useSession } from "next-auth/react";
 import Loading from "@/components/Loading";
+import { QuoteWithEntries } from "@/lib/types";
 
-export default function Confirmation() {
+interface InformationProviderQuotes
+	extends Record<string, QuoteWithEntries[]> {}
+
+export default function ProviderConfirmation() {
 	const { id } = useParams();
 
 	if (!id || Array.isArray(id)) {
@@ -36,16 +45,22 @@ export default function Confirmation() {
 		return <Loading />;
 	}
 	const role = session.user.role as Role;
+	const name = session.user.name;
+	const userId = session.user.id;
+
+	if (role === Role.VALIDATOR) {
+		return <div>Error: No tienes permiso para acceder a esta página</div>;
+	}
 
 	const { toast } = useToast();
-	const router = useRouter();
 
 	const [loading, setLoading] = useState(true);
 	const [disabled, setDisabled] = useState(false);
 	const [notFound, setNotFound] = useState(false);
 	const [registered, setRegistered] = useState(false);
 	const [quote, setQuote] = useState<Quote>();
-
+	const [provider, setProvider] = useState<string>();
+	const [providers, setProviders] = useState<InformationProviderQuotes>();
 	const [quoteInformation, setQuoteInformation] =
 		useState<QuoteInformation>();
 
@@ -67,7 +82,8 @@ export default function Confirmation() {
 	const onSubmitUpdate = async (
 		values: z.infer<typeof RenderUploadSchema>
 	) => {
-		if (!quote) {
+		console.log("Updating quote");
+		if (!userId) {
 			return;
 		}
 
@@ -75,7 +91,9 @@ export default function Confirmation() {
 		if (form.formState.isValid) {
 			try {
 				setDisabled(true);
-				await createQuote(id, values, quote.id);
+				await createProviderQuote(id, userId, values, {
+					rejectedQuoteId: quote?.id,
+				});
 				setRegistered(true);
 				form.reset();
 				setDisabled(false);
@@ -92,8 +110,12 @@ export default function Confirmation() {
 
 	const onSubmitFinalize = async () => {
 		try {
+			if (!quote || !quote.providerQuotesUserId) {
+				return;
+			}
+
 			setDisabled(true);
-			await finalizeQuote(id);
+			await selectProvider(id, quote.providerQuotesUserId);
 			setRegistered(true);
 			form.reset();
 			setDisabled(false);
@@ -115,7 +137,7 @@ export default function Confirmation() {
 		}
 
 		try {
-			const response = await getQuoteInformation(id, true);
+			const response = await getQuoteProviders(id);
 
 			if (!response || !response.success) {
 				setLoading(false);
@@ -127,43 +149,39 @@ export default function Confirmation() {
 				return;
 			}
 
-			const quoteInformation = {
-				...response.quoteInformation,
-				quote: response.quoteInformation.quotes[0],
-				entries: response.quoteInformation.quotes[0]?.entries || [],
-			};
+			let providerQuotes: InformationProviderQuotes = {};
+			let hasQuotes = false;
 
-			if (!quoteInformation.providerId) {
+			for (const provider of response.quoteInformation.ProviderQuotes) {
+				if (provider.user.name === name) {
+					// delete all of the others if the access is from the provider
+					providerQuotes = {};
+					providerQuotes[
+						provider.user.company || provider.user.name
+					] = provider.quotes;
+					break;
+				}
+				if (provider.quotes.length > 0) {
+					hasQuotes = true;
+				}
+				providerQuotes[provider.user.company || provider.user.name] =
+					provider.quotes;
+			}
+
+			const providers = Object.keys(providerQuotes);
+			if (providers.length === 0) {
 				setNotFound(true);
+				setLoading(false);
 				return;
 			}
 
-			if (quoteInformation.finalizedAt) {
-				router.push(`/renders/history/${id}`);
-				return;
+			setProviders(providerQuotes);
+			setProvider(providers[0]);
+
+			if (!hasQuotes && role === Role.PETITIONER) {
+				setNotFound(true);
 			}
 
-			if (quoteInformation.quote.createdByRole === role) {
-				setDisabled(true);
-			}
-
-			setQuote(quoteInformation.quote);
-
-			const transformedData = {
-				...quoteInformation,
-				date: quoteInformation.createdAt.toISOString().split("T")[0],
-				createdByRole: role,
-				comment: "",
-				entries: quoteInformation.entries.map((entry) => ({
-					...entry,
-					unitaryPrice: entry.unitaryPrice ?? 0,
-					unitaryCost: entry.unitaryCost ?? 0,
-					unitaryFinalPrice: entry.unitaryFinalPrice ?? 0,
-					image: null,
-				})),
-			};
-
-			form.reset(transformedData);
 			setQuoteInformation(quoteInformation);
 		} catch (error) {
 			const message =
@@ -180,9 +198,46 @@ export default function Confirmation() {
 		}
 	};
 
+	const handleUpload = async () => {
+		const result = RenderUploadSchema.safeParse(form.getValues());
+		if (result.success) {
+			await onSubmitUpdate(form.getValues());
+		}
+	};
+
+	const updateDisplayQuote = () => {
+		if (!provider || !providers) {
+			return;
+		}
+
+		const quote = providers[provider][0];
+		if (!quote) {
+			return;
+		}
+
+		setQuote(quote);
+		const transformedData = {
+			...quoteInformation,
+			createdByRole: role,
+			comment: "",
+			entries: quote.entries.map((entry) => ({
+				...entry,
+				unitaryPrice: entry.unitaryPrice ?? 0,
+				unitaryCost: entry.unitaryCost ?? 0,
+				unitaryFinalPrice: entry.unitaryFinalPrice ?? 0,
+				image: null,
+			})),
+		};
+		form.reset(transformedData);
+	};
+
 	useEffect(() => {
 		fetchQuoteInformation();
 	}, [id]);
+
+	useEffect(() => {
+		updateDisplayQuote();
+	}, [provider]);
 
 	if (loading) {
 		return (
@@ -200,19 +255,34 @@ export default function Confirmation() {
 		);
 	}
 
-	const handleUpload = async () => {
-		const result = RenderUploadSchema.safeParse(form.getValues());
-		if (result.success) {
-			await onSubmitUpdate(form.getValues());
-		}
-	};
-
 	return (
 		<>
 			{registered && quoteInformation ? (
 				<Registered company={quoteInformation.company} />
 			) : (
-				<div className="h-screen overflow-y-hidden">
+				<div className="h-screen overflow-y-hidden p-4">
+					<div className="m-2 flex justify-end">
+						{providers && Object.keys(providers).length > 1 && (
+							<Select
+								value={provider}
+								onValueChange={setProvider}
+							>
+								<SelectTrigger className="max-w-[180px]">
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent>
+									{Object.keys(providers).map((provider) => (
+										<SelectItem
+											key={provider}
+											value={provider}
+										>
+											{provider}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						)}
+					</div>
 					<Form {...form}>
 						<form onSubmit={form.handleSubmit(onSubmitUpdate)}>
 							{quoteInformation && (
@@ -223,13 +293,16 @@ export default function Confirmation() {
 							<div>{quote?.comment}</div>
 							<div className="flex justify-center">
 								<div className="w-fit">
-									<EntryForm
-										form={form}
-										fieldArrayAppend={fieldArrayAppend}
-										fieldArrayInsert={fieldArrayInsert}
-										fieldArrayRemove={fieldArrayRemove}
-										disabled={disabled}
-									/>
+									{role && (
+										<EntryForm
+											form={form}
+											fieldArrayAppend={fieldArrayAppend}
+											fieldArrayInsert={fieldArrayInsert}
+											fieldArrayRemove={fieldArrayRemove}
+											disabled={disabled}
+											role={role}
+										/>
+									)}
 								</div>
 							</div>
 							<div className="fixed bottom-4 right-4 flex justify-end gap-4">
@@ -241,10 +314,10 @@ export default function Confirmation() {
 												disabled={disabled}
 												upload={handleUpload}
 												rejection={
-													role === Role.VALIDATOR
+													role === Role.PETITIONER
 												}
 											>
-												{role !== Role.VALIDATOR ? (
+												{role !== Role.PETITIONER ? (
 													<div
 														className={`cursor-pointer bg-gray-800/90 text-white rounded-md hover:bg-gray-700/90 gap-2 p-1 px-2 transition flex justify-center items-center text-xl ${
 															form.formState
@@ -253,8 +326,8 @@ export default function Confirmation() {
 																: "opacity-50 pointer-events-none"
 														}`}
 													>
-														<RefreshCw />
-														Actualizar
+														<Upload />
+														Entregar
 													</div>
 												) : (
 													<div
@@ -270,7 +343,7 @@ export default function Confirmation() {
 													</div>
 												)}
 											</CommentDialog>
-											{role === Role.VALIDATOR && (
+											{role === Role.PETITIONER && (
 												<div
 													className={
 														"cursor-pointer bg-gray-800/90 text-white rounded-md hover:bg-gray-700/90 gap-2 p-1 px-2 transition flex justify-center items-center text-xl"
@@ -280,7 +353,7 @@ export default function Confirmation() {
 													}}
 												>
 													<CheckCheck />
-													Finalizar
+													Seleccionar
 												</div>
 											)}
 										</>

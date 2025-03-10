@@ -67,16 +67,17 @@ model ProviderQuotes {
 }
 
 model Entry {
-  id              Int     @id @default(autoincrement())
-  imageUrl        String?
-  name            String
-  material        String
-  materialSubtype String
-  sizes           String
-  concept         String
-  range           String
-  unitaryCost     Float?
-  unitaryPrice    Float?
+  id                Int     @id @default(autoincrement())
+  imageUrl          String?
+  name              String
+  material          String
+  materialSubtype   String
+  sizes             String
+  concept           String
+  range             String
+  unitaryCost       Float?
+  unitaryPrice      Float?
+  unitaryFinalPrice Float?
 
   quoteId Int
   quote   Quote @relation(fields: [quoteId], references: [id], onDelete: Cascade)

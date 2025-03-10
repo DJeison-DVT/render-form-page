@@ -38,6 +38,10 @@ export const EntrySchema = z.object({
 		(val) => (val === "" ? 0 : Number(val)),
 		z.number().nonnegative().optional()
 	),
+	unitaryFinalPrice: z.preprocess(
+		(val) => (val === "" ? 0 : Number(val)),
+		z.number().nonnegative().optional()
+	),
 	range: z.string().min(1, "La cantidad no puede estar vacía."),
 });
 
@@ -104,6 +108,7 @@ export function initializeEntry() {
 		materialSubtype: "",
 		unitaryPrice: 0,
 		unitaryCost: 0,
+		unitaryFinalPrice: 0,
 		range: "",
 		image: null,
 	};

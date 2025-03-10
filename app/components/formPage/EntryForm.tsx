@@ -36,12 +36,14 @@ import { useState } from "react";
 import PushableComponent from "@/components/ui/pushableComponent";
 import { useSession } from "next-auth/react";
 import Loading from "@/components/Loading";
+import { Role } from "@prisma/client";
 
 function EntryForm({
 	form,
 	fieldArrayAppend,
 	fieldArrayInsert,
 	fieldArrayRemove,
+	role,
 	disabled = false,
 	modal = false,
 }: {
@@ -49,6 +51,7 @@ function EntryForm({
 	fieldArrayAppend: UseFieldArrayAppend<z.infer<typeof RenderUploadSchema>>;
 	fieldArrayInsert: UseFieldArrayInsert<z.infer<typeof RenderUploadSchema>>;
 	fieldArrayRemove: UseFieldArrayRemove;
+	role: Role;
 	disabled?: boolean;
 	modal?: boolean;
 }) {
@@ -258,46 +261,84 @@ function EntryForm({
 								</FormItem>
 							)}
 						/>
-						<FormField
-							control={form.control}
-							name={`entries.${index}.unitaryCost`}
-							render={({ field }) => (
-								<FormItem>
-									{index == 0 && (
-										<FormLabel>Costo Unitario</FormLabel>
-									)}
-									<FormControl>
-										<Input
-											disabled={disabled}
-											type="number"
-											className="w-24"
-											{...field}
-										/>
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
-						<FormField
-							control={form.control}
-							name={`entries.${index}.unitaryPrice`}
-							render={({ field }) => (
-								<FormItem>
-									{index == 0 && (
-										<FormLabel>Precio Unitario</FormLabel>
-									)}
-									<FormControl>
-										<Input
-											disabled={disabled}
-											type="number"
-											className="w-24"
-											{...field}
-										/>
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
+						{(role === Role.PROVIDER ||
+							role === Role.PETITIONER) && (
+							<FormField
+								control={form.control}
+								name={`entries.${index}.unitaryCost`}
+								render={({ field }) => (
+									<FormItem>
+										{index == 0 && (
+											<FormLabel>
+												Costo Unitario
+											</FormLabel>
+										)}
+										<FormControl>
+											<Input
+												disabled={
+													disabled ||
+													role === Role.PETITIONER
+												}
+												type="number"
+												className="w-24"
+												{...field}
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						)}
+						{role === Role.PETITIONER && (
+							<FormField
+								control={form.control}
+								name={`entries.${index}.unitaryPrice`}
+								render={({ field }) => (
+									<FormItem>
+										{index == 0 && (
+											<FormLabel>
+												Precio Unitario
+											</FormLabel>
+										)}
+										<FormControl>
+											<Input
+												disabled={disabled}
+												type="number"
+												className="w-24"
+												{...field}
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						)}
+						{(role === Role.VALIDATOR ||
+							role === Role.PETITIONER) && (
+							<FormField
+								control={form.control}
+								name={`entries.${index}.unitaryFinalPrice`}
+								render={({ field }) => (
+									<FormItem>
+										{index == 0 && (
+											<FormLabel>Precio Final</FormLabel>
+										)}
+										<FormControl>
+											<Input
+												disabled={
+													disabled ||
+													role === Role.PETITIONER
+												}
+												type="number"
+												className="w-24"
+												{...field}
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						)}
 						<div className="flex justify-around items-end gap-2 m-2 absolute right-0 bottom-0">
 							<TooltipProvider disableHoverableContent={disabled}>
 								<Tooltip>
