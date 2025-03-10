@@ -25,8 +25,17 @@ model QuoteInformation {
   brand           String
   project         String
   serial          String
+  stage           Stage
+  provider        String
 
-  quotes Quote[]
+  quotes         Quote[]
+  ProviderQuotes ProviderQuotes[]
+}
+
+enum Stage {
+  QUOTING
+  NEGOTIATING
+  FINALIZED
 }
 
 model Quote {
@@ -36,9 +45,23 @@ model Quote {
   comment       String?
   createdByRole Role
 
+  quoteInformationId               String
+  quoteInformation                 QuoteInformation @relation(fields: [quoteInformationId], references: [id], onDelete: Cascade)
+  entries                          Entry[]
+  ProviderQuotes                   ProviderQuotes?  @relation(fields: [providerQuotesQuoteInformationId, providerQuotesUserId], references: [quoteInformationId, userId])
+  providerQuotesQuoteInformationId String?
+  providerQuotesUserId             String?
+}
+
+model ProviderQuotes {
   quoteInformationId String
-  quoteInformation   QuoteInformation @relation(fields: [quoteInformationId], references: [id], onDelete: Cascade)
-  entries            Entry[]
+  userId             String
+  quotes             Quote[]
+
+  quoteInformation QuoteInformation @relation(fields: [quoteInformationId], references: [id], onDelete: Cascade)
+  user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([quoteInformationId, userId])
 }
 
 model Entry {
@@ -60,6 +83,7 @@ model Entry {
 enum Role {
   VALIDATOR
   PETITIONER
+  PROVIDER
   SUPERVISOR
 }
 
@@ -94,15 +118,17 @@ model Session {
 }
 
 model User {
-  id       String    @id @default(cuid())
-  name     String?
-  phone    String    @unique
-  email    String    @unique
-  image    String?
-  role     Role      @default(PETITIONER)
-  password String?
-  accounts Account[]
-  sessions Session[]
+  id             String           @id @default(cuid())
+  name           String
+  company        String?
+  phone          String           @unique
+  email          String           @unique
+  image          String?
+  role           Role             @default(PETITIONER)
+  password       String
+  accounts       Account[]
+  sessions       Session[]
+  ProviderQuotes ProviderQuotes[]
 
   @@map("users")
 }
