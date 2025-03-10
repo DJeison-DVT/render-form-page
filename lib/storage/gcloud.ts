@@ -4,7 +4,7 @@ const BUCKET_NAME = "render_forms";
 
 async function generateV4UploadSignedUrl(path: string, contentType: string) {
 	const storage = new Storage({
-		keyFilename: "credentials_gcp_bucket.json",
+		keyFilename: process.env.KEYFILE_NAME,
 	});
 	console.log("Generating signed URL for GCP:", path);
 
