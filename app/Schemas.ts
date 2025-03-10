@@ -41,28 +41,26 @@ export const EntrySchema = z.object({
 	range: z.string().min(1, "La cantidad no puede estar vacía."),
 });
 
-export const RenderUploadSchema = z.object({
+const uploadSchema = z.object({
 	approvalContact: z
 		.string()
 		.length(10, "El contacto de aprobación debe tener 10 dígitos."),
 	requestContact: z
 		.string()
 		.length(10, "El contacto de solicitud debe tener 10 dígitos."),
-	date: z.string(),
-	entries: z.array(EntrySchema),
 	company: z.string(),
 	createdByRole: z.nativeEnum(Role),
 	client: z.string().nonempty(),
 	brand: z.string().nonempty(),
 	project: z.string().nonempty(),
 	serial: z.string().nonempty(),
-	comment: z.string().optional(),
 });
 
 // Assuming EntrySchema is already defined
 export const RenderUploadSchema = uploadSchema.merge(
 	z.object({
 		entries: z.array(EntrySchema),
+		comment: z.string().optional(),
 	})
 );
 
@@ -111,11 +109,25 @@ export function initializeEntry() {
 	};
 }
 
+export function initializeProposalUpload(phone: string) {
+	return {
+		approvalContact: process.env.NEXT_PUBLIC_APPROVAL_CONTACT,
+		requestContact: phone,
+		company: "",
+		createdByRole: Role.PETITIONER,
+		client: "",
+		brand: "",
+		project: "",
+		serial: "",
+		pdf: null,
+		providers: [] as string[],
+	};
+}
+
 export function initializeRenderUpload(phone: string) {
 	return {
 		approvalContact: process.env.NEXT_PUBLIC_APPROVAL_CONTACT,
 		requestContact: phone,
-		date: "",
 		entries: [initializeEntry()],
 		company: "",
 		createdByRole: Role.PETITIONER,

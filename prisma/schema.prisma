@@ -26,10 +26,12 @@ model QuoteInformation {
   project         String
   serial          String
   stage           Stage     @default(QUOTING)
-  provider        String?
+  pdfUrl          String?
+  providerId      String?
 
   quotes         Quote[]
   ProviderQuotes ProviderQuotes[]
+  provider       User?            @relation(fields: [providerId], references: [id])
 }
 
 enum Stage {
@@ -118,17 +120,18 @@ model Session {
 }
 
 model User {
-  id             String           @id @default(cuid())
-  name           String
-  company        String?
-  phone          String           @unique
-  email          String           @unique
-  image          String?
-  role           Role             @default(PETITIONER)
-  password       String
-  accounts       Account[]
-  sessions       Session[]
-  ProviderQuotes ProviderQuotes[]
+  id               String             @id @default(cuid())
+  name             String
+  company          String?
+  phone            String             @unique
+  email            String             @unique
+  image            String?
+  role             Role               @default(PETITIONER)
+  password         String
+  accounts         Account[]
+  sessions         Session[]
+  ProviderQuotes   ProviderQuotes[]
+  QuoteInformation QuoteInformation[]
 
   @@map("users")
 }

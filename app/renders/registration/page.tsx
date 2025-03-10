@@ -1,20 +1,19 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { useForm, useFieldArray } from "react-hook-form";
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { RenderUploadSchema, initializeRenderUpload } from "@/app/Schemas";
+import { ProposalUploadSchema, initializeProposalUpload } from "@/app/Schemas";
 import { Form } from "@/components/ui/form";
 import ContactInformation from "@/app/components/formPage/ContactInformation";
 import CompanySelection from "@/app/components/formPage/CompanySelection";
-import EntryForm from "@/app/components/formPage/EntryForm";
+import ProviderSelection from "@/app/components/formPage/ProviderSelection";
 import { ChevronDown, ChevronUp, Upload } from "lucide-react";
 import { createQuoteInformation } from "@/lib/storage/database";
 import { useToast } from "@/hooks/use-toast";
 import Registered from "@/app/components/Registered";
 import { useSession } from "next-auth/react";
-import CommentDialog from "@/app/components/CommentDialog";
 
 export default function Home() {
 	const [canContinue, setCanContinue] = useState(false);
@@ -28,27 +27,16 @@ export default function Home() {
 		setCanContinue(true);
 	};
 
-	const form = useForm<z.infer<typeof RenderUploadSchema>>({
-		resolver: zodResolver(RenderUploadSchema),
-		defaultValues: initializeRenderUpload(session?.user.phone || ""),
+	const form = useForm<z.infer<typeof ProposalUploadSchema>>({
+		resolver: zodResolver(ProposalUploadSchema),
+		defaultValues: initializeProposalUpload(session?.user.phone || ""),
 	});
 
-	const {
-		fields,
-		append: fieldArrayAppend,
-		insert: fieldArrayInsert,
-		remove: fieldArrayRemove,
-	} = useFieldArray({
-		control: form.control,
-		name: "entries",
-	});
-
-	const onSubmit = async (values: z.infer<typeof RenderUploadSchema>) => {
-		// console.log(values);
-		// return;
+	const onSubmit = async (values: z.infer<typeof ProposalUploadSchema>) => {
 		if (form.formState.isValid) {
 			try {
 				setDisabled(true);
+				console.log("Submitting form with values:", values);
 				await createQuoteInformation(values);
 				setCompany(values.company);
 				setRegistered(true);
@@ -81,16 +69,7 @@ export default function Home() {
 		},
 		{
 			title: "",
-			content: (
-				<EntryForm
-					form={form}
-					fieldArrayAppend={fieldArrayAppend}
-					fieldArrayInsert={fieldArrayInsert}
-					fieldArrayRemove={fieldArrayRemove}
-					disabled={disabled}
-					modal
-				/>
-			),
+			content: <ProviderSelection form={form} disabled={disabled} />,
 		},
 	];
 
@@ -110,13 +89,6 @@ export default function Home() {
 		setCanContinue(false);
 	};
 
-	const handleUpload = async () => {
-		const result = RenderUploadSchema.safeParse(form.getValues());
-		if (result.success) {
-			await onSubmit(form.getValues());
-		}
-	};
-
 	return (
 		<>
 			{registered ? (
@@ -134,23 +106,18 @@ export default function Home() {
 						</div>
 						<div className="fixed bottom-4 right-4 flex justify-end gap-4">
 							<div className="flex flex-col space-y-2">
-								{currentSlide > 1 && (
-									<CommentDialog
-										form={form}
-										upload={handleUpload}
-										disabled={disabled}
-									>
-										<div
-											className={`cursor-pointer bg-gray-800/90 text-white rounded-full hover:bg-gray-700/90 transition w-12 h-12 flex justify-center items-center text-xl ${
-												form.formState.isValid
-													? ""
-													: "opacity-50 pointer-events-none"
-											}`}
-										>
-											<Upload />
-										</div>
-									</CommentDialog>
-								)}
+								<button
+									type="submit"
+									className={`cursor-pointer bg-gray-800/90 text-white rounded-full hover:bg-gray-700/90 transition w-12 h-12 flex justify-center items-center text-xl ${
+										form.formState.isValid
+											? ""
+											: "opacity-50 pointer-events-none"
+									}`}
+									disabled={!form.formState.isValid}
+									onClick={form.handleSubmit(onSubmit)}
+								>
+									<Upload />
+								</button>
 								<div
 									onClick={handlePreviousSlide}
 									className={`cursor-pointer bg-gray-800/90 text-white rounded-full hover:bg-gray-700/90 transition w-12 h-12 flex justify-center items-center text-xl ${

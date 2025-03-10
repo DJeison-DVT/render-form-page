@@ -1,32 +1,31 @@
 "use server";
 
-import { RenderUploadSchema } from "@/app/Schemas";
+import { ProposalUploadSchema, RenderUploadSchema } from "@/app/Schemas";
 import { prisma } from "@/lib/prisma";
 import { Role } from "@prisma/client";
 import { z } from "zod";
 import { sendMessage } from "../messaging";
+import { savePDF } from "./gcloud";
 
-const MESSAGE_TEMPLATE = "HXfc4ad24055c6b81e14f92714ecc222a0";
+const MESSAGE_TEMPLATE = "HX92dca13fd40b55ff25d9e3ffa3e10429";
 
 const upsertImage = async (image: string) => {};
 
 async function createQuoteInformation(
-	data: z.infer<typeof RenderUploadSchema>
+	data: z.infer<typeof ProposalUploadSchema>
 ) {
-	const parsedData = RenderUploadSchema.safeParse(data);
-
+	const parsedData = ProposalUploadSchema.safeParse(data);
+	console.log("Parsed data:", parsedData);
 	if (!parsedData.success) {
 		console.error("Validation Error:", parsedData.error);
 		throw new Error("Invalid data provided to createQuoteInformation");
 	}
 
+	console.log("Creating quote information");
 	const validData = parsedData.data;
-
-	for (const entry of validData.entries) {
-		if (entry.image) {
-			await upsertImage(entry.image);
-		}
-	}
+	const path = `${validData.company}/${validData.serial}.pdf`;
+	await savePDF(validData.pdf as File, path);
+	const selectedProviderIds = validData.providers;
 
 	try {
 		const quoteInformation = await prisma.quoteInformation.create({
@@ -38,47 +37,111 @@ async function createQuoteInformation(
 				brand: validData.brand,
 				project: validData.project,
 				serial: validData.serial,
-				quotes: {
-					create: {
-						createdByRole: validData.createdByRole,
-						createdAt: new Date(),
-						comment: validData.comment || "",
-						entries: {
-							create: validData.entries.map((entry) => ({
-								concept: entry.concept,
-								name: entry.name,
-								range: entry.range,
-								sizes: entry.sizes,
-								material: entry.material,
-								materialSubtype: entry.materialSubtype,
-								unitaryPrice: entry.unitaryPrice,
-								unitaryCost: entry.unitaryCost,
-								imageUrl: entry.image,
-							})),
+				pdfUrl: path,
+				ProviderQuotes: {
+					create: selectedProviderIds.map((providerId) => ({
+						user: {
+							connect: {
+								id: providerId,
+							},
 						},
-					},
-				},
-			},
-			include: {
-				quotes: {
-					include: {
-						entries: true,
-					},
+					})),
 				},
 			},
 		});
 
-		await sendMessage(quoteInformation.approvalContact, MESSAGE_TEMPLATE, {
-			1: quoteInformation.serial,
-			2: quoteInformation.project,
-			3: "aprobarla o rechazarla",
-			4: `https://localhost:3000/renders/confirmation/${quoteInformation.id}`,
+		const providerPhones = await prisma.user.findMany({
+			where: {
+				id: {
+					in: selectedProviderIds,
+				},
+			},
+			select: {
+				phone: true,
+			},
 		});
+		for (const provider of providerPhones) {
+			await sendMessage(provider.phone, MESSAGE_TEMPLATE, {
+				1: quoteInformation.serial,
+				2: quoteInformation.project,
+				3: `http://localhost:3000/renders/confirmation/${quoteInformation.id}`,
+			});
+		}
 	} catch (error) {
 		console.error("Error in createQuoteInformation:", error);
-		throw new Error("Error al crear la cotización");
+		throw new Error("Error al crear la petición de cotización");
 	}
 }
+
+// async function createQuoteInformation(
+// 	data: z.infer<typeof RenderUploadSchema>
+// ) {
+// 	const parsedData = RenderUploadSchema.safeParse(data);
+
+// 	if (!parsedData.success) {
+// 		console.error("Validation Error:", parsedData.error);
+// 		throw new Error("Invalid data provided to createQuoteInformation");
+// 	}
+
+// 	const validData = parsedData.data;
+
+// 	for (const entry of validData.entries) {
+// 		if (entry.image) {
+// 			await upsertImage(entry.image);
+// 		}
+// 	}
+
+// 	try {
+// 		const quoteInformation = await prisma.quoteInformation.create({
+// 			data: {
+// 				company: validData.company,
+// 				approvalContact: validData.approvalContact,
+// 				requestContact: validData.requestContact,
+// 				client: validData.client,
+// 				brand: validData.brand,
+// 				project: validData.project,
+// 				serial: validData.serial,
+// 				quotes: {
+// 					create: {
+// 						createdByRole: validData.createdByRole,
+// 						createdAt: new Date(),
+// 						comment: validData.comment || "",
+// 						entries: {
+// 							create: validData.entries.map((entry) => ({
+// 								concept: entry.concept,
+// 								name: entry.name,
+// 								range: entry.range,
+// 								sizes: entry.sizes,
+// 								material: entry.material,
+// 								materialSubtype: entry.materialSubtype,
+// 								unitaryPrice: entry.unitaryPrice,
+// 								unitaryCost: entry.unitaryCost,
+// 								imageUrl: entry.image,
+// 							})),
+// 						},
+// 					},
+// 				},
+// 			},
+// 			include: {
+// 				quotes: {
+// 					include: {
+// 						entries: true,
+// 					},
+// 				},
+// 			},
+// 		});
+
+// 		await sendMessage(quoteInformation.approvalContact, MESSAGE_TEMPLATE, {
+// 			1: quoteInformation.serial,
+// 			2: quoteInformation.project,
+// 			3: "aprobarla o rechazarla",
+// 			4: `https://localhost:3000/renders/confirmation/${quoteInformation.id}`,
+// 		});
+// 	} catch (error) {
+// 		console.error("Error in createQuoteInformation:", error);
+// 		throw new Error("Error al crear la cotización");
+// 	}
+// }
 
 async function getQuoteInformation(id: string, single = false) {
 	try {
@@ -164,12 +227,7 @@ async function createQuote(
 		await sendMessage(target, MESSAGE_TEMPLATE, {
 			1: data.serial,
 			2: data.project,
-			3:
-				data.createdByRole == Role.SUPERVISOR
-					? "acutalizarla"
-					: "verificarla",
-
-			4: `https://localhost:3000/renders/confirmation/${quoteInfoId}`,
+			3: `http://localhost:3000/renders/confirmation/${quoteInfoId}`,
 		});
 
 		return { success: true, quote: newQuote };
@@ -275,6 +333,15 @@ async function getCompleteQuotes(phone: string) {
 	}
 }
 
+const getUsers = async (role?: Role) => {
+	const users = await prisma.user.findMany({
+		where: {
+			role: role ? role : undefined,
+		},
+	});
+	return users;
+};
+
 export {
 	createQuoteInformation,
 	getQuoteInformation,
@@ -283,4 +350,5 @@ export {
 	getClients,
 	getPendingQuotes,
 	getCompleteQuotes,
+	getUsers,
 };

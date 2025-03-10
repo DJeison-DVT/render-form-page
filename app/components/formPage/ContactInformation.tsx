@@ -1,7 +1,7 @@
 "use client";
 
 import { z } from "zod";
-import { RenderUploadSchema } from "@/app/Schemas";
+import { ProposalUploadSchema } from "@/app/Schemas";
 import {
 	FormControl,
 	FormField,
@@ -20,7 +20,7 @@ function ContactInformation({
 	form,
 	fullfilled,
 }: {
-	form: UseFormReturn<z.infer<typeof RenderUploadSchema>>;
+	form: UseFormReturn<z.infer<typeof ProposalUploadSchema>>;
 	fullfilled: () => void;
 }) {
 	const client = form.watch("client");
