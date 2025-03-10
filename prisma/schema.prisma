@@ -25,8 +25,8 @@ model QuoteInformation {
   brand           String
   project         String
   serial          String
-  stage           Stage
-  provider        String
+  stage           Stage     @default(QUOTING)
+  provider        String?
 
   quotes         Quote[]
   ProviderQuotes ProviderQuotes[]
