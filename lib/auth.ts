@@ -62,7 +62,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 					where: { phone },
 				});
 				if (!user) {
-					// user = await registerUser(phone, password);
 					throw new Error("User not found");
 				}
 

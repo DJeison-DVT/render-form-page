@@ -1,11 +1,16 @@
+"use server";
+
 import { prisma } from "../prisma";
 import bcrypt from "bcrypt";
+import { z } from "zod";
+import { userCreationSchema } from "@/app/Schemas";
 
 const SALT_ROUNDS = 10;
 
-async function registerUser(phone: string, password: string) {
-	if (!phone || !password) {
-		throw new Error("Phone and password are required");
+async function registerUser(formData: z.infer<typeof userCreationSchema>) {
+	const { phone, password, name, email, role, company } = formData;
+	if (!phone || !password || !name || !email || !role) {
+		throw new Error("Missing required fields");
 	}
 
 	const existingUser = await prisma.user.findUnique({
@@ -22,6 +27,10 @@ async function registerUser(phone: string, password: string) {
 		data: {
 			phone,
 			password: hashedPassword,
+			name,
+			email,
+			role,
+			company,
 		},
 	});
 

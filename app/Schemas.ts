@@ -59,8 +59,42 @@ export const RenderUploadSchema = z.object({
 	comment: z.string().optional(),
 });
 
+// Assuming EntrySchema is already defined
+export const RenderUploadSchema = uploadSchema.merge(
+	z.object({
+		entries: z.array(EntrySchema),
+	})
+);
+
+export const ProposalUploadSchema = uploadSchema.merge(
+	z.object({
+		pdf: z
+			.any()
+			.refine(
+				(file) => file?.type === "application/pdf",
+				"El archivo debe ser un PDF."
+			),
+		providers: z
+			.array(z.string())
+			.refine((value) => value.some((item) => item), {
+				message: "Debe seleccionar al menos un proveedor.",
+			}),
+	})
+);
+
 export const EntryUpdateSchema = z.object({
 	entries: z.array(EntrySchema),
+});
+
+export const userCreationSchema = z.object({
+	name: z.string().nonempty(),
+	email: z.string().email(),
+	role: z.nativeEnum(Role),
+	company: z.string().optional(),
+	password: z
+		.string()
+		.min(8, "La contraseña debe tener al menos 8 caracteres."),
+	phone: z.string().length(10, "El teléfono debe tener 10 dígitos."),
 });
 
 export function initializeEntry() {
