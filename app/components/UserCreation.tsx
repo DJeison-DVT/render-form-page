@@ -33,13 +33,7 @@ import { useState } from "react";
 import { Role } from "@prisma/client";
 import { UserPlus } from "lucide-react";
 import { registerUser } from "@/lib/storage/auth";
-
-const RoleTranslations: Record<Role, string> = {
-	PETITIONER: "Solicitante",
-	VALIDATOR: "Aprobador",
-	PROVIDER: "Proveedor",
-	SUPERVISOR: "Supervisor",
-};
+import { RoleTranslations } from "@/lib/types";
 
 export default function UserCreation() {
 	const [open, setOpen] = useState(false);

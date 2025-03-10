@@ -9,6 +9,8 @@ import { AlignJustify } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { RoleTranslations } from "@/lib/types";
+import { Role } from "@prisma/client";
 
 interface PopUpMenuProps {
 	onSubmit: () => void;
@@ -30,9 +32,7 @@ export default async function PopUpMenu() {
 			</PopoverTrigger>
 			<PopoverContent>
 				<div className="flex flex-col gap-2 items-center pb-2">
-					<p className="">
-						{user.role === "VALIDATOR" ? "VALIDADOR" : "USUARIO"}
-					</p>
+					<p className="">{RoleTranslations[user.role as Role]}</p>
 					<p>{user.phone}</p>
 					<p>{user.email}</p>
 				</div>
