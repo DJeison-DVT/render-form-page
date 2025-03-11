@@ -1,5 +1,8 @@
 import { auth } from "@/lib/auth";
-import { getPendingQuotes } from "@/lib/storage/database";
+import {
+	getPendingProviderQuotes,
+	getPendingQuotes,
+} from "@/lib/storage/database";
 import { Role } from "@prisma/client";
 import QuoteCard from "./components/QuoteCard";
 import { QuoteInformationWithQuotes } from "@/lib/types";
@@ -14,10 +17,20 @@ export default async function Dashboard() {
 		return null;
 	}
 
-	const result = await getPendingQuotes(
-		session.user.phone,
-		session.user.role as Role
-	);
+	let result: {
+		success: boolean;
+		quoteInformations?: QuoteInformationWithQuotes[];
+	} | null = null;
+
+	if (session.user.role === Role.PROVIDER) {
+		result = await getPendingProviderQuotes(session.user.phone);
+	} else {
+		result = await getPendingQuotes(
+			session.user.phone,
+			session.user.role as Role
+		);
+	}
+
 	if (!result.success) {
 		return null;
 	}

@@ -409,6 +409,55 @@ async function getPendingQuotes(phone: string, userRole: Role) {
 	}
 }
 
+async function getPendingProviderQuotes(phone: string) {
+	try {
+		const user = await prisma.user.findUnique({
+			where: {
+				phone,
+			},
+			select: {
+				id: true,
+			},
+		});
+
+		if (!user) {
+			throw new Error("Usuario no encontrado");
+		}
+
+		const providerQuotes = await prisma.providerQuotes.findMany({
+			where: {
+				userId: user.id,
+				quoteInformation: {
+					providerId: null,
+				},
+			},
+			include: {
+				quoteInformation: {
+					include: {
+						quotes: {
+							include: {
+								entries: true,
+							},
+							orderBy: {
+								createdAt: "desc",
+							},
+							take: 1,
+						},
+					},
+				},
+			},
+		});
+
+		return {
+			success: true,
+			quoteInformations: providerQuotes.map((pq) => pq.quoteInformation),
+		};
+	} catch (error) {
+		console.error("Error in getPendingProviderQuotes:", error);
+		throw new Error("Error al obtener las cotizaciones");
+	}
+}
+
 async function getCompleteQuotes(phone: string) {
 	try {
 		const quoteInformations = await prisma.quoteInformation.findMany({
@@ -453,4 +502,5 @@ export {
 	getQuoteProviders,
 	createProviderQuote,
 	selectProvider,
+	getPendingProviderQuotes,
 };

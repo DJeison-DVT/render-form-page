@@ -8,8 +8,6 @@ interface QuoteCardProps {
 }
 
 export default function QuoteCard({ quoteInformation, link }: QuoteCardProps) {
-	const quote = quoteInformation.quotes[0];
-	const entriesLength = quote.entries.length;
 	return (
 		<Link key={quoteInformation.id} href={link}>
 			<div className="flex justify-between items-center p-4 w-[900px] border-2 rounded-md border-gray-300 text-lg">
@@ -27,14 +25,26 @@ export default function QuoteCard({ quoteInformation, link }: QuoteCardProps) {
 					</div>
 				</div>
 				<div className="flex flex-col items-end justify-center">
-					<div>
-						Fecha de Comienzo: {formatDateString(quote.createdAt)}
-					</div>
-					<div>
-						Fecha de Actualizacion:{" "}
-						{formatDateString(quote.createdAt)}
-					</div>
-					<div>Cantidad de Opciones: {entriesLength}</div>
+					{quoteInformation.quotes.length > 0 && (
+						<>
+							<div>
+								Fecha de Comienzo:{" "}
+								{formatDateString(
+									quoteInformation.quotes[0].createdAt
+								)}
+							</div>
+							<div>
+								Fecha de Actualizacion:{" "}
+								{formatDateString(
+									quoteInformation.quotes[0].createdAt
+								)}
+							</div>
+							<div>
+								Cantidad de Opciones:{" "}
+								{quoteInformation.quotes[0].entries.length}
+							</div>
+						</>
+					)}
 				</div>
 			</div>
 		</Link>
