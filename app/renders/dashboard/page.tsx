@@ -58,7 +58,13 @@ export default async function Dashboard() {
 							<QuoteCard
 								key={quoteInformation.id}
 								quoteInformation={quoteInformation}
-								link={`/renders/confirmation/${quoteInformation.id}`}
+								link={`/renders/confirmation/${
+									quoteInformation.id
+								}${
+									quoteInformation.providerId
+										? ""
+										: "/provider"
+								}`}
 							/>
 						))}
 				</div>
