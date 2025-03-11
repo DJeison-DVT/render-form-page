@@ -47,21 +47,24 @@ model Quote {
   comment       String?
   createdByRole Role
 
-  quoteInformationId               String
-  quoteInformation                 QuoteInformation @relation(fields: [quoteInformationId], references: [id], onDelete: Cascade)
-  entries                          Entry[]
-  ProviderQuotes                   ProviderQuotes?  @relation(fields: [providerQuotesQuoteInformationId, providerQuotesUserId], references: [quoteInformationId, userId])
+  quoteInformationId String
+  quoteInformation   QuoteInformation @relation(fields: [quoteInformationId], references: [id], onDelete: Cascade)
+
+  entries Entry[]
+
   providerQuotesQuoteInformationId String?
   providerQuotesUserId             String?
+  providerQuotes                   ProviderQuotes?
 }
 
 model ProviderQuotes {
   quoteInformationId String
   userId             String
-  quotes             Quote[]
+  quoteId            Int?   @unique
 
   quoteInformation QuoteInformation @relation(fields: [quoteInformationId], references: [id], onDelete: Cascade)
   user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  quote            Quote?           @relation(fields: [quoteId], references: [id])
 
   @@id([quoteInformationId, userId])
 }

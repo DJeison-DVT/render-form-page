@@ -195,14 +195,10 @@ async function getQuoteProviders(id: string) {
 				ProviderQuotes: {
 					include: {
 						user: true,
-						quotes: {
+						quote: {
 							include: {
 								entries: true,
 							},
-							orderBy: {
-								createdAt: "desc",
-							},
-							take: 1,
 						},
 					},
 				},
@@ -218,17 +214,14 @@ async function getQuoteProviders(id: string) {
 
 async function createProviderQuote(
 	quoteInfoId: string,
-	userPhone: string,
+	providerId: string,
 	data: z.infer<typeof RenderUploadSchema>,
 	options?: { rejectedQuoteId?: number }
 ) {
 	try {
 		const user = await prisma.user.findUnique({
 			where: {
-				phone: userPhone,
-			},
-			select: {
-				id: true,
+				id: providerId,
 			},
 		});
 		if (!user) {
@@ -245,11 +238,22 @@ async function createProviderQuote(
 		const quote = result.quote;
 
 		await prisma.$transaction(async (transaction) => {
+			if (options?.rejectedQuoteId) {
+				await transaction.quote.update({
+					where: { id: options.rejectedQuoteId },
+					data: {
+						providerQuotesQuoteInformationId: null,
+						providerQuotesUserId: null,
+					},
+				});
+			}
 			await transaction.quote.update({
-				where: { id: quote.id },
+				where: {
+					id: quote.id,
+				},
 				data: {
 					providerQuotesQuoteInformationId: quoteInfoId,
-					providerQuotesUserId: user.id,
+					providerQuotesUserId: providerId,
 				},
 			});
 			await transaction.providerQuotes.update({
@@ -260,9 +264,7 @@ async function createProviderQuote(
 					},
 				},
 				data: {
-					quotes: {
-						connect: { id: quote.id },
-					},
+					quoteId: quote.id,
 				},
 			});
 		});
@@ -352,7 +354,9 @@ async function getPendingQuotes(phone: string, userRole: Role) {
 		const filteredQuotes = quoteInformations.filter(
 			(quoteInformation) =>
 				quoteInformation.quotes.length > 0 &&
-				quoteInformation.quotes[0].createdByRole === oppositeRole
+				(quoteInformation.quotes[0].createdByRole === oppositeRole ||
+					(quoteInformation.providerId === null &&
+						userRole === "PETITIONER"))
 		);
 
 		return { success: true, quoteInformations: filteredQuotes };

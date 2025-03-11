@@ -3,7 +3,11 @@
 import EntryForm from "@/app/components/formPage/EntryForm";
 import QuoteInformationDisplay from "@/app/components/QuoteInformationDisplay";
 import Registered from "@/app/components/Registered";
-import { initializeRenderUpload, RenderUploadSchema } from "@/app/Schemas";
+import {
+	initializeEntry,
+	initializeRenderUpload,
+	RenderUploadSchema,
+} from "@/app/Schemas";
 import { Form } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -31,8 +35,9 @@ import Loading from "@/components/Loading";
 import { QuoteWithEntries } from "@/lib/types";
 import { downloadImageAsFile } from "@/lib/serverUtils";
 
+interface Provider extends Record<string, string> {}
 interface InformationProviderQuotes
-	extends Record<string, QuoteWithEntries[]> {}
+	extends Record<string, QuoteWithEntries | null> {}
 
 export default function ProviderConfirmation() {
 	const { id } = useParams();
@@ -46,8 +51,7 @@ export default function ProviderConfirmation() {
 		return <Loading />;
 	}
 	const role = session.user.role as Role;
-	const name = session.user.name;
-
+	const phone = session.user.phone;
 	if (role === Role.VALIDATOR) {
 		return <div>Error: No tienes permiso para acceder a esta página</div>;
 	}
@@ -60,6 +64,7 @@ export default function ProviderConfirmation() {
 	const [registered, setRegistered] = useState(false);
 	const [quote, setQuote] = useState<Quote>();
 	const [provider, setProvider] = useState<string>();
+	const [providerIds, setProviderIds] = useState<Provider>();
 	const [providers, setProviders] = useState<InformationProviderQuotes>();
 	const [quoteInformation, setQuoteInformation] =
 		useState<QuoteInformation>();
@@ -82,16 +87,16 @@ export default function ProviderConfirmation() {
 	const onSubmitUpdate = async (
 		values: z.infer<typeof RenderUploadSchema>
 	) => {
+		setDisabled(true);
 		values.createdByRole = role;
-		if (form.formState.isValid) {
+		if (form.formState.isValid && providerIds && provider) {
 			try {
-				setDisabled(true);
-				await createProviderQuote(id, session.user.phone, values, {
+				console.log(providerIds[provider]);
+				await createProviderQuote(id, providerIds[provider], values, {
 					rejectedQuoteId: quote?.id,
 				});
 				setRegistered(true);
 				form.reset();
-				setDisabled(false);
 			} catch (error) {
 				const message = error instanceof Error ? error.message : "";
 				toast({
@@ -101,7 +106,32 @@ export default function ProviderConfirmation() {
 				});
 			}
 		}
+		setDisabled(false);
 	};
+
+	// const fetchAndAssignImages = async (quote: QuoteWithEntries) => {
+	// 	const entries = quote.entries;
+
+	// 	for (let i = 0; i < entries.length; i++) {
+	// 		const entry = entries[i];
+
+	// 		if (entry.imageUrl) {
+	// 			try {
+	// 				const file = await downloadImageAsFile(
+	// 					entry.imageUrl,
+	// 					`entry-${i}.jpg`
+	// 				);
+	// 				console.log(file.name);
+	// 				// form.setValue(`entries.${i}.image`, file);
+	// 			} catch (error) {
+	// 				console.error(
+	// 					`Error downloading image for entry ${i}:`,
+	// 					error
+	// 				);
+	// 			}
+	// 		}
+	// 	}
+	// };
 
 	const onSubmitFinalize = async () => {
 		try {
@@ -113,7 +143,6 @@ export default function ProviderConfirmation() {
 			await selectProvider(id, quote.providerQuotesUserId);
 			setRegistered(true);
 			form.reset();
-			setDisabled(false);
 		} catch (error) {
 			const message = error instanceof Error ? error.message : "";
 			toast({
@@ -122,6 +151,7 @@ export default function ProviderConfirmation() {
 				description: message,
 			});
 		}
+		setDisabled(false);
 	};
 
 	const fetchQuoteInformation = async () => {
@@ -145,6 +175,14 @@ export default function ProviderConfirmation() {
 			}
 
 			const quoteInformation = response.quoteInformation;
+			if (
+				quoteInformation.providerId ||
+				quoteInformation.stage !== "QUOTING"
+			) {
+				setNotFound(true);
+				setLoading(false);
+				return;
+			}
 			form.setValue("brand", quoteInformation.brand);
 			form.setValue("client", quoteInformation.client);
 			form.setValue("company", quoteInformation.company);
@@ -154,28 +192,41 @@ export default function ProviderConfirmation() {
 			form.setValue("serial", quoteInformation.serial);
 
 			const providerQuote = quoteInformation.ProviderQuotes[0];
-			if (providerQuote.quotes.length > 0) {
-				const quote = providerQuote.quotes[0];
+			if (providerQuote.quote) {
+				const quote = providerQuote.quote;
 				// await fetchAndAssignImages(quote);
 			}
 
 			let providerQuotes: InformationProviderQuotes = {};
 			let hasQuotes = false;
+			let providerIds: Provider = {};
 
 			for (const provider of quoteInformation.ProviderQuotes) {
-				if (provider.user.name === name) {
-					// delete all of the others if the access is from the provider
+				const alias = provider.user.company || provider.user.name;
+				if (!Object.keys(providerQuotes).includes(alias)) {
+					providerQuotes[alias] = null;
+					providerIds[alias] = provider.user.id;
+				}
+
+				if (provider.user.phone === phone) {
 					providerQuotes = {};
-					providerQuotes[
-						provider.user.company || provider.user.name
-					] = provider.quotes;
+					providerQuotes[alias] = null;
+					if (provider.quote) {
+						providerQuotes[
+							provider.user.company || provider.user.name
+						] = provider.quote;
+					}
 					break;
 				}
-				if (provider.quotes.length > 0) {
+				if (provider.quote) {
 					hasQuotes = true;
 				}
-				providerQuotes[provider.user.company || provider.user.name] =
-					provider.quotes;
+
+				if (provider.quote) {
+					providerQuotes[
+						provider.user.company || provider.user.name
+					] = provider.quote;
+				}
 			}
 
 			const providers = Object.keys(providerQuotes);
@@ -186,6 +237,7 @@ export default function ProviderConfirmation() {
 			}
 
 			setProviders(providerQuotes);
+			setProviderIds(providerIds);
 			setProvider(providers[0]);
 
 			if (!hasQuotes && role === Role.PETITIONER) {
@@ -219,24 +271,24 @@ export default function ProviderConfirmation() {
 		if (!provider || !providers) {
 			return;
 		}
-
-		const quote = providers[provider][0];
-		if (!quote) {
-			return;
+		const quote = providers[provider];
+		if (quote) {
+			setQuote(quote);
 		}
 
-		setQuote(quote);
 		const transformedData = {
 			...quoteInformation,
 			createdByRole: role,
 			comment: "",
-			entries: quote.entries.map((entry) => ({
-				...entry,
-				unitaryPrice: entry.unitaryPrice ?? 0,
-				unitaryCost: entry.unitaryCost ?? 0,
-				unitaryFinalPrice: entry.unitaryFinalPrice ?? 0,
-				image: null,
-			})),
+			entries: quote
+				? quote.entries.map((entry) => ({
+						...entry,
+						unitaryPrice: entry.unitaryPrice ?? 0,
+						unitaryCost: entry.unitaryCost ?? 0,
+						unitaryFinalPrice: entry.unitaryFinalPrice ?? 0,
+						image: null,
+				  }))
+				: [initializeEntry()],
 		};
 		form.reset(transformedData);
 	};
