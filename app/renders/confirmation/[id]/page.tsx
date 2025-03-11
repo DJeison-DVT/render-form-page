@@ -153,7 +153,7 @@ export default function Confirmation() {
 				...quoteInformation,
 				date: quoteInformation.createdAt.toISOString().split("T")[0],
 				createdByRole: role,
-				comment: "",
+				comment: quoteInformation.quote.comment ?? "",
 				entries: quoteInformation.entries.map((entry) => ({
 					...entry,
 					unitaryPrice: entry.unitaryPrice ?? 0,

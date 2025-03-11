@@ -146,6 +146,7 @@ async function createQuote(
 					quoteInformationId: quoteInfoId,
 					createdByRole: validData.createdByRole as Role,
 					createdAt: new Date(),
+					comment: validData.comment,
 					entries: {
 						create: validData.entries.map((entry, idx) => ({
 							name: entry.name,
@@ -274,14 +275,29 @@ async function createProviderQuote(
 	}
 }
 
-async function selectProvider(quoteInfoId: string, userId: string) {
+async function selectProvider(
+	quoteInfoId: string,
+	providerId: string,
+	data: z.infer<typeof RenderUploadSchema>,
+	options?: { rejectedQuoteId?: number }
+) {
 	try {
+		await prisma.quote.updateMany({
+			where: {
+				quoteInformationId: quoteInfoId,
+			},
+			data: {
+				rejectedAt: new Date(),
+			},
+		});
+		createProviderQuote(quoteInfoId, providerId, data, options);
 		await prisma.quoteInformation.update({
 			where: {
 				id: quoteInfoId,
 			},
 			data: {
-				providerId: userId,
+				providerId: providerId,
+				stage: "NEGOTIATING",
 			},
 		});
 	} catch (error) {

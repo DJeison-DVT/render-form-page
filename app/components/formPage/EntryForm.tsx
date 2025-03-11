@@ -57,6 +57,7 @@ function EntryForm({
 }) {
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const { data: session } = useSession();
+	const message = form.getValues("comment");
 
 	if (!session) {
 		return <Loading />;
@@ -64,6 +65,7 @@ function EntryForm({
 
 	const content = (
 		<>
+			<div className="text-lg">Comentario: {message || "Vacio"}</div>
 			<div className="flex justify-between items-center bg-white z-10 sticky top-0 p-2 border-b">
 				<h4 className="text-3xl font-bold">Cotización</h4>
 				<TooltipProvider>

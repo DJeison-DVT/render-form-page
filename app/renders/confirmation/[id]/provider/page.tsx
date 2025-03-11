@@ -133,16 +133,18 @@ export default function ProviderConfirmation() {
 	// 	}
 	// };
 
-	const onSubmitFinalize = async () => {
+	const onSubmitFinalize = async (
+		values: z.infer<typeof RenderUploadSchema>
+	) => {
+		setDisabled(true);
 		try {
-			if (!quote || !quote.providerQuotesUserId) {
-				return;
+			if (quote && form.formState.isValid && providerIds && provider) {
+				await selectProvider(id, providerIds[provider], values, {
+					rejectedQuoteId: quote.id,
+				});
+				setRegistered(true);
+				form.reset();
 			}
-
-			setDisabled(true);
-			await selectProvider(id, quote.providerQuotesUserId);
-			setRegistered(true);
-			form.reset();
 		} catch (error) {
 			const message = error instanceof Error ? error.message : "";
 			toast({
@@ -279,7 +281,7 @@ export default function ProviderConfirmation() {
 		const transformedData = {
 			...quoteInformation,
 			createdByRole: role,
-			comment: "",
+			comment: quote?.comment ?? "",
 			entries: quote
 				? quote.entries.map((entry) => ({
 						...entry,
@@ -411,7 +413,9 @@ export default function ProviderConfirmation() {
 														"cursor-pointer bg-gray-800/90 text-white rounded-md hover:bg-gray-700/90 gap-2 p-1 px-2 transition flex justify-center items-center text-xl"
 													}
 													onClick={() => {
-														onSubmitFinalize();
+														onSubmitFinalize(
+															form.getValues()
+														);
 													}}
 												>
 													<CheckCheck />
