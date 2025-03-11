@@ -133,6 +133,8 @@ export default function Confirmation() {
 				entries: response.quoteInformation.quotes[0]?.entries || [],
 			};
 
+			console.log(quoteInformation);
+
 			if (!quoteInformation.providerId) {
 				setNotFound(true);
 				return;
@@ -229,6 +231,7 @@ export default function Confirmation() {
 										fieldArrayInsert={fieldArrayInsert}
 										fieldArrayRemove={fieldArrayRemove}
 										disabled={disabled}
+										role={role}
 									/>
 								</div>
 							</div>
