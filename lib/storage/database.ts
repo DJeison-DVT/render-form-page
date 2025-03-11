@@ -133,12 +133,15 @@ async function createQuote(
 			throw new Error("Error al subir las imágenes");
 		}
 
-		const [updatedQuote, newQuote] = await prisma.$transaction([
-			prisma.quote.update({
-				where: { id: rejectedQuoteId },
-				data: { rejectedAt: new Date() },
-			}),
-			prisma.quote.create({
+		const { newQuote } = await prisma.$transaction(async (transaction) => {
+			if (rejectedQuoteId) {
+				await transaction.quote.update({
+					where: { id: rejectedQuoteId },
+					data: { rejectedAt: new Date() },
+				});
+			}
+
+			const newQuote = await transaction.quote.create({
 				data: {
 					quoteInformationId: quoteInfoId,
 					createdByRole: validData.createdByRole as Role,
@@ -160,8 +163,9 @@ async function createQuote(
 				include: {
 					entries: true,
 				},
-			}),
-		]);
+			});
+			return { newQuote };
+		});
 
 		const target =
 			data.createdByRole == Role.PETITIONER
@@ -195,6 +199,10 @@ async function getQuoteProviders(id: string) {
 							include: {
 								entries: true,
 							},
+							orderBy: {
+								createdAt: "desc",
+							},
+							take: 1,
 						},
 					},
 				},

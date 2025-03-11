@@ -133,8 +133,6 @@ export default function Confirmation() {
 				entries: response.quoteInformation.quotes[0]?.entries || [],
 			};
 
-			console.log(quoteInformation);
-
 			if (!quoteInformation.providerId) {
 				setNotFound(true);
 				return;

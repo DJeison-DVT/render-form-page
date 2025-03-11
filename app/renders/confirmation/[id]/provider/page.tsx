@@ -29,6 +29,7 @@ import CommentDialog from "@/app/components/CommentDialog";
 import { useSession } from "next-auth/react";
 import Loading from "@/components/Loading";
 import { QuoteWithEntries } from "@/lib/types";
+import { downloadImageAsFile } from "@/lib/serverUtils";
 
 interface InformationProviderQuotes
 	extends Record<string, QuoteWithEntries[]> {}
@@ -46,7 +47,6 @@ export default function ProviderConfirmation() {
 	}
 	const role = session.user.role as Role;
 	const name = session.user.name;
-	const userId = session.user.id;
 
 	if (role === Role.VALIDATOR) {
 		return <div>Error: No tienes permiso para acceder a esta página</div>;
@@ -82,16 +82,11 @@ export default function ProviderConfirmation() {
 	const onSubmitUpdate = async (
 		values: z.infer<typeof RenderUploadSchema>
 	) => {
-		console.log("Updating quote");
-		if (!userId) {
-			return;
-		}
-
 		values.createdByRole = role;
 		if (form.formState.isValid) {
 			try {
 				setDisabled(true);
-				await createProviderQuote(id, userId, values, {
+				await createProviderQuote(id, session.user.phone, values, {
 					rejectedQuoteId: quote?.id,
 				});
 				setRegistered(true);
@@ -149,10 +144,25 @@ export default function ProviderConfirmation() {
 				return;
 			}
 
+			const quoteInformation = response.quoteInformation;
+			form.setValue("brand", quoteInformation.brand);
+			form.setValue("client", quoteInformation.client);
+			form.setValue("company", quoteInformation.company);
+			form.setValue("project", quoteInformation.project);
+			form.setValue("requestContact", quoteInformation.requestContact);
+			form.setValue("approvalContact", quoteInformation.approvalContact);
+			form.setValue("serial", quoteInformation.serial);
+
+			const providerQuote = quoteInformation.ProviderQuotes[0];
+			if (providerQuote.quotes.length > 0) {
+				const quote = providerQuote.quotes[0];
+				// await fetchAndAssignImages(quote);
+			}
+
 			let providerQuotes: InformationProviderQuotes = {};
 			let hasQuotes = false;
 
-			for (const provider of response.quoteInformation.ProviderQuotes) {
+			for (const provider of quoteInformation.ProviderQuotes) {
 				if (provider.user.name === name) {
 					// delete all of the others if the access is from the provider
 					providerQuotes = {};
