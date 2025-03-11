@@ -399,6 +399,7 @@ async function getPendingQuotes(phone: string, userRole: Role) {
 
 		const filteredQuotes = quoteInformations.filter(
 			(quoteInformation) =>
+				quoteInformation.quotes.length > 0 &&
 				quoteInformation.quotes[0].createdByRole === oppositeRole
 		);
 
