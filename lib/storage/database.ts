@@ -5,14 +5,10 @@ import { prisma } from "@/lib/prisma";
 import { Role } from "@prisma/client";
 import { z } from "zod";
 import { sendMessage } from "../messaging";
-import { savePDF } from "./gcloud";
+import { savePDF, upsertImage } from "./gcloud";
 
 const MESSAGE_TEMPLATE = "HX92dca13fd40b55ff25d9e3ffa3e10429";
 const APP_URL = process.env.APP_URL;
-
-const upsertImage = async (image: string) => {
-	return "";
-};
 
 async function createQuoteInformation(
 	data: z.infer<typeof ProposalUploadSchema>
@@ -76,76 +72,6 @@ async function createQuoteInformation(
 	}
 }
 
-// async function createQuoteInformation(
-// 	data: z.infer<typeof RenderUploadSchema>
-// ) {
-// 	const parsedData = RenderUploadSchema.safeParse(data);
-
-// 	if (!parsedData.success) {
-// 		console.error("Validation Error:", parsedData.error);
-// 		throw new Error("Invalid data provided to createQuoteInformation");
-// 	}
-
-// 	const validData = parsedData.data;
-
-// 	for (const entry of validData.entries) {
-// 		if (entry.image) {
-// 			await upsertImage(entry.image);
-// 		}
-// 	}
-
-// 	try {
-// 		const quoteInformation = await prisma.quoteInformation.create({
-// 			data: {
-// 				company: validData.company,
-// 				approvalContact: validData.approvalContact,
-// 				requestContact: validData.requestContact,
-// 				client: validData.client,
-// 				brand: validData.brand,
-// 				project: validData.project,
-// 				serial: validData.serial,
-// 				quotes: {
-// 					create: {
-// 						createdByRole: validData.createdByRole,
-// 						createdAt: new Date(),
-// 						comment: validData.comment || "",
-// 						entries: {
-// 							create: validData.entries.map((entry) => ({
-// 								concept: entry.concept,
-// 								name: entry.name,
-// 								range: entry.range,
-// 								sizes: entry.sizes,
-// 								material: entry.material,
-// 								materialSubtype: entry.materialSubtype,
-// 								unitaryPrice: entry.unitaryPrice,
-// 								unitaryCost: entry.unitaryCost,
-// 								imageUrl: entry.image,
-// 							})),
-// 						},
-// 					},
-// 				},
-// 			},
-// 			include: {
-// 				quotes: {
-// 					include: {
-// 						entries: true,
-// 					},
-// 				},
-// 			},
-// 		});
-
-// 		await sendMessage(quoteInformation.approvalContact, MESSAGE_TEMPLATE, {
-// 			1: quoteInformation.serial,
-// 			2: quoteInformation.project,
-// 			3: "aprobarla o rechazarla",
-// 			4: `https://localhost:3000/renders/confirmation/${quoteInformation.id}`,
-// 		});
-// 	} catch (error) {
-// 		console.error("Error in createQuoteInformation:", error);
-// 		throw new Error("Error al crear la cotización");
-// 	}
-// }
-
 async function getQuoteInformation(id: string, single = false) {
 	try {
 		const quoteInformation = await prisma.quoteInformation.findUnique({
@@ -192,15 +118,21 @@ async function createQuote(
 	}
 
 	const validData = parsedData.data;
-	let imageUrls: string[] = [];
-	for (const entry of validData.entries) {
-		if (entry.image) {
-			const url = await upsertImage(entry.image);
-			imageUrls.push(url);
-		}
-	}
 
 	try {
+		let imageUrls: string[] = [];
+		for (const entry of validData.entries) {
+			if (entry.image) {
+				const url = await upsertImage(entry.image);
+				if (url) {
+					imageUrls.push(url);
+				}
+			}
+		}
+		if (imageUrls.length !== validData.entries.length) {
+			throw new Error("Error al subir las imágenes");
+		}
+
 		const [updatedQuote, newQuote] = await prisma.$transaction([
 			prisma.quote.update({
 				where: { id: rejectedQuoteId },
@@ -278,11 +210,23 @@ async function getQuoteProviders(id: string) {
 
 async function createProviderQuote(
 	quoteInfoId: string,
-	userId: string,
+	userPhone: string,
 	data: z.infer<typeof RenderUploadSchema>,
 	options?: { rejectedQuoteId?: number }
 ) {
 	try {
+		const user = await prisma.user.findUnique({
+			where: {
+				phone: userPhone,
+			},
+			select: {
+				id: true,
+			},
+		});
+		if (!user) {
+			throw new Error("Usuario no encontrado");
+		}
+
 		const result = await createQuote(
 			quoteInfoId,
 			data,
@@ -297,14 +241,14 @@ async function createProviderQuote(
 				where: { id: quote.id },
 				data: {
 					providerQuotesQuoteInformationId: quoteInfoId,
-					providerQuotesUserId: userId,
+					providerQuotesUserId: user.id,
 				},
 			});
 			await transaction.providerQuotes.update({
 				where: {
 					quoteInformationId_userId: {
 						quoteInformationId: quoteInfoId,
-						userId,
+						userId: user.id,
 					},
 				},
 				data: {
