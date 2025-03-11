@@ -1,4 +1,5 @@
 import { Storage } from "@google-cloud/storage";
+import crypto from "crypto";
 
 const BUCKET_NAME = "render_forms";
 
@@ -22,11 +23,60 @@ async function generateV4UploadSignedUrl(path: string, contentType: string) {
 	return url;
 }
 
+async function fileExistsInBucket(hash: string, extension: string) {
+	const storage = new Storage({
+		keyFilename: process.env.KEYFILE_NAME,
+	});
+	const file = storage.bucket(BUCKET_NAME).file(`${hash}${extension}`);
+	const [exists] = await file.exists();
+	return exists;
+}
+
+const hashImage = async (image: File): Promise<string> => {
+	const buffer = await image.arrayBuffer(); // Convert File to ArrayBuffer
+	const hash = crypto
+		.createHash("md5")
+		.update(Buffer.from(buffer))
+		.digest("hex");
+	return hash;
+};
+const upsertImage = async (image: File) => {
+	try {
+		const fileHash = await hashImage(image);
+		const extension = image.name.split(".").pop();
+		if (!extension || !["png", "jpg", "jpeg", "webp"].includes(extension)) {
+			throw new Error("Extension invalida");
+		}
+
+		const filePath = `${fileHash}.${extension}`;
+
+		const exists = await fileExistsInBucket(fileHash, `.${extension}`);
+		if (exists) {
+			return filePath;
+		}
+
+		const buffer = await image.arrayBuffer();
+
+		const url = await generateV4UploadSignedUrl(filePath, image.type);
+		const response = await fetch(url, {
+			method: "PUT",
+			headers: {
+				"Content-Type": image.type,
+			},
+			body: Buffer.from(buffer),
+		});
+
+		console.log("Uploaded image to GCP:", response.status);
+		return filePath;
+	} catch (error) {
+		console.error("Error upserting image", error);
+	}
+};
+
 const savePDF = async (pdf: File, path: string) => {
 	if (!pdf) throw new Error("No se ha proporcionado un archivo PDF");
 	if (pdf.size < 1) throw new Error("El archivo PDF está vacío");
 
-	console.log("Uploading PDF to GCP:", pdf.name);
 	const buffer = await pdf.arrayBuffer();
 
 	const url = await generateV4UploadSignedUrl(path, "application/pdf");
@@ -41,4 +91,4 @@ const savePDF = async (pdf: File, path: string) => {
 	console.log("Uploaded PDF to GCP:", response.status);
 };
 
-export { savePDF };
+export { savePDF, upsertImage };
