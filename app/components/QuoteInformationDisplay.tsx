@@ -1,6 +1,10 @@
-import { QuoteInformation } from "@prisma/client";
+import { QuoteInformation, User } from "@prisma/client";
 import CompanyImage from "./CompanyImage";
 import { formatMexicanPhoneNumber } from "@/lib/utils";
+import { getUserById } from "@/lib/storage/database";
+import { useEffect, useState } from "react";
+import { buildImageURL } from "@/lib/serverUtils";
+import { FileSearch } from "lucide-react";
 
 export default function QuoteInformationDisplay({
 	quoteInformation,
@@ -21,6 +25,24 @@ export default function QuoteInformationDisplay({
 			<td className="border px-4 py-2">{value}</td>
 		</>
 	);
+	const [provider, setProvider] = useState<User | null>(null);
+	const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+
+	const buildPDFUrl = async () => {
+		if (quoteInformation.pdfUrl) {
+			const url = await buildImageURL(quoteInformation.pdfUrl);
+			setPdfUrl(url);
+		}
+	};
+
+	useEffect(() => {
+		buildPDFUrl();
+		if (quoteInformation.providerId) {
+			getUserById(quoteInformation.providerId).then((provider) =>
+				setProvider(provider)
+			);
+		}
+	}, [quoteInformation.providerId, quoteInformation.pdfUrl]);
 
 	return (
 		<div className="flex justify-around items-center p-8">
@@ -73,7 +95,23 @@ export default function QuoteInformationDisplay({
 					</tbody>
 				</table>
 			</div>
-			<div></div>
+			<div className="flex flex-col items-center gap-4 justify-center">
+				<div>
+					Provedor:{" "}
+					{provider ? provider.name || provider.name : "No asignado"}
+				</div>
+				<div>
+					{pdfUrl && (
+						<a
+							href={pdfUrl}
+							className="flex items-center justify-center gap-2 bg-slate-400 text-white p-2 rounded-md"
+						>
+							Ver Pdf
+							<FileSearch size={32} />
+						</a>
+					)}
+				</div>
+			</div>
 		</div>
 	);
 }

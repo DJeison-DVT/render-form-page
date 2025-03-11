@@ -463,6 +463,15 @@ const getUsers = async (role?: Role) => {
 	return users;
 };
 
+const getUserById = async (id: string) => {
+	const user = await prisma.user.findUnique({
+		where: {
+			id,
+		},
+	});
+	return user;
+};
+
 export {
 	createQuoteInformation,
 	getQuoteInformation,
@@ -476,4 +485,5 @@ export {
 	createProviderQuote,
 	selectProvider,
 	getPendingProviderQuotes,
+	getUserById,
 };

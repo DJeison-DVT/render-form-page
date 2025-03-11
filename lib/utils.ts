@@ -9,7 +9,3 @@ export function formatMexicanPhoneNumber(number: string) {
 	let cleaned = number.replace(/\D/g, "");
 	return cleaned.replace(/^(\d{3})(\d{3})(\d{4})$/, "($1) $2-$3");
 }
-
-export function buildImageURL(imagePath: string) {
-	return `${process.env.BUCKET_URL}${imagePath}`;
-}
