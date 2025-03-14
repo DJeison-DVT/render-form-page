@@ -66,7 +66,7 @@ jobs:
                       NEXT_PUBLIC_APPROVAL_CONTACT_EMAIL=${{ secrets.NEXT_PUBLIC_APPROVAL_CONTACT_EMAIL }}
                       NODE_ENV="production"
 
-                      NEXTAUTH_URL=${{ steps.deploy.outputs.url }}
+                      NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}
                       PROJECT_ID=${{ secrets.PROJECT_ID }}
                       KEYFILE_NAME=${{ secrets.KEYFILE_NAME }}
                       BUCKET_NAME=${{ secrets.BUCKET_NAME }}
