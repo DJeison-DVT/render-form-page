@@ -73,7 +73,7 @@ jobs:
                       BUCKET_NAME=${{ secrets.BUCKET_NAME }}
                       BUCKET_URL=${{ secrets.BUCKET_URL }}
 
-                      AUTH_SECRET=${{ secrets.AUTH_SECRET }}
+                      NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}
 
                       DATABASE_URL=${{ secrets.DATABASE_URL }}
 
