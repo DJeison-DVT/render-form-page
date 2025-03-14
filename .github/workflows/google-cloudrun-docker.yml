@@ -31,8 +31,7 @@ jobs:
                   credentials_json: "${{ secrets.GCP_CREDENTIALS }}" # Replace with the name of your GitHub Actions secret
 
             - name: Write GCP Bucket Credentials
-              run: echo "${{ secrets.GCP_BUCKET_CREDENTIALS }}" | base64 --decode > bucket_credentials.json
-
+              run: echo "${{ secrets.GCP_BUCKET_CREDENTIALS }}" | base64 --decode > credentials_bucket.json
             - name: Show App Structure
               run: ls -la
 
