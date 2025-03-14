@@ -291,8 +291,7 @@ function EntryForm({
 								)}
 							/>
 						)}
-						{(role === Role.PETITIONER ||
-							role === Role.VALIDATOR) && (
+						{role === Role.PETITIONER && (
 							<FormField
 								control={form.control}
 								name={`entries.${index}.unitaryPrice`}
@@ -300,15 +299,12 @@ function EntryForm({
 									<FormItem>
 										{index == 0 && (
 											<FormLabel>
-												Precio Unitario
+												Precio DeMente
 											</FormLabel>
 										)}
 										<FormControl>
 											<Input
-												disabled={
-													disabled ||
-													role === Role.VALIDATOR
-												}
+												disabled={disabled}
 												type="number"
 												className="w-24"
 												{...field}
@@ -333,7 +329,7 @@ function EntryForm({
 											<Input
 												disabled={
 													disabled ||
-													role === Role.PETITIONER
+													role === Role.VALIDATOR
 												}
 												type="number"
 												className="w-24"

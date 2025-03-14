@@ -13,7 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import {
 	createProviderQuote,
 	getQuoteProviders,
-	selectProvider,
+	saveProvider,
 } from "@/lib/storage/database";
 import {
 	Select,
@@ -33,7 +33,7 @@ import CommentDialog from "@/app/components/CommentDialog";
 import { useSession } from "next-auth/react";
 import Loading from "@/components/Loading";
 import { QuoteWithEntries } from "@/lib/types";
-import { downloadImageAsFile } from "@/lib/serverUtils";
+// import { downloadImageAsFile } from "@/lib/serverUtils";
 
 interface Provider extends Record<string, string> {}
 interface InformationProviderQuotes
@@ -139,7 +139,7 @@ export default function ProviderConfirmation() {
 		setDisabled(true);
 		try {
 			if (quote && form.formState.isValid && providerIds && provider) {
-				await selectProvider(id, providerIds[provider], values, {
+				await saveProvider(id, providerIds[provider], values, {
 					rejectedQuoteId: quote.id,
 				});
 				setRegistered(true);
@@ -354,7 +354,6 @@ export default function ProviderConfirmation() {
 									quoteInformation={quoteInformation}
 								/>
 							)}
-							<div>{quote?.comment}</div>
 							<div className="flex justify-center">
 								<div className="w-fit">
 									{role && (
