@@ -100,7 +100,10 @@ function EntryForm({
 										<div className="flex flex-col items-center justify-center max-w-24">
 											<div className="w-24 h-24 border border-gray-300 rounded-md overflow-hidden flex items-center justify-center bg-gray-100">
 												<Input
-													disabled={disabled}
+													disabled={
+														disabled ||
+														role === Role.VALIDATOR
+													}
 													type="file"
 													id={`file-upload-${index}`}
 													onChange={(e) => {
@@ -156,7 +159,10 @@ function EntryForm({
 									)}
 									<FormControl>
 										<Input
-											disabled={disabled}
+											disabled={
+												disabled ||
+												role === Role.VALIDATOR
+											}
 											placeholder="Exhibidor"
 											{...field}
 										/>
@@ -175,7 +181,10 @@ function EntryForm({
 									)}
 									<FormControl>
 										<Input
-											disabled={disabled}
+											disabled={
+												disabled ||
+												role === Role.VALIDATOR
+											}
 											placeholder="Madera"
 											{...field}
 										/>
@@ -194,7 +203,10 @@ function EntryForm({
 									)}
 									<FormControl>
 										<Input
-											disabled={disabled}
+											disabled={
+												disabled ||
+												role === Role.VALIDATOR
+											}
 											placeholder="300mm"
 											{...field}
 										/>
@@ -213,7 +225,10 @@ function EntryForm({
 									)}
 									<FormControl>
 										<Input
-											disabled={disabled}
+											disabled={
+												disabled ||
+												role === Role.VALIDATOR
+											}
 											placeholder="22cm x 33cm x 40cm"
 											{...field}
 										/>
@@ -234,7 +249,10 @@ function EntryForm({
 										<Textarea
 											placeholder="Exhibidor de piso fabricado con..."
 											{...field}
-											disabled={disabled}
+											disabled={
+												disabled ||
+												role === Role.VALIDATOR
+											}
 											className="min-w-96"
 										/>
 									</FormControl>
@@ -252,7 +270,10 @@ function EntryForm({
 									)}
 									<FormControl>
 										<Input
-											disabled={disabled}
+											disabled={
+												disabled ||
+												role === Role.VALIDATOR
+											}
 											placeholder="Piezas"
 											className="w-24"
 											type="number"
@@ -279,7 +300,8 @@ function EntryForm({
 											<Input
 												disabled={
 													disabled ||
-													role === Role.PETITIONER
+													role === Role.PETITIONER ||
+													role === Role.PROVIDER
 												}
 												type="number"
 												className="w-24"
@@ -298,7 +320,7 @@ function EntryForm({
 								render={({ field }) => (
 									<FormItem>
 										{index == 0 && (
-											<FormLabel>
+											<FormLabel className="text-nowrap">
 												Precio DeMente
 											</FormLabel>
 										)}
@@ -347,7 +369,11 @@ function EntryForm({
 									<TooltipTrigger
 										asChild
 										onClick={() => {
-											if (disabled) return;
+											if (
+												disabled ||
+												role === Role.VALIDATOR
+											)
+												return;
 											const currentEntry =
 												form.getValues().entries[index];
 											const newEntry = Object.assign(
@@ -371,7 +397,8 @@ function EntryForm({
 										<PushableComponent>
 											<CornerDownLeft
 												className={
-													disabled
+													disabled ||
+													role === Role.VALIDATOR
 														? "text-gray-400 cursor-not-allowed"
 														: ""
 												}
@@ -394,9 +421,10 @@ function EntryForm({
 										asChild
 										onClick={() => {
 											if (
-												form.getValues().entries
+												(form.getValues().entries
 													.length > 1 &&
-												!disabled
+													!disabled) ||
+												role !== Role.VALIDATOR
 											) {
 												setIsModalOpen(true);
 											}
@@ -439,7 +467,8 @@ function EntryForm({
 												onClick={() => {
 													if (
 														form.getValues().entries
-															.length == 1
+															.length == 1 ||
+														role === Role.VALIDATOR
 													)
 														return;
 													fieldArrayRemove(index);

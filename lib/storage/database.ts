@@ -14,13 +14,11 @@ async function createQuoteInformation(
 	data: z.infer<typeof ProposalUploadSchema>
 ) {
 	const parsedData = ProposalUploadSchema.safeParse(data);
-	console.log("Parsed data:", parsedData);
 	if (!parsedData.success) {
 		console.error("Validation Error:", parsedData.error);
 		throw new Error("Invalid data provided to createQuoteInformation");
 	}
 
-	console.log("Creating quote information");
 	const validData = parsedData.data;
 	const path = `${validData.company}/${validData.serial}.pdf`;
 	await savePDF(validData.pdf as File, path);
@@ -120,18 +118,18 @@ async function createQuote(
 	const validData = parsedData.data;
 
 	try {
-		let imageUrls: string[] = [];
-		for (const entry of validData.entries) {
-			if (entry.image) {
-				const url = await upsertImage(entry.image);
-				if (url) {
-					imageUrls.push(url);
-				}
-			}
-		}
-		if (imageUrls.length !== validData.entries.length) {
-			throw new Error("Error al subir las imágenes");
-		}
+		// let imageUrls: string[] = [];
+		// for (const entry of validData.entries) {
+		// 	if (entry.image) {
+		// 		const url = await upsertImage(entry.image);
+		// 		if (url) {
+		// 			imageUrls.push(url);
+		// 		}
+		// 	}
+		// }
+		// if (imageUrls.length !== validData.entries.length) {
+		// 	throw new Error("Error al subir las imágenes");
+		// }
 
 		const { newQuote } = await prisma.$transaction(async (transaction) => {
 			if (rejectedQuoteId) {
@@ -157,7 +155,8 @@ async function createQuote(
 							range: entry.range,
 							unitaryPrice: entry.unitaryPrice,
 							unitaryCost: entry.unitaryCost,
-							imageUrl: imageUrls[idx] || "",
+							unitaryFinalPrice: entry.unitaryFinalPrice,
+							// imageUrl: imageUrls[idx] || "",
 						})),
 					},
 				},
@@ -238,7 +237,7 @@ async function createProviderQuote(
 
 		const quote = result.quote;
 
-		await prisma.$transaction(async (transaction) => {
+		const updatedQuote = await prisma.$transaction(async (transaction) => {
 			if (options?.rejectedQuoteId) {
 				await transaction.quote.update({
 					where: { id: options.rejectedQuoteId },
@@ -248,7 +247,7 @@ async function createProviderQuote(
 					},
 				});
 			}
-			await transaction.quote.update({
+			const updatedQuote = await transaction.quote.update({
 				where: {
 					id: quote.id,
 				},
@@ -268,14 +267,17 @@ async function createProviderQuote(
 					quoteId: quote.id,
 				},
 			});
+			return updatedQuote;
 		});
+
+		return updatedQuote;
 	} catch (error) {
 		console.error("Error in createProviderQuote:", error);
 		throw new Error("Error al crear la cotización");
 	}
 }
 
-async function selectProvider(
+async function saveProvider(
 	quoteInfoId: string,
 	providerId: string,
 	data: z.infer<typeof RenderUploadSchema>,
@@ -290,7 +292,25 @@ async function selectProvider(
 				rejectedAt: new Date(),
 			},
 		});
-		createProviderQuote(quoteInfoId, providerId, data, options);
+
+		const user = await prisma.user.findUnique({
+			where: {
+				id: providerId,
+			},
+		});
+		if (!user) {
+			throw new Error("Usuario no encontrado");
+		}
+
+		const result = await createQuote(
+			quoteInfoId,
+			data,
+			options?.rejectedQuoteId,
+			`${APP_URL}/renders/confirmation/provider/${quoteInfoId}`
+		);
+
+		const quote = result.quote;
+
 		await prisma.quoteInformation.update({
 			where: {
 				id: quoteInfoId,
@@ -356,7 +376,6 @@ async function getPendingQuotes(phone: string, userRole: Role) {
 				},
 			},
 		});
-
 		if (
 			userRole === "SUPERVISOR" ||
 			(userRole !== "VALIDATOR" && userRole !== "PETITIONER")
@@ -483,7 +502,7 @@ export {
 	getUsers,
 	getQuoteProviders,
 	createProviderQuote,
-	selectProvider,
+	saveProvider,
 	getPendingProviderQuotes,
 	getUserById,
 };

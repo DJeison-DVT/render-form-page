@@ -71,6 +71,18 @@ export default function Confirmation() {
 			return;
 		}
 
+		for (const entry of values.entries) {
+			if (typeof entry.unitaryCost === "string") {
+				entry.unitaryCost = parseFloat(entry.unitaryCost);
+			}
+			if (typeof entry.unitaryPrice === "string") {
+				entry.unitaryPrice = parseFloat(entry.unitaryPrice);
+			}
+			if (typeof entry.unitaryFinalPrice === "string") {
+				entry.unitaryFinalPrice = parseFloat(entry.unitaryFinalPrice);
+			}
+		}
+
 		values.createdByRole = role;
 		if (form.formState.isValid) {
 			try {
@@ -220,7 +232,6 @@ export default function Confirmation() {
 									quoteInformation={quoteInformation}
 								/>
 							)}
-							<div>{quote?.comment}</div>
 							<div className="flex justify-center">
 								<div className="w-fit">
 									<EntryForm

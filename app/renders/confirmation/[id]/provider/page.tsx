@@ -87,6 +87,18 @@ export default function ProviderConfirmation() {
 	const onSubmitUpdate = async (
 		values: z.infer<typeof RenderUploadSchema>
 	) => {
+		for (const entry of values.entries) {
+			if (typeof entry.unitaryCost === "string") {
+				entry.unitaryCost = parseFloat(entry.unitaryCost);
+			}
+			if (typeof entry.unitaryPrice === "string") {
+				entry.unitaryPrice = parseFloat(entry.unitaryPrice);
+			}
+			if (typeof entry.unitaryFinalPrice === "string") {
+				entry.unitaryFinalPrice = parseFloat(entry.unitaryFinalPrice);
+			}
+		}
+
 		setDisabled(true);
 		values.createdByRole = role;
 		if (form.formState.isValid && providerIds && provider) {
@@ -136,6 +148,17 @@ export default function ProviderConfirmation() {
 	const onSubmitFinalize = async (
 		values: z.infer<typeof RenderUploadSchema>
 	) => {
+		for (const entry of values.entries) {
+			if (typeof entry.unitaryCost === "string") {
+				entry.unitaryCost = parseFloat(entry.unitaryCost);
+			}
+			if (typeof entry.unitaryPrice === "string") {
+				entry.unitaryPrice = parseFloat(entry.unitaryPrice);
+			}
+			if (typeof entry.unitaryFinalPrice === "string") {
+				entry.unitaryFinalPrice = parseFloat(entry.unitaryFinalPrice);
+			}
+		}
 		setDisabled(true);
 		try {
 			if (quote && form.formState.isValid && providerIds && provider) {
@@ -165,7 +188,6 @@ export default function ProviderConfirmation() {
 
 		try {
 			const response = await getQuoteProviders(id);
-
 			if (!response || !response.success) {
 				setLoading(false);
 				return;
@@ -408,9 +430,11 @@ export default function ProviderConfirmation() {
 											</CommentDialog>
 											{role === Role.PETITIONER && (
 												<div
-													className={
-														"cursor-pointer bg-gray-800/90 text-white rounded-md hover:bg-gray-700/90 gap-2 p-1 px-2 transition flex justify-center items-center text-xl"
-													}
+													className={`cursor-pointer bg-gray-800/90 text-white rounded-md hover:bg-gray-700/90 gap-2 p-1 px-2 transition flex justify-center items-center text-xl ${
+														form.formState.isValid
+															? ""
+															: "opacity-50 pointer-events-none"
+													}`}
 													onClick={() => {
 														onSubmitFinalize(
 															form.getValues()
