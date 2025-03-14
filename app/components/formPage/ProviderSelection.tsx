@@ -43,7 +43,6 @@ export default function ProviderSelection({
 
 	useEffect(() => {
 		fetchProviders();
-		console.log(typeof form.getValues("providers"));
 	}, []);
 	return (
 		<div>

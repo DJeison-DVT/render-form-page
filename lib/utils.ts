@@ -6,6 +6,6 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatMexicanPhoneNumber(number: string) {
-	let cleaned = number.replace(/\D/g, "");
+	const cleaned = number.replace(/\D/g, "");
 	return cleaned.replace(/^(\d{3})(\d{3})(\d{4})$/, "($1) $2-$3");
 }

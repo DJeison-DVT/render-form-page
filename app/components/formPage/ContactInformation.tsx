@@ -62,7 +62,7 @@ function ContactInformation({
 			"Newell",
 		];
 
-		let options: ComboboxOptions[] = result.clients.map((client) => ({
+		const options: ComboboxOptions[] = result.clients.map((client) => ({
 			value: client.client,
 			label: client.client,
 		}));

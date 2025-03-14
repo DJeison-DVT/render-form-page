@@ -13,10 +13,6 @@ import { RoleTranslations } from "@/lib/types";
 import { Role } from "@prisma/client";
 import { formatMexicanPhoneNumber } from "@/lib/utils";
 
-interface PopUpMenuProps {
-	onSubmit: () => void;
-}
-
 export default async function PopUpMenu() {
 	const session = await auth();
 

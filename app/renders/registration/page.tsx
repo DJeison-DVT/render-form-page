@@ -14,6 +14,7 @@ import { createQuoteInformation } from "@/lib/storage/database";
 import { useToast } from "@/hooks/use-toast";
 import Registered from "@/app/components/Registered";
 import { useSession } from "next-auth/react";
+import UserCreation from "@/app/components/UserCreation";
 
 export default function Home() {
 	const [canContinue, setCanContinue] = useState(false);
@@ -106,6 +107,7 @@ export default function Home() {
 						</div>
 						<div className="fixed bottom-4 right-4 flex justify-end gap-4">
 							<div className="flex flex-col space-y-2">
+								<UserCreation />
 								<button
 									type="submit"
 									className={`cursor-pointer bg-gray-800/90 text-white rounded-full hover:bg-gray-700/90 transition w-12 h-12 flex justify-center items-center text-xl ${

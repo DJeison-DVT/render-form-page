@@ -28,14 +28,14 @@ export default function QuoteInformationDisplay({
 	const [provider, setProvider] = useState<User | null>(null);
 	const [pdfUrl, setPdfUrl] = useState<string | null>(null);
 
-	const buildPDFUrl = async () => {
-		if (quoteInformation.pdfUrl) {
-			const url = await buildImageURL(quoteInformation.pdfUrl);
-			setPdfUrl(url);
-		}
-	};
-
 	useEffect(() => {
+		const buildPDFUrl = async () => {
+			if (quoteInformation.pdfUrl) {
+				const url = await buildImageURL(quoteInformation.pdfUrl);
+				setPdfUrl(url);
+			}
+		};
+
 		buildPDFUrl();
 		if (quoteInformation.providerId) {
 			getUserById(quoteInformation.providerId).then((provider) =>

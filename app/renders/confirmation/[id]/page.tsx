@@ -1,6 +1,5 @@
 "use client";
 
-import CompanyImage from "@/app/components/CompanyImage";
 import EntryForm from "@/app/components/formPage/EntryForm";
 import QuoteInformationDisplay from "@/app/components/QuoteInformationDisplay";
 import Registered from "@/app/components/Registered";
@@ -14,28 +13,19 @@ import {
 } from "@/lib/storage/database";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Quote, QuoteInformation, Role } from "@prisma/client";
-import { CheckCheck, RefreshCw, Undo, Upload } from "lucide-react";
-import { useParams, useSearchParams } from "next/navigation";
+import { CheckCheck, RefreshCw, Undo } from "lucide-react";
+import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 import CommentDialog from "@/app/components/CommentDialog";
 import { useSession } from "next-auth/react";
-import Loading from "@/components/Loading";
 
 export default function Confirmation() {
 	const { id } = useParams();
 
-	if (!id || Array.isArray(id)) {
-		return <div>Error: ID invalido</div>;
-	}
-
 	const { data: session } = useSession();
-	if (!session) {
-		return <Loading />;
-	}
-	const role = session.user.role as Role;
 
 	const { toast } = useToast();
 	const router = useRouter();
@@ -51,11 +41,10 @@ export default function Confirmation() {
 
 	const form = useForm<z.infer<typeof RenderUploadSchema>>({
 		resolver: zodResolver(RenderUploadSchema),
-		defaultValues: initializeRenderUpload(session.user.phone),
+		defaultValues: initializeRenderUpload(session?.user?.phone ?? ""),
 	});
 
 	const {
-		fields,
 		append: fieldArrayAppend,
 		insert: fieldArrayInsert,
 		remove: fieldArrayRemove,
@@ -64,10 +53,12 @@ export default function Confirmation() {
 		name: "entries",
 	});
 
+	const role = session?.user?.role;
+
 	const onSubmitUpdate = async (
 		values: z.infer<typeof RenderUploadSchema>
 	) => {
-		if (!quote) {
+		if (!quote || !role || !id || Array.isArray(id)) {
 			return;
 		}
 
@@ -83,7 +74,7 @@ export default function Confirmation() {
 			}
 		}
 
-		values.createdByRole = role;
+		values.createdByRole = role as Role;
 		if (form.formState.isValid) {
 			try {
 				setDisabled(true);
@@ -102,7 +93,17 @@ export default function Confirmation() {
 		}
 	};
 
+	const handleUpload = async () => {
+		const result = RenderUploadSchema.safeParse(form.getValues());
+		if (result.success) {
+			await onSubmitUpdate(form.getValues());
+		}
+	};
+
 	const onSubmitFinalize = async () => {
+		if (!id || Array.isArray(id)) {
+			return;
+		}
 		try {
 			setDisabled(true);
 			await finalizeQuote(id);
@@ -119,82 +120,94 @@ export default function Confirmation() {
 		}
 	};
 
-	const fetchQuoteInformation = async () => {
-		if (!id || typeof id !== "string") {
-			setNotFound(true);
-			setLoading(false);
-			return;
-		}
-
-		try {
-			const response = await getQuoteInformation(id, true);
-
-			if (!response || !response.success) {
-				setLoading(false);
-				return;
-			}
-			if (!response.quoteInformation) {
-				setNotFound(true);
-				setLoading(false);
-				return;
-			}
-
-			const quoteInformation = {
-				...response.quoteInformation,
-				quote: response.quoteInformation.quotes[0],
-				entries: response.quoteInformation.quotes[0]?.entries || [],
-			};
-
-			if (!quoteInformation.providerId) {
-				setNotFound(true);
-				return;
-			}
-
-			if (quoteInformation.finalizedAt) {
-				router.push(`/renders/history/${id}`);
-				return;
-			}
-
-			if (quoteInformation.quote.createdByRole === role) {
-				setDisabled(true);
-			}
-
-			setQuote(quoteInformation.quote);
-
-			const transformedData = {
-				...quoteInformation,
-				date: quoteInformation.createdAt.toISOString().split("T")[0],
-				createdByRole: role,
-				comment: quoteInformation.quote.comment ?? "",
-				entries: quoteInformation.entries.map((entry) => ({
-					...entry,
-					unitaryPrice: entry.unitaryPrice ?? 0,
-					unitaryCost: entry.unitaryCost ?? 0,
-					unitaryFinalPrice: entry.unitaryFinalPrice ?? 0,
-					image: null,
-				})),
-			};
-
-			form.reset(transformedData);
-			setQuoteInformation(quoteInformation);
-		} catch (error) {
-			const message =
-				error instanceof Error
-					? error.message
-					: "An unknown error occurred.";
-			toast({
-				variant: "destructive",
-				title: "Ocurrió un error",
-				description: message,
-			});
-		} finally {
-			setLoading(false);
-		}
-	};
-
 	useEffect(() => {
+		const fetchQuoteInformation = async () => {
+			if (!id || typeof id !== "string") {
+				setNotFound(true);
+				setLoading(false);
+				return;
+			}
+
+			if (!role) {
+				setNotFound(true);
+				setLoading(false);
+				return;
+			}
+
+			try {
+				const response = await getQuoteInformation(id, true);
+
+				if (!response || !response.success) {
+					setLoading(false);
+					return;
+				}
+				if (!response.quoteInformation) {
+					setNotFound(true);
+					setLoading(false);
+					return;
+				}
+
+				const quoteInformation = {
+					...response.quoteInformation,
+					quote: response.quoteInformation.quotes[0],
+					entries: response.quoteInformation.quotes[0]?.entries || [],
+				};
+
+				if (!quoteInformation.providerId) {
+					setNotFound(true);
+					return;
+				}
+
+				if (quoteInformation.finalizedAt) {
+					router.push(`/renders/history/${id}`);
+					return;
+				}
+
+				if (quoteInformation.quote.createdByRole === role) {
+					setDisabled(true);
+				}
+
+				setQuote(quoteInformation.quote);
+
+				const transformedData = {
+					...quoteInformation,
+					date: quoteInformation.createdAt
+						.toISOString()
+						.split("T")[0],
+					createdByRole: role as Role,
+					comment: quoteInformation.quote.comment ?? "",
+					entries: quoteInformation.entries.map((entry) => ({
+						...entry,
+						unitaryPrice: entry.unitaryPrice ?? 0,
+						unitaryCost: entry.unitaryCost ?? 0,
+						unitaryFinalPrice: entry.unitaryFinalPrice ?? 0,
+						image: null,
+					})),
+				};
+
+				form.reset(transformedData);
+				setQuoteInformation(quoteInformation);
+			} catch (error) {
+				const message =
+					error instanceof Error
+						? error.message
+						: "An unknown error occurred.";
+				toast({
+					variant: "destructive",
+					title: "Ocurrió un error",
+					description: message,
+				});
+			} finally {
+				setLoading(false);
+			}
+		};
+
 		fetchQuoteInformation();
-	}, [id]);
+	}, [id, role, toast, form, router]);
+
+	if (!id || Array.isArray(id)) {
+		return <div>Error: ID invalido</div>;
+	}
 
 	if (loading) {
 		return (
@@ -212,13 +225,6 @@ export default function Confirmation() {
 		);
 	}
 
-	const handleUpload = async () => {
-		const result = RenderUploadSchema.safeParse(form.getValues());
-		if (result.success) {
-			await onSubmitUpdate(form.getValues());
-		}
-	};
-
 	return (
 		<>
 			{registered && quoteInformation ? (
@@ -234,14 +240,16 @@ export default function Confirmation() {
 							)}
 							<div className="flex justify-center">
 								<div className="w-fit">
-									<EntryForm
-										form={form}
-										fieldArrayAppend={fieldArrayAppend}
-										fieldArrayInsert={fieldArrayInsert}
-										fieldArrayRemove={fieldArrayRemove}
-										disabled={disabled}
-										role={role}
-									/>
+									{role && (
+										<EntryForm
+											form={form}
+											fieldArrayAppend={fieldArrayAppend}
+											fieldArrayInsert={fieldArrayInsert}
+											fieldArrayRemove={fieldArrayRemove}
+											disabled={disabled}
+											role={role as Role}
+										/>
+									)}
 								</div>
 							</div>
 							<div className="fixed bottom-4 right-4 flex justify-end gap-4">

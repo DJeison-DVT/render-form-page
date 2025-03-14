@@ -14,7 +14,7 @@ import {
 	UseFormReturn,
 } from "react-hook-form";
 import { z } from "zod";
-import { X, Plus, CornerDownLeft, Trash } from "lucide-react";
+import { Plus, CornerDownLeft, Trash } from "lucide-react";
 import {
 	Tooltip,
 	TooltipContent,
@@ -37,6 +37,7 @@ import PushableComponent from "@/components/ui/pushableComponent";
 import { useSession } from "next-auth/react";
 import Loading from "@/components/Loading";
 import { Role } from "@prisma/client";
+import Image from "next/image";
 
 function EntryForm({
 	form,
@@ -120,7 +121,7 @@ function EntryForm({
 													{form.getValues().entries[
 														index
 													].image ? (
-														<img
+														<Image
 															src={URL.createObjectURL(
 																form.getValues()
 																	.entries[
@@ -300,8 +301,7 @@ function EntryForm({
 											<Input
 												disabled={
 													disabled ||
-													role === Role.PETITIONER ||
-													role === Role.PROVIDER
+													role !== Role.PROVIDER
 												}
 												type="number"
 												className="w-24"

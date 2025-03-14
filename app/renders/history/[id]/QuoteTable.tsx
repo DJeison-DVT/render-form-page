@@ -11,6 +11,7 @@ import {
 	TableHead,
 } from "@/components/ui/table";
 import { QuoteInformationWithQuotes } from "@/lib/types";
+import Image from "next/image";
 
 export default function QuoteTable({
 	quoteInformation,
@@ -79,7 +80,7 @@ export default function QuoteTable({
 							<TableRow key={entry.id}>
 								<TableCell>
 									{entry.imageUrl ? (
-										<img
+										<Image
 											src={entry.imageUrl}
 											alt={entry.name}
 											className="h-12 w-12 object-cover rounded"

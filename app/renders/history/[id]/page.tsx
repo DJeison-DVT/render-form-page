@@ -4,64 +4,63 @@ import QuoteInformationDisplay from "@/app/components/QuoteInformationDisplay";
 import { useToast } from "@/hooks/use-toast";
 import { getQuoteInformation } from "@/lib/storage/database";
 import { QuoteInformationWithQuotes } from "@/lib/types";
-import { QuoteInformation, Role } from "@prisma/client";
-import { useParams, useSearchParams } from "next/navigation";
-import { use, useEffect, useState } from "react";
+import { QuoteInformation } from "@prisma/client";
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import QuoteTable from "./QuoteTable";
 
 export default function Page() {
 	const { id } = useParams();
 
-	if (!id || Array.isArray(id)) {
-		return <div>Error: ID invalido</div>;
-	}
-
-	const searchParams = useSearchParams();
 	const { toast } = useToast();
 	const [loading, setLoading] = useState(true);
 	const [notFound, setNotFound] = useState(false);
 	const [quoteInformation, setQuoteInformation] =
 		useState<QuoteInformationWithQuotes | null>(null);
 
-	const fetchQuoteInformation = async () => {
-		if (!id || typeof id !== "string") {
-			setNotFound(true);
-			setLoading(false);
-			return;
-		}
-
-		try {
-			const response = await getQuoteInformation(id);
-
-			if (!response || !response.success) {
-				setLoading(false);
-				return;
-			}
-			if (!response.quoteInformation) {
+	useEffect(() => {
+		const fetchQuoteInformation = async () => {
+			if (!id || typeof id !== "string") {
 				setNotFound(true);
 				setLoading(false);
 				return;
 			}
 
-			setQuoteInformation(response.quoteInformation);
-		} catch (error) {
-			const message =
-				error instanceof Error
-					? error.message
-					: "An unknown error occurred.";
-			toast({
-				variant: "destructive",
-				title: "Ocurrió un error",
-				description: message,
-			});
-		} finally {
-			setLoading(false);
-		}
-	};
+			try {
+				const response = await getQuoteInformation(id);
 
-	useEffect(() => {
+				if (!response || !response.success) {
+					setLoading(false);
+					return;
+				}
+				if (!response.quoteInformation) {
+					setNotFound(true);
+					setLoading(false);
+					return;
+				}
+
+				setQuoteInformation(response.quoteInformation);
+			} catch (error) {
+				const message =
+					error instanceof Error
+						? error.message
+						: "An unknown error occurred.";
+				toast({
+					variant: "destructive",
+					title: "Ocurrió un error",
+					description: message,
+				});
+			} finally {
+				setLoading(false);
+			}
+		};
+
 		fetchQuoteInformation();
-	}, [id]);
+	}, [id, toast]);
+
+	if (!id || Array.isArray(id)) {
+		return <div>Error: ID invalido</div>;
+	}
 
 	if (loading) {
 		return (

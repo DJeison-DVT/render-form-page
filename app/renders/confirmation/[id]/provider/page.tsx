@@ -35,26 +35,15 @@ import Loading from "@/components/Loading";
 import { QuoteWithEntries } from "@/lib/types";
 // import { downloadImageAsFile } from "@/lib/serverUtils";
 
-interface Provider extends Record<string, string> {}
-interface InformationProviderQuotes
-	extends Record<string, QuoteWithEntries | null> {}
+type Provider = Record<string, string>;
+
+type InformationProviderQuotes = Record<string, QuoteWithEntries | null>;
 
 export default function ProviderConfirmation() {
 	const { id } = useParams();
-
-	if (!id || Array.isArray(id)) {
-		return <div>Error: ID invalido</div>;
-	}
-
 	const { data: session } = useSession();
-	if (!session) {
-		return <Loading />;
-	}
-	const role = session.user.role as Role;
-	const phone = session.user.phone;
-	if (role === Role.VALIDATOR) {
-		return <div>Error: No tienes permiso para acceder a esta página</div>;
-	}
+	const role = session?.user?.role as Role;
+	const phone = session?.user?.phone;
 
 	const { toast } = useToast();
 
@@ -71,11 +60,10 @@ export default function ProviderConfirmation() {
 
 	const form = useForm<z.infer<typeof RenderUploadSchema>>({
 		resolver: zodResolver(RenderUploadSchema),
-		defaultValues: initializeRenderUpload(session.user.phone),
+		defaultValues: initializeRenderUpload(session?.user?.phone ?? ""),
 	});
 
 	const {
-		fields,
 		append: fieldArrayAppend,
 		insert: fieldArrayInsert,
 		remove: fieldArrayRemove,
@@ -87,6 +75,10 @@ export default function ProviderConfirmation() {
 	const onSubmitUpdate = async (
 		values: z.infer<typeof RenderUploadSchema>
 	) => {
+		if (!id || Array.isArray(id)) {
+			return <div>Error: ID invalido</div>;
+		}
+
 		for (const entry of values.entries) {
 			if (typeof entry.unitaryCost === "string") {
 				entry.unitaryCost = parseFloat(entry.unitaryCost);
@@ -148,6 +140,10 @@ export default function ProviderConfirmation() {
 	const onSubmitFinalize = async (
 		values: z.infer<typeof RenderUploadSchema>
 	) => {
+		if (!id || Array.isArray(id)) {
+			return <div>Error: ID invalido</div>;
+		}
+
 		for (const entry of values.entries) {
 			if (typeof entry.unitaryCost === "string") {
 				entry.unitaryCost = parseFloat(entry.unitaryCost);
@@ -179,111 +175,6 @@ export default function ProviderConfirmation() {
 		setDisabled(false);
 	};
 
-	const fetchQuoteInformation = async () => {
-		if (!id || typeof id !== "string") {
-			setNotFound(true);
-			setLoading(false);
-			return;
-		}
-
-		try {
-			const response = await getQuoteProviders(id);
-			if (!response || !response.success) {
-				setLoading(false);
-				return;
-			}
-			if (!response.quoteInformation) {
-				setNotFound(true);
-				setLoading(false);
-				return;
-			}
-
-			const quoteInformation = response.quoteInformation;
-			if (
-				quoteInformation.providerId ||
-				quoteInformation.stage !== "QUOTING"
-			) {
-				setNotFound(true);
-				setLoading(false);
-				return;
-			}
-			form.setValue("brand", quoteInformation.brand);
-			form.setValue("client", quoteInformation.client);
-			form.setValue("company", quoteInformation.company);
-			form.setValue("project", quoteInformation.project);
-			form.setValue("requestContact", quoteInformation.requestContact);
-			form.setValue("approvalContact", quoteInformation.approvalContact);
-			form.setValue("serial", quoteInformation.serial);
-
-			const providerQuote = quoteInformation.ProviderQuotes[0];
-			if (providerQuote.quote) {
-				const quote = providerQuote.quote;
-				// await fetchAndAssignImages(quote);
-			}
-
-			let providerQuotes: InformationProviderQuotes = {};
-			let hasQuotes = false;
-			let providerIds: Provider = {};
-
-			for (const provider of quoteInformation.ProviderQuotes) {
-				const alias = provider.user.company || provider.user.name;
-				if (!Object.keys(providerQuotes).includes(alias)) {
-					providerQuotes[alias] = null;
-					providerIds[alias] = provider.user.id;
-				}
-
-				if (provider.user.phone === phone) {
-					providerQuotes = {};
-					providerQuotes[alias] = null;
-					if (provider.quote) {
-						providerQuotes[
-							provider.user.company || provider.user.name
-						] = provider.quote;
-					}
-					break;
-				}
-				if (provider.quote) {
-					hasQuotes = true;
-				}
-
-				if (provider.quote) {
-					providerQuotes[
-						provider.user.company || provider.user.name
-					] = provider.quote;
-				}
-			}
-
-			const providers = Object.keys(providerQuotes);
-			if (providers.length === 0) {
-				setNotFound(true);
-				setLoading(false);
-				return;
-			}
-
-			setProviders(providerQuotes);
-			setProviderIds(providerIds);
-			setProvider(providers[0]);
-
-			if (!hasQuotes && role === Role.PETITIONER) {
-				setNotFound(true);
-			}
-
-			setQuoteInformation(quoteInformation);
-		} catch (error) {
-			const message =
-				error instanceof Error
-					? error.message
-					: "An unknown error occurred.";
-			toast({
-				variant: "destructive",
-				title: "Ocurrió un error",
-				description: message,
-			});
-		} finally {
-			setLoading(false);
-		}
-	};
-
 	const handleUpload = async () => {
 		const result = RenderUploadSchema.safeParse(form.getValues());
 		if (result.success) {
@@ -291,39 +182,162 @@ export default function ProviderConfirmation() {
 		}
 	};
 
-	const updateDisplayQuote = () => {
-		if (!provider || !providers) {
-			return;
-		}
-		const quote = providers[provider];
-		if (quote) {
-			setQuote(quote);
-		}
+	useEffect(() => {
+		const fetchQuoteInformation = async () => {
+			if (!id || typeof id !== "string") {
+				setNotFound(true);
+				setLoading(false);
+				return;
+			}
 
-		const transformedData = {
-			...quoteInformation,
-			createdByRole: role,
-			comment: quote?.comment ?? "",
-			entries: quote
-				? quote.entries.map((entry) => ({
-						...entry,
-						unitaryPrice: entry.unitaryPrice ?? 0,
-						unitaryCost: entry.unitaryCost ?? 0,
-						unitaryFinalPrice: entry.unitaryFinalPrice ?? 0,
-						image: null,
-				  }))
-				: [initializeEntry()],
+			try {
+				const response = await getQuoteProviders(id);
+				if (!response || !response.success) {
+					setLoading(false);
+					return;
+				}
+				if (!response.quoteInformation) {
+					setNotFound(true);
+					setLoading(false);
+					return;
+				}
+
+				const quoteInformation = response.quoteInformation;
+				if (
+					quoteInformation.providerId ||
+					quoteInformation.stage !== "QUOTING"
+				) {
+					setNotFound(true);
+					setLoading(false);
+					return;
+				}
+				form.setValue("brand", quoteInformation.brand);
+				form.setValue("client", quoteInformation.client);
+				form.setValue("company", quoteInformation.company);
+				form.setValue("project", quoteInformation.project);
+				form.setValue(
+					"requestContact",
+					quoteInformation.requestContact
+				);
+				form.setValue(
+					"approvalContact",
+					quoteInformation.approvalContact
+				);
+				form.setValue("serial", quoteInformation.serial);
+
+				// const providerQuote = quoteInformation.ProviderQuotes[0];
+				// if (providerQuote.quote) {
+				// 	const quote = providerQuote.quote;
+				// await fetchAndAssignImages(quote);
+				// }
+
+				let providerQuotes: InformationProviderQuotes = {};
+				let hasQuotes = false;
+				const providerIds: Provider = {};
+
+				for (const provider of quoteInformation.ProviderQuotes) {
+					const alias = provider.user.company || provider.user.name;
+					if (!Object.keys(providerQuotes).includes(alias)) {
+						providerQuotes[alias] = null;
+						providerIds[alias] = provider.user.id;
+					}
+
+					if (provider.user.phone === phone) {
+						providerQuotes = {};
+						providerQuotes[alias] = null;
+						if (provider.quote) {
+							providerQuotes[
+								provider.user.company || provider.user.name
+							] = provider.quote;
+						}
+						break;
+					}
+					if (provider.quote) {
+						hasQuotes = true;
+					}
+
+					if (provider.quote) {
+						providerQuotes[
+							provider.user.company || provider.user.name
+						] = provider.quote;
+					}
+				}
+
+				const providers = Object.keys(providerQuotes);
+				if (providers.length === 0) {
+					setNotFound(true);
+					setLoading(false);
+					return;
+				}
+
+				setProviders(providerQuotes);
+				setProviderIds(providerIds);
+				setProvider(providers[0]);
+
+				if (!hasQuotes && role === Role.PETITIONER) {
+					setNotFound(true);
+				}
+
+				setQuoteInformation(quoteInformation);
+			} catch (error) {
+				const message =
+					error instanceof Error
+						? error.message
+						: "An unknown error occurred.";
+				toast({
+					variant: "destructive",
+					title: "Ocurrió un error",
+					description: message,
+				});
+			} finally {
+				setLoading(false);
+			}
 		};
-		form.reset(transformedData);
-	};
 
-	useEffect(() => {
 		fetchQuoteInformation();
-	}, [id]);
+	}, [id, form, phone, role, toast]);
 
 	useEffect(() => {
+		const updateDisplayQuote = () => {
+			if (!provider || !providers) {
+				return;
+			}
+			const quote = providers[provider];
+			if (quote) {
+				setQuote(quote);
+			}
+
+			const transformedData = {
+				...quoteInformation,
+				createdByRole: role,
+				comment: quote?.comment ?? "",
+				entries: quote
+					? quote.entries.map((entry) => ({
+							...entry,
+							unitaryPrice: entry.unitaryPrice ?? 0,
+							unitaryCost: entry.unitaryCost ?? 0,
+							unitaryFinalPrice: entry.unitaryFinalPrice ?? 0,
+							image: null,
+					  }))
+					: [initializeEntry()],
+			};
+			form.reset(transformedData);
+		};
+
 		updateDisplayQuote();
-	}, [provider]);
+	}, [provider, form, providers, quoteInformation, role]);
+
+	if (!id || Array.isArray(id)) {
+		return <div>Error: ID invalido</div>;
+	}
+
+	if (!session) {
+		return <Loading />;
+	}
+
+	if (role === Role.VALIDATOR) {
+		return <div>Error: No tienes permiso para acceder a esta página</div>;
+	}
 
 	if (loading) {
 		return (

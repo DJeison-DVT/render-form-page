@@ -3,7 +3,6 @@
 import {
 	Dialog,
 	DialogContent,
-	DialogDescription,
 	DialogHeader,
 	DialogTitle,
 	DialogTrigger,
@@ -15,7 +14,6 @@ import { FormField } from "@/components/ui/form";
 import { UseFormReturn } from "react-hook-form";
 import { z } from "zod";
 import { RenderUploadSchema } from "../Schemas";
-import { Upload } from "lucide-react";
 
 interface CommentDialogProps {
 	rejection?: boolean;

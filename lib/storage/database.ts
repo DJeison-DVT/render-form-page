@@ -5,10 +5,10 @@ import { prisma } from "@/lib/prisma";
 import { Role } from "@prisma/client";
 import { z } from "zod";
 import { sendMessage } from "../messaging";
-import { savePDF, upsertImage } from "./gcloud";
+import { savePDF } from "./gcloud";
 
 const MESSAGE_TEMPLATE = "HX92dca13fd40b55ff25d9e3ffa3e10429";
-const APP_URL = process.env.APP_URL;
+const NEXTAUTH_URL = process.env.NEXTAUTH_URL;
 
 async function createQuoteInformation(
 	data: z.infer<typeof ProposalUploadSchema>
@@ -61,7 +61,7 @@ async function createQuoteInformation(
 			await sendMessage(provider.phone, MESSAGE_TEMPLATE, {
 				1: quoteInformation.serial,
 				2: quoteInformation.project,
-				3: `${APP_URL}/renders/confirmation/${quoteInformation.id}`,
+				3: `${NEXTAUTH_URL}/renders/confirmation/${quoteInformation.id}`,
 			});
 		}
 	} catch (error) {
@@ -146,7 +146,7 @@ async function createQuote(
 					createdAt: new Date(),
 					comment: validData.comment,
 					entries: {
-						create: validData.entries.map((entry, idx) => ({
+						create: validData.entries.map((entry) => ({
 							name: entry.name,
 							sizes: entry.sizes,
 							material: entry.material,
@@ -175,7 +175,9 @@ async function createQuote(
 		await sendMessage(target, MESSAGE_TEMPLATE, {
 			1: data.serial,
 			2: data.project,
-			3: link ? link : `${APP_URL}/renders/confirmation/${quoteInfoId}`,
+			3: link
+				? link
+				: `${NEXTAUTH_URL}/renders/confirmation/${quoteInfoId}`,
 		});
 
 		return { success: true, quote: newQuote };
@@ -232,7 +234,7 @@ async function createProviderQuote(
 			quoteInfoId,
 			data,
 			options?.rejectedQuoteId,
-			`${APP_URL}/renders/confirmation/provider/${quoteInfoId}`
+			`${NEXTAUTH_URL}/renders/confirmation/provider/${quoteInfoId}`
 		);
 
 		const quote = result.quote;
@@ -302,14 +304,12 @@ async function saveProvider(
 			throw new Error("Usuario no encontrado");
 		}
 
-		const result = await createQuote(
+		await createQuote(
 			quoteInfoId,
 			data,
 			options?.rejectedQuoteId,
-			`${APP_URL}/renders/confirmation/provider/${quoteInfoId}`
+			`${NEXTAUTH_URL}/renders/confirmation/provider/${quoteInfoId}`
 		);
-
-		const quote = result.quote;
 
 		await prisma.quoteInformation.update({
 			where: {

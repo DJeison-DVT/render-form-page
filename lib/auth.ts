@@ -1,10 +1,10 @@
-import NextAuth, { DefaultSession, User } from "next-auth";
+import NextAuth, { DefaultSession } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { prisma } from "./prisma";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import bcrypt from "bcrypt";
-import { JWT } from "next-auth/jwt";
-import { registerUser } from "./storage/auth";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { JWT } from "next-auth/jwt";
 import { object, string } from "zod";
 
 export const signInSchema = object({
@@ -44,9 +44,10 @@ declare module "next-auth/jwt" {
 }
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-	//@ts-ignore
+	// @ts-expect-error PrismaAdapter requires a specific type
 	adapter: PrismaAdapter(prisma),
 	secret: process.env.AUTH_SECRET,
+	trustHost: true,
 	session: {
 		strategy: "jwt",
 	},
@@ -61,7 +62,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 					credentials
 				);
 
-				let user = await prisma.user.findUnique({
+				const user = await prisma.user.findUnique({
 					where: { phone },
 				});
 				if (!user) {
