@@ -6,6 +6,8 @@ import bcrypt from "bcrypt";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { JWT } from "next-auth/jwt";
 import { object, string } from "zod";
+// import { registerUser } from "./storage/auth";
+// import { Role } from "@prisma/client";
 
 export const signInSchema = object({
 	phone: string({ required_error: "Se requiere un número de teléfono" })
@@ -46,7 +48,7 @@ declare module "next-auth/jwt" {
 export const { handlers, signIn, signOut, auth } = NextAuth({
 	// @ts-expect-error PrismaAdapter requires a specific type
 	adapter: PrismaAdapter(prisma),
-	secret: process.env.AUTH_SECRET,
+	secret: process.env.NEXTAUTH_SECRET,
 	trustHost: true,
 	session: {
 		strategy: "jwt",

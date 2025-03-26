@@ -4,11 +4,12 @@ import { prisma } from "../prisma";
 import bcrypt from "bcrypt";
 import { z } from "zod";
 import { userCreationSchema } from "@/app/Schemas";
+import { Role } from "@prisma/client";
 
 const SALT_ROUNDS = 10;
 
-async function registerUser(formData: z.infer<typeof userCreationSchema>) {
-	const { phone, password, name, email, role, company } = formData;
+async function registerUser(userData: z.infer<typeof userCreationSchema>) {
+	const { phone, password, name, email, role, company } = userData;
 	if (!phone || !password || !name || !email || !role) {
 		throw new Error("Missing required fields");
 	}
@@ -22,6 +23,7 @@ async function registerUser(formData: z.infer<typeof userCreationSchema>) {
 	}
 
 	const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+	const castRole = role as Role;
 
 	const user = await prisma.user.create({
 		data: {
@@ -29,7 +31,7 @@ async function registerUser(formData: z.infer<typeof userCreationSchema>) {
 			password: hashedPassword,
 			name,
 			email,
-			role,
+			role: castRole,
 			company,
 		},
 	});

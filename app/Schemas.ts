@@ -92,7 +92,7 @@ export const userCreationSchema = z.object({
 	name: z.string().nonempty(),
 	email: z.string().email(),
 	role: z.nativeEnum(Role),
-	company: z.string().optional(),
+	company: z.string().nonempty(),
 	password: z
 		.string()
 		.min(8, "La contraseña debe tener al menos 8 caracteres."),
