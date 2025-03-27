@@ -18,23 +18,13 @@ import { getClients } from "@/lib/storage/database";
 
 function ContactInformation({
 	form,
-	fullfilled,
+	disabled,
 }: {
 	form: UseFormReturn<z.infer<typeof ProposalUploadSchema>>;
-	fullfilled: () => void;
+	disabled: boolean;
 }) {
-	const client = form.watch("client");
-	const brand = form.watch("brand");
-	const project = form.watch("project");
-	const serial = form.watch("serial");
 	const [clients, setClients] = useState<ComboboxOptions[]>([]);
 	const [selectedClient, setSelectedClient] = useState<string>("");
-
-	useEffect(() => {
-		if (client && brand && project && serial) {
-			fullfilled();
-		}
-	}, [fullfilled, client, brand, project, serial]);
 
 	function handleAppendClient(label: ComboboxOptions["label"]) {
 		const newClient = {
@@ -95,6 +85,7 @@ function ContactInformation({
 							<FormControl>
 								<Combobox
 									{...field}
+									disabled={disabled}
 									options={clients}
 									onCreate={handleAppendClient}
 									selected={selectedClient}
@@ -115,7 +106,11 @@ function ContactInformation({
 						<FormItem>
 							<FormLabel>Marca</FormLabel>
 							<FormControl>
-								<Input placeholder="Marca" {...field} />
+								<Input
+									placeholder="Marca"
+									{...field}
+									disabled={disabled}
+								/>
 							</FormControl>
 							<FormMessage />
 						</FormItem>
@@ -131,7 +126,11 @@ function ContactInformation({
 						<FormItem>
 							<FormLabel>Proyecto</FormLabel>
 							<FormControl>
-								<Input placeholder="Proyecto" {...field} />
+								<Input
+									placeholder="Proyecto"
+									{...field}
+									disabled={disabled}
+								/>
 							</FormControl>
 							<FormMessage />
 						</FormItem>
@@ -144,7 +143,11 @@ function ContactInformation({
 						<FormItem>
 							<FormLabel>Folio</FormLabel>
 							<FormControl>
-								<Input placeholder="Folio" {...field} />
+								<Input
+									placeholder="Folio"
+									{...field}
+									disabled={disabled}
+								/>
 							</FormControl>
 							<FormMessage />
 						</FormItem>

@@ -115,13 +115,9 @@ export const EntrySchema = z.object({
 });
 
 const uploadSchema = z.object({
-	approvalContact: z
-		.string()
-		.length(10, "El contacto de aprobación debe tener 10 dígitos."),
-	requestContact: z
-		.string()
-		.length(10, "El contacto de solicitud debe tener 10 dígitos."),
-	company: z.string(),
+	approvalContact: z.string(),
+	requestContact: z.string(),
+	company: z.string().nonempty(),
 	createdByRole: z.nativeEnum(Role),
 	client: z.string().nonempty(),
 	brand: z.string().nonempty(),

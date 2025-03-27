@@ -46,7 +46,7 @@ export default function ProviderSelection({
 	}, []);
 	return (
 		<div>
-			<div className="flex gap-4">
+			<div className="flex gap-12">
 				<FormField
 					control={form.control}
 					name="providers"
@@ -116,6 +116,7 @@ export default function ProviderSelection({
 					name={"pdf"}
 					render={({ field }) => (
 						<FormItem>
+							<FormLabel>Archivo PDF de la cotización</FormLabel>
 							<FormControl>
 								<div className="flex flex-col items-center justify-center max-w-48">
 									<div className="w-24 h-24 border border-gray-300 rounded-md overflow-hidden flex items-center justify-center bg-gray-100">
@@ -137,10 +138,10 @@ export default function ProviderSelection({
 											<Upload className="text-gray-500 w-8 h-8" />
 										</label>
 									</div>
-									<p className="text-gray-600 text-md mt-2">
+									<p className="text-gray-600 text-sm mt-2">
 										{form.getValues().pdf
 											? form.getValues().pdf.name
-											: "No se ha seleccionado un archivo"}
+											: "No se ha seleccionado el PDF"}
 									</p>
 								</div>
 							</FormControl>

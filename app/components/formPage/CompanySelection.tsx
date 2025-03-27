@@ -4,23 +4,14 @@ import { FormField, FormItem } from "@/components/ui/form";
 import { UseFormReturn } from "react-hook-form";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import Image from "next/image";
-import { useEffect } from "react";
 
 function CompanySelection({
 	form,
-	fullfilled,
+	disabled,
 }: {
 	form: UseFormReturn<z.infer<typeof ProposalUploadSchema>>;
-	fullfilled: () => void;
+	disabled: boolean;
 }) {
-	const company = form.watch("company");
-
-	useEffect(() => {
-		if (company) {
-			fullfilled();
-		}
-	}, [company, fullfilled]);
-
 	return (
 		<>
 			<FormField
@@ -33,6 +24,7 @@ function CompanySelection({
 							variant="outline"
 							onValueChange={field.onChange}
 							value={field.value}
+							disabled={disabled}
 						>
 							<div className="grid grid-cols-2 gap-4 h-fit">
 								<ToggleGroupItem
@@ -43,8 +35,8 @@ function CompanySelection({
 									<Image
 										src="/alquipop-logo.svg"
 										alt="alquipop"
-										width={400}
-										height={400}
+										width={200}
+										height={200}
 									/>
 								</ToggleGroupItem>
 								<ToggleGroupItem
@@ -55,8 +47,8 @@ function CompanySelection({
 									<Image
 										src="/demente-logo.png"
 										alt="DeMente"
-										width={400}
-										height={400}
+										width={200}
+										height={200}
 									/>
 								</ToggleGroupItem>
 							</div>

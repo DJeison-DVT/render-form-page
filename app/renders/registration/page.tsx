@@ -9,24 +9,19 @@ import { Form } from "@/components/ui/form";
 import ContactInformation from "@/app/components/formPage/ContactInformation";
 import CompanySelection from "@/app/components/formPage/CompanySelection";
 import ProviderSelection from "@/app/components/formPage/ProviderSelection";
-import { ChevronDown, ChevronUp, Upload } from "lucide-react";
+import { Upload } from "lucide-react";
 import { createQuoteInformation } from "@/lib/storage/database";
 import { useToast } from "@/hooks/use-toast";
 import Registered from "@/app/components/Registered";
 import { useSession } from "next-auth/react";
-import UserCreation from "@/app/components/UserCreation";
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
-	const [canContinue, setCanContinue] = useState(false);
 	const { toast } = useToast();
 	const { data: session } = useSession();
 	const [disabled, setDisabled] = useState(false);
 	const [registered, setRegistered] = useState(false);
 	const [company, setCompany] = useState("");
-
-	const fullfilledTab = () => {
-		setCanContinue(true);
-	};
 
 	const form = useForm<z.infer<typeof ProposalUploadSchema>>({
 		resolver: zodResolver(ProposalUploadSchema),
@@ -55,41 +50,6 @@ export default function Home() {
 		}
 	};
 
-	const slides = [
-		{
-			title: "",
-			content: (
-				<CompanySelection form={form} fullfilled={fullfilledTab} />
-			),
-		},
-		{
-			title: "Información de Proyecto",
-			content: (
-				<ContactInformation form={form} fullfilled={fullfilledTab} />
-			),
-		},
-		{
-			title: "",
-			content: <ProviderSelection form={form} disabled={disabled} />,
-		},
-	];
-
-	const [currentSlide, setCurrentSlide] = useState(0);
-	const handleNextSlide = () => {
-		if (!canContinue) return;
-		if (currentSlide < slides.length - 1) {
-			setCurrentSlide(currentSlide + 1);
-		}
-		setCanContinue(false);
-	};
-
-	const handlePreviousSlide = () => {
-		if (currentSlide > 0) {
-			setCurrentSlide(currentSlide - 1);
-		}
-		setCanContinue(false);
-	};
-
 	return (
 		<>
 			{registered ? (
@@ -98,48 +58,29 @@ export default function Home() {
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSubmit)}>
 						<div className="flex flex-col items-center justify-center h-screen">
-							{slides[currentSlide].title && (
-								<h2 className="text-2xl font-bold mb-4">
-									{slides[currentSlide].title}
-								</h2>
-							)}
-							<div>{slides[currentSlide].content}</div>
-						</div>
-						<div className="fixed bottom-4 right-4 flex justify-end gap-4">
-							<div className="flex flex-col space-y-2">
-								<UserCreation />
-								<button
+							<div className="flex flex-col justify-center items-center gap-12">
+								<CompanySelection
+									form={form}
+									disabled={disabled}
+								/>
+								<ContactInformation
+									form={form}
+									disabled={disabled}
+								/>
+								<ProviderSelection
+									form={form}
+									disabled={disabled}
+								/>
+							</div>
+							<div className="fixed bottom-4 right-4 flex justify-end gap-4">
+								<Button
 									type="submit"
-									className={`cursor-pointer bg-gray-800/90 text-white rounded-full hover:bg-gray-700/90 transition w-12 h-12 flex justify-center items-center text-xl ${
-										form.formState.isValid
-											? ""
-											: "opacity-50 pointer-events-none"
-									}`}
+									size={"xl"}
 									disabled={!form.formState.isValid}
-									onClick={form.handleSubmit(onSubmit)}
 								>
 									<Upload />
-								</button>
-								<div
-									onClick={handlePreviousSlide}
-									className={`cursor-pointer bg-gray-800/90 text-white rounded-full hover:bg-gray-700/90 transition w-12 h-12 flex justify-center items-center text-xl ${
-										currentSlide > 0
-											? ""
-											: "opacity-50 pointer-events-none"
-									}`}
-								>
-									<ChevronUp />
-								</div>
-								<div
-									onClick={handleNextSlide}
-									className={`cursor-pointer bg-gray-800/90 text-white rounded-full hover:bg-gray-700/90 transition w-12 h-12 flex justify-center items-center text-xl ${
-										canContinue
-											? ""
-											: "opacity-50 pointer-events-none"
-									}`}
-								>
-									<ChevronDown />
-								</div>
+									Enviar
+								</Button>
 							</div>
 						</div>
 					</form>
