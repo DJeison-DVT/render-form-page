@@ -1,5 +1,6 @@
 import {
 	initializeEntry,
+	materialEnum,
 	RenderUploadSchema,
 	solutionNameEnum,
 } from "@/app/Schemas";
@@ -10,6 +11,13 @@ import {
 	FormLabel,
 	FormMessage,
 } from "@/components/ui/form";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import {
 	UseFieldArrayAppend,
@@ -71,16 +79,17 @@ function EntryForm({
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const { data: session } = useSession();
 	const message = form.getValues("comment");
-	const [materials] = useState<ComboboxOptions[]>(solutionNameOptions);
-	const [selectedMaterial, setSelectedMaterial] = useState<string>("");
+	const [solutionNames] = useState<ComboboxOptions[]>(solutionNameOptions);
+	const [selectedSolutionNames, setSelectedSolutionNames] =
+		useState<string>("");
 
 	function handleAppendMaterial(label: ComboboxOptions["label"]) {
 		const newMaterial = {
 			value: label,
 			label,
 		};
-		materials.push(newMaterial);
-		setSelectedMaterial(newMaterial.value);
+		solutionNames.push(newMaterial);
+		setSelectedSolutionNames(newMaterial.value);
 		form.setValue("client", newMaterial.value);
 	}
 
@@ -180,20 +189,24 @@ function EntryForm({
 							render={({ field }) => (
 								<FormItem>
 									{index == 0 && (
-										<FormLabel>Material</FormLabel>
+										<>
+											<FormLabel>Material</FormLabel>
+											<br />
+										</>
 									)}
 									<FormControl>
 										<Combobox
+											className="w-fit"
 											{...field}
-											options={materials}
+											options={solutionNames}
 											onCreate={handleAppendMaterial}
-											selected={selectedMaterial}
+											selected={selectedSolutionNames}
 											disabled={
 												disabled ||
 												role !== Role.PROVIDER
 											}
 											onChange={(value) => {
-												setSelectedMaterial(
+												setSelectedSolutionNames(
 													value.value
 												);
 												form.setValue(
@@ -215,17 +228,31 @@ function EntryForm({
 									{index == 0 && (
 										<FormLabel>Materia Prima</FormLabel>
 									)}
-									<FormControl>
-										Select
-										<Input
-											disabled={
-												disabled ||
-												role !== Role.PROVIDER
-											}
-											placeholder="Madera"
-											{...field}
-										/>
-									</FormControl>
+									<Select
+										onValueChange={field.onChange}
+										defaultValue={field.value}
+									>
+										<FormControl>
+											<SelectTrigger>
+												<SelectValue placeholder="Materia Prima" />
+											</SelectTrigger>
+										</FormControl>
+										<SelectContent>
+											{materialEnum.options.map(
+												(material) => (
+													<SelectItem
+														key={material}
+														value={material}
+													>
+														{material}
+													</SelectItem>
+												)
+											)}
+										</SelectContent>
+									</Select>
+
+									<FormMessage />
+
 									<FormMessage />
 								</FormItem>
 							)}
