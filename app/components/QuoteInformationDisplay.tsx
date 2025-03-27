@@ -1,10 +1,11 @@
-import { QuoteInformation, User } from "@prisma/client";
+import { QuoteInformation, Role, User } from "@prisma/client";
 import CompanyImage from "./CompanyImage";
 import { formatMexicanPhoneNumber } from "@/lib/utils";
 import { getUserById } from "@/lib/storage/database";
 import { useEffect, useState } from "react";
 import { buildImageURL } from "@/lib/serverUtils";
 import { FileSearch } from "lucide-react";
+import { useSession } from "next-auth/react";
 
 export default function QuoteInformationDisplay({
 	quoteInformation,
@@ -27,6 +28,7 @@ export default function QuoteInformationDisplay({
 	);
 	const [provider, setProvider] = useState<User | null>(null);
 	const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+	const { data: session } = useSession();
 
 	useEffect(() => {
 		const buildPDFUrl = async () => {
@@ -96,10 +98,15 @@ export default function QuoteInformationDisplay({
 				</table>
 			</div>
 			<div className="flex flex-col items-center gap-4 justify-center">
-				<div>
-					Provedor:{" "}
-					{provider ? provider.name || provider.name : "No asignado"}
-				</div>
+				{(session?.user?.role === Role.PETITIONER ||
+					session?.user?.role === Role.SUPERVISOR) && (
+					<div>
+						Provedor:{" "}
+						{provider
+							? provider.name || provider.name
+							: "No asignado"}
+					</div>
+				)}
 				<div>
 					{pdfUrl && (
 						<a
