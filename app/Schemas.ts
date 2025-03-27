@@ -9,6 +9,69 @@ const ACCEPTED_IMAGE_TYPES = [
 	"image/webp",
 ];
 
+export const solutionNameEnum = z.enum([
+	"Preciador",
+	"Refriacilco",
+	"Refriacilco Ventana",
+	"Dangler",
+	"Manteleta",
+	"Cenefa L Arriba",
+	"Cenefa L Abajo",
+	"Cenefa plana",
+	"Stopper",
+	"Banderola",
+	"Tope o caballete de mostrador",
+	"Caballete de piso",
+	"Tend card",
+	"Totem",
+	"Copete",
+	"Pendon",
+	"Faldon",
+	"Colgante",
+	"Lateral",
+	"Floorgraphic",
+	"Inflable",
+	"Vestimenta cabecera",
+	"Vestimenta Anaquel",
+	"Poster",
+	"Lona",
+	"Chuponera",
+	"Shelfexteder",
+	"Tira",
+	"Sidekick",
+	"De Mostrador",
+	"Botadero",
+	"Floordisplay",
+	"Cuarto de pallet",
+	"Pallet",
+	"Isla",
+	"Cabecera",
+	"Arco",
+]);
+
+export const materialEnum = z.enum([
+	"MDF",
+	"Metálico (Alambron )",
+	"Metálico (Lamina)",
+	"Estireno",
+	"Sulfatada",
+	"Cartón - Sulfatada",
+	"Cartón Kraft",
+	"Pet G",
+	"Trovicel",
+	"Propileno",
+	"Foamboard",
+	"Película ferrosa",
+	"Electrostatico",
+	"Vinil",
+	"Lona",
+	"Coroplast",
+	"Termoformado",
+	"Laminado o formica",
+	"Couche",
+	"Otro",
+]);
+
 export const EntrySchema = z.object({
 	image: z.union([
 		z
@@ -23,8 +86,14 @@ export const EntrySchema = z.object({
 			),
 		z.null(),
 	]),
-	name: z.string().min(1, "El nombre no puede estar vacío."),
-	material: z.string().min(1, "El material no puede estar vacío."),
+	name: z.union([
+		z.string().nonempty("El nombre no puede estar vacío."),
+		solutionNameEnum,
+	]),
+	material: z.union([
+		z.string().nonempty("El material no puede estar vacío."),
+		materialEnum,
+	]),
 	materialSubtype: z
 		.string()
 		.min(1, "El subtipo de material no puede estar vacío."),

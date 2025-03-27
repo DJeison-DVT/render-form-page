@@ -1,4 +1,8 @@
-import { initializeEntry, RenderUploadSchema } from "@/app/Schemas";
+import {
+	initializeEntry,
+	RenderUploadSchema,
+	solutionNameEnum,
+} from "@/app/Schemas";
 import {
 	FormControl,
 	FormField,
@@ -38,6 +42,7 @@ import { useSession } from "next-auth/react";
 import Loading from "@/components/Loading";
 import { Role } from "@prisma/client";
 import Image from "next/image";
+import { Combobox, ComboboxOptions } from "@/components/ui/combobox";
 
 function EntryForm({
 	form,
@@ -56,9 +61,28 @@ function EntryForm({
 	disabled?: boolean;
 	modal?: boolean;
 }) {
+	const solutionNameOptions: ComboboxOptions[] = solutionNameEnum.options.map(
+		(option) => ({
+			value: option,
+			label: option,
+		})
+	);
+
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const { data: session } = useSession();
 	const message = form.getValues("comment");
+	const [materials] = useState<ComboboxOptions[]>(solutionNameOptions);
+	const [selectedMaterial, setSelectedMaterial] = useState<string>("");
+
+	function handleAppendMaterial(label: ComboboxOptions["label"]) {
+		const newMaterial = {
+			value: label,
+			label,
+		};
+		materials.push(newMaterial);
+		setSelectedMaterial(newMaterial.value);
+		form.setValue("client", newMaterial.value);
+	}
 
 	if (!session) {
 		return <Loading />;
@@ -159,13 +183,24 @@ function EntryForm({
 										<FormLabel>Material</FormLabel>
 									)}
 									<FormControl>
-										<Input
+										<Combobox
+											{...field}
+											options={materials}
+											onCreate={handleAppendMaterial}
+											selected={selectedMaterial}
 											disabled={
 												disabled ||
 												role === Role.VALIDATOR
 											}
-											placeholder="Exhibidor"
-											{...field}
+											onChange={(value) => {
+												setSelectedMaterial(
+													value.value
+												);
+												form.setValue(
+													`entries.${index}.name`,
+													value.value
+												);
+											}}
 										/>
 									</FormControl>
 									<FormMessage />
