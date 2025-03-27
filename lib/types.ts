@@ -1,7 +1,7 @@
 import { Prisma, Role } from "@prisma/client";
 
 export const RoleTranslations: Record<Role, string> = {
-	PETITIONER: "Solicitante",
+	PETITIONER: "Cuentaclabe",
 	VALIDATOR: "Aprobador",
 	PROVIDER: "Proveedor",
 	SUPERVISOR: "Supervisor",

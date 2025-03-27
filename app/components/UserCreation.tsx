@@ -83,7 +83,9 @@ export default function UserCreation() {
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger>
-				<UserPlus />
+				<div className="flex gap-2 text-md justify-center items-center">
+					<UserPlus size={18} /> Crear Usuario
+				</div>
 			</DialogTrigger>
 			<DialogContent>
 				<DialogHeader>

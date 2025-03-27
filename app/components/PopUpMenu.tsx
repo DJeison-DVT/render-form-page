@@ -11,6 +11,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { RoleTranslations } from "@/lib/types";
 import { Role } from "@prisma/client";
+import UserCreation from "@/app/components/UserCreation";
 import { formatMexicanPhoneNumber } from "@/lib/utils";
 
 export default async function PopUpMenu() {
@@ -22,6 +23,7 @@ export default async function PopUpMenu() {
 
 	const user = session.user;
 	const role = user.role;
+	const adminRoles: Role[] = [Role.PETITIONER, Role.SUPERVISOR];
 
 	return (
 		<Popover>
@@ -35,20 +37,32 @@ export default async function PopUpMenu() {
 					<p>{user.email}</p>
 				</div>
 				<Separator />
-				<div className="flex flex-col items-center py-2">
-					<Button variant="link">
-						<Link href="/renders/dashboard">Dashboard</Link>
-					</Button>
-					{role === Role.PETITIONER && (
+				<div className="flex justify-center">
+					<div className="flex flex-col items-start py-2 justify-center max-w-fit">
 						<Button variant="link">
-							<Link href="/renders/registration">Registro</Link>
+							<Link href="/renders/dashboard">Dashboard</Link>
 						</Button>
-					)}
+						{adminRoles.includes(role as Role) && (
+							<Button variant="link">
+								<Link href="/renders/registration">
+									Registro
+								</Link>
+							</Button>
+						)}
+					</div>
 				</div>
-				<div className="pb-2">
-					<Separator />
+				<Separator />
+				{adminRoles.includes(role as Role) && (
+					<>
+						<div className="py-2 flex justify-center items-center">
+							<UserCreation />
+						</div>
+						<Separator />
+					</>
+				)}
+				<div className="pt-2">
+					<SignOut />
 				</div>
-				<SignOut />
 			</PopoverContent>
 		</Popover>
 	);
