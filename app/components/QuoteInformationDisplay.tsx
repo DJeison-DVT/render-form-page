@@ -111,9 +111,11 @@ export default function QuoteInformationDisplay({
 					{pdfUrl && (
 						<a
 							href={pdfUrl}
+							target="_blank"
+							rel="noopener noreferrer"
 							className="flex items-center justify-center gap-2 bg-slate-400 text-white p-2 rounded-md"
 						>
-							Ver Pdf
+							Ver PDF
 							<FileSearch size={32} />
 						</a>
 					)}
