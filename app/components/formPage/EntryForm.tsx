@@ -127,7 +127,7 @@ function EntryForm({
 												<Input
 													disabled={
 														disabled ||
-														role === Role.VALIDATOR
+														role !== Role.PROVIDER
 													}
 													type="file"
 													id={`file-upload-${index}`}
@@ -190,7 +190,7 @@ function EntryForm({
 											selected={selectedMaterial}
 											disabled={
 												disabled ||
-												role === Role.VALIDATOR
+												role !== Role.PROVIDER
 											}
 											onChange={(value) => {
 												setSelectedMaterial(
@@ -216,10 +216,11 @@ function EntryForm({
 										<FormLabel>Materia Prima</FormLabel>
 									)}
 									<FormControl>
+										Select
 										<Input
 											disabled={
 												disabled ||
-												role === Role.VALIDATOR
+												role !== Role.PROVIDER
 											}
 											placeholder="Madera"
 											{...field}
@@ -241,7 +242,7 @@ function EntryForm({
 										<Input
 											disabled={
 												disabled ||
-												role === Role.VALIDATOR
+												role !== Role.PROVIDER
 											}
 											placeholder="300mm"
 											{...field}
@@ -263,7 +264,7 @@ function EntryForm({
 										<Input
 											disabled={
 												disabled ||
-												role === Role.VALIDATOR
+												role !== Role.PROVIDER
 											}
 											placeholder="22cm x 33cm x 40cm"
 											{...field}
@@ -287,7 +288,7 @@ function EntryForm({
 											{...field}
 											disabled={
 												disabled ||
-												role === Role.VALIDATOR
+												role !== Role.PROVIDER
 											}
 											className="min-w-96"
 										/>
@@ -308,7 +309,7 @@ function EntryForm({
 										<Input
 											disabled={
 												disabled ||
-												role === Role.VALIDATOR
+												role !== Role.PROVIDER
 											}
 											placeholder="Piezas"
 											className="w-24"
@@ -320,8 +321,7 @@ function EntryForm({
 								</FormItem>
 							)}
 						/>
-						{(role === Role.PROVIDER ||
-							role === Role.PETITIONER) && (
+						{role !== Role.SUPERVISOR && (
 							<FormField
 								control={form.control}
 								name={`entries.${index}.unitaryCost`}
@@ -372,8 +372,7 @@ function EntryForm({
 								)}
 							/>
 						)}
-						{(role === Role.VALIDATOR ||
-							role === Role.PETITIONER) && (
+						{role !== Role.PROVIDER && (
 							<FormField
 								control={form.control}
 								name={`entries.${index}.unitaryFinalPrice`}
@@ -399,122 +398,131 @@ function EntryForm({
 							/>
 						)}
 						<div className="flex justify-around items-end gap-2 m-2 absolute right-0 bottom-0">
-							<TooltipProvider disableHoverableContent={disabled}>
-								<Tooltip>
-									<TooltipTrigger
-										asChild
-										onClick={() => {
-											if (
-												disabled ||
-												role === Role.VALIDATOR
-											)
-												return;
-											const currentEntry =
-												form.getValues().entries[index];
-											const newEntry = Object.assign(
-												{},
-												currentEntry
-											);
-											fieldArrayInsert(
-												index + 1,
-												newEntry
-											);
-											form.setValue(
-												`entries.${index + 1}`,
-												newEntry,
-												{
-													shouldValidate: true,
-													shouldDirty: true,
-												}
-											);
-										}}
+							{role === Role.PROVIDER && (
+								<>
+									<TooltipProvider
+										disableHoverableContent={disabled}
 									>
-										<PushableComponent>
-											<CornerDownLeft
-												className={
-													disabled ||
-													role === Role.VALIDATOR
-														? "text-gray-400 cursor-not-allowed"
-														: ""
-												}
-											/>
-										</PushableComponent>
-									</TooltipTrigger>
-									<TooltipContent>
-										<p>Copiar Entrada</p>
-									</TooltipContent>
-								</Tooltip>
-							</TooltipProvider>
-							<TooltipProvider
-								disableHoverableContent={
-									form.getValues().entries.length <= 1 ||
-									disabled
-								}
-							>
-								<Tooltip>
-									<TooltipTrigger
-										asChild
-										onClick={() => {
-											if (
-												(form.getValues().entries
-													.length > 1 &&
-													!disabled) ||
-												role !== Role.VALIDATOR
-											) {
-												setIsModalOpen(true);
-											}
-										}}
+										<Tooltip>
+											<TooltipTrigger
+												asChild
+												onClick={() => {
+													if (disabled) return;
+													const currentEntry =
+														form.getValues()
+															.entries[index];
+													const newEntry =
+														Object.assign(
+															{},
+															currentEntry
+														);
+													fieldArrayInsert(
+														index + 1,
+														newEntry
+													);
+													form.setValue(
+														`entries.${index + 1}`,
+														newEntry,
+														{
+															shouldValidate:
+																true,
+															shouldDirty: true,
+														}
+													);
+												}}
+											>
+												<PushableComponent>
+													<CornerDownLeft
+														className={
+															disabled ||
+															role !==
+																Role.PROVIDER
+																? "text-gray-400 cursor-not-allowed"
+																: ""
+														}
+													/>
+												</PushableComponent>
+											</TooltipTrigger>
+											<TooltipContent>
+												<p>Copiar Entrada</p>
+											</TooltipContent>
+										</Tooltip>
+									</TooltipProvider>
+									<TooltipProvider
+										disableHoverableContent={
+											form.getValues().entries.length <=
+												1 || disabled
+										}
 									>
-										<PushableComponent>
-											<Trash
-												className={
-													form.getValues().entries
-														.length <= 1 || disabled
-														? "text-gray-400 cursor-not-allowed"
-														: ""
-												}
-											/>
-										</PushableComponent>
-									</TooltipTrigger>
-									<TooltipContent>
-										<p>Borrar Entrada</p>
-									</TooltipContent>
-								</Tooltip>
-								<AlertDialog
-									open={isModalOpen}
-									onOpenChange={setIsModalOpen}
-								>
-									<AlertDialogContent>
-										<AlertDialogHeader>
-											<AlertDialogTitle>
-												Borrar Entrada
-											</AlertDialogTitle>
-											<AlertDialogDescription>
-												Esta acción no se puede
-												deshacer.
-											</AlertDialogDescription>
-										</AlertDialogHeader>
-										<AlertDialogFooter>
-											<AlertDialogCancel>
-												Cancelar
-											</AlertDialogCancel>
-											<AlertDialogAction
+										<Tooltip>
+											<TooltipTrigger
+												asChild
 												onClick={() => {
 													if (
 														form.getValues().entries
-															.length == 1 ||
-														role === Role.VALIDATOR
-													)
-														return;
-													fieldArrayRemove(index);
+															.length > 1 &&
+														!disabled
+													) {
+														setIsModalOpen(true);
+													}
 												}}
 											>
-												Continuar
-											</AlertDialogAction>
-										</AlertDialogFooter>
-									</AlertDialogContent>
-								</AlertDialog>
-							</TooltipProvider>
+												<PushableComponent>
+													<Trash
+														className={
+															form.getValues()
+																.entries
+																.length <= 1 ||
+															disabled
+																? "text-gray-400 cursor-not-allowed"
+																: ""
+														}
+													/>
+												</PushableComponent>
+											</TooltipTrigger>
+											<TooltipContent>
+												<p>Borrar Entrada</p>
+											</TooltipContent>
+										</Tooltip>
+										<AlertDialog
+											open={isModalOpen}
+											onOpenChange={setIsModalOpen}
+										>
+											<AlertDialogContent>
+												<AlertDialogHeader>
+													<AlertDialogTitle>
+														Borrar Entrada
+													</AlertDialogTitle>
+													<AlertDialogDescription>
+														Esta acción no se puede
+														deshacer.
+													</AlertDialogDescription>
+												</AlertDialogHeader>
+												<AlertDialogFooter>
+													<AlertDialogCancel>
+														Cancelar
+													</AlertDialogCancel>
+													<AlertDialogAction
+														onClick={() => {
+															if (
+																form.getValues()
+																	.entries
+																	.length == 1
+															)
+																return;
+															fieldArrayRemove(
+																index
+															);
+														}}
+													>
+														Continuar
+													</AlertDialogAction>
+												</AlertDialogFooter>
+											</AlertDialogContent>
+										</AlertDialog>
+									</TooltipProvider>
+								</>
+							)}
 						</div>
 					</div>
 				))}

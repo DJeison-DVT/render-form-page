@@ -264,7 +264,7 @@ export default function Confirmation() {
 													role === Role.VALIDATOR
 												}
 											>
-												{role !== Role.VALIDATOR ? (
+												{role === Role.VALIDATOR ? (
 													<div
 														className={`cursor-pointer bg-gray-800/90 text-white rounded-md hover:bg-gray-700/90 gap-2 p-1 px-2 transition flex justify-center items-center text-xl ${
 															form.formState
@@ -290,7 +290,7 @@ export default function Confirmation() {
 													</div>
 												)}
 											</CommentDialog>
-											{role === Role.VALIDATOR && (
+											{role === Role.PETITIONER && (
 												<div
 													className={
 														"cursor-pointer bg-gray-800/90 text-white rounded-md hover:bg-gray-700/90 gap-2 p-1 px-2 transition flex justify-center items-center text-xl"
