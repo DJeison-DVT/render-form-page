@@ -440,9 +440,17 @@ async function getPendingProviderQuotes(phone: string) {
 			},
 		});
 
+		const filteredQuotes = providerQuotes.filter(
+			(providerQuotes) =>
+				providerQuotes.quoteInformation.quotes.length > 0 &&
+				providerQuotes.quoteInformation.quotes[0].createdByRole ===
+					Role.PETITIONER &&
+				providerQuotes.quoteInformation.providerId === null
+		);
+
 		return {
 			success: true,
-			quoteInformations: providerQuotes.map((pq) => pq.quoteInformation),
+			quoteInformations: filteredQuotes.map((pq) => pq.quoteInformation),
 		};
 	} catch (error) {
 		console.error("Error in getPendingProviderQuotes:", error);
