@@ -261,7 +261,7 @@ export default function Confirmation() {
 												disabled={disabled}
 												upload={handleUpload}
 												rejection={
-													role === Role.VALIDATOR
+													role === Role.PETITIONER
 												}
 											>
 												{role === Role.VALIDATOR ? (

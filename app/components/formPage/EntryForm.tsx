@@ -76,9 +76,9 @@ function EntryForm({
 		})
 	);
 
+	const [receivedMessage, setReceivedMessage] = useState("");
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const { data: session } = useSession();
-	const message = form.getValues("comment");
 	const [solutionNames] = useState<ComboboxOptions[]>(solutionNameOptions);
 	const [selectedSolutionNames, setSelectedSolutionNames] = useState<
 		string[]
@@ -101,13 +101,22 @@ function EntryForm({
 		form.setValue("client", newMaterial.value);
 	}
 
+	useEffect(() => {
+		const message = form.getValues("comment");
+		if (message && receivedMessage === "") {
+			setReceivedMessage(message);
+		}
+	}, [form, receivedMessage]);
+
 	if (!session) {
 		return <Loading />;
 	}
 
 	const content = (
 		<>
-			<div className="text-lg">Comentario: {message || "Vacio"}</div>
+			{receivedMessage && (
+				<div className="text-lg">Comentario: {receivedMessage}</div>
+			)}
 			<div className="flex justify-between items-center bg-white z-10 sticky top-0 p-2 border-b">
 				<h4 className="text-3xl font-bold">Cotización</h4>
 				<TooltipProvider>
