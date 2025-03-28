@@ -26,6 +26,7 @@ declare module "next-auth" {
 			phone: string;
 			email: string;
 			userId: string;
+			company: string;
 		} & DefaultSession["user"];
 	}
 
@@ -33,6 +34,7 @@ declare module "next-auth" {
 		userId: string;
 		role: string;
 		phone: string;
+		company: string;
 	}
 }
 
@@ -42,6 +44,7 @@ declare module "next-auth/jwt" {
 		phone: string;
 		email: string;
 		userId: string;
+		company: string;
 	}
 }
 
@@ -88,6 +91,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 					phone: user.phone,
 					role: user.role,
 					email: user.email,
+					company: user.company,
 				};
 
 				return userData;
@@ -101,6 +105,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 				token.role = user.role;
 				token.phone = user.phone;
 				token.email = user.email || "";
+				token.company = user.company || "";
 			}
 			return token;
 		},
@@ -110,6 +115,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 				session.user.role = token.role;
 				session.user.phone = token.phone;
 				session.user.email = token.email;
+				session.user.company = token.company;
 			}
 			return session;
 		},

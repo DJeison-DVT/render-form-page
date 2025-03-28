@@ -35,6 +35,7 @@ export default async function PopUpMenu() {
 					<p>{RoleTranslations[user.role as Role]}</p>
 					<p>{formatMexicanPhoneNumber(user.phone)}</p>
 					<p>{user.email}</p>
+					<p>{user.company}</p>
 				</div>
 				<Separator />
 				<div className="flex justify-center">
