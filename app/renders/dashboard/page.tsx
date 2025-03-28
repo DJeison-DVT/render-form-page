@@ -56,6 +56,7 @@ export default async function Dashboard() {
 					{quoteInformations.length > 0 &&
 						quoteInformations.map((quoteInformation) => (
 							<QuoteCard
+								role={session.user.role as Role}
 								key={quoteInformation.id}
 								quoteInformation={quoteInformation}
 								link={`/renders/confirmation/${

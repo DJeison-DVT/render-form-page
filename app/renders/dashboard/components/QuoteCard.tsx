@@ -1,13 +1,19 @@
 import CompanyImage from "@/app/components/CompanyImage";
 import { QuoteInformationWithQuotes } from "@/lib/types";
+import { Role } from "@prisma/client";
 import Link from "next/link";
 
 interface QuoteCardProps {
+	role: string;
 	quoteInformation: QuoteInformationWithQuotes;
 	link: string;
 }
 
-export default function QuoteCard({ quoteInformation, link }: QuoteCardProps) {
+export default function QuoteCard({
+	role,
+	quoteInformation,
+	link,
+}: QuoteCardProps) {
 	return (
 		<Link key={quoteInformation.id} href={link}>
 			<div className="flex justify-between items-center p-4 w-[900px] border-2 rounded-md border-gray-300 text-lg">
@@ -25,26 +31,36 @@ export default function QuoteCard({ quoteInformation, link }: QuoteCardProps) {
 					</div>
 				</div>
 				<div className="flex flex-col items-end justify-center">
-					{quoteInformation.quotes.length > 0 && (
-						<>
-							<div>
-								Fecha de Comienzo:{" "}
-								{formatDateString(
-									quoteInformation.quotes[0].createdAt
+					{quoteInformation.quotes.length > 0 &&
+						(role === Role.PETITIONER ||
+							role === Role.VALIDATOR) && (
+							<>
+								<div>
+									Fecha de Comienzo:{" "}
+									{formatDateString(
+										quoteInformation.createdAt
+									)}
+								</div>
+								{quoteInformation.providerId && (
+									<>
+										<div>
+											Fecha de Actualizacion:{" "}
+											{formatDateString(
+												quoteInformation.quotes[0]
+													.createdAt
+											)}
+										</div>
+										<div>
+											Cantidad de Listados:{" "}
+											{
+												quoteInformation.quotes[0]
+													.entries.length
+											}
+										</div>
+									</>
 								)}
-							</div>
-							<div>
-								Fecha de Actualizacion:{" "}
-								{formatDateString(
-									quoteInformation.quotes[0].createdAt
-								)}
-							</div>
-							<div>
-								Cantidad de Opciones:{" "}
-								{quoteInformation.quotes[0].entries.length}
-							</div>
-						</>
-					)}
+							</>
+						)}
 				</div>
 			</div>
 		</Link>
