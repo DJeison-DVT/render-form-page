@@ -51,6 +51,7 @@ import Loading from "@/components/Loading";
 import { Role } from "@prisma/client";
 import Image from "next/image";
 import { Combobox, ComboboxOptions } from "@/components/ui/combobox";
+import EntryPriceField from "./EntryPriceField";
 
 function EntryForm({
 	form,
@@ -416,42 +417,11 @@ function EntryForm({
 							/>
 						)}
 						{role === Role.PETITIONER && (
-							<FormField
-								control={form.control}
-								name={`entries.${index}.unitaryPrice`}
-								render={({ field }) => {
-									const unitaryCost = form.watch(
-										`entries.${index}.unitaryCost`
-									);
-									useEffect(() => {
-										if (unitaryCost) {
-											const price = unitaryCost * 1.65;
-											form.setValue(
-												`entries.${index}.unitaryPrice`,
-												price
-											);
-										}
-									}, [unitaryCost, index, form.setValue]);
-
-									return (
-										<FormItem>
-											{index == 0 && (
-												<FormLabel className="text-nowrap">
-													Precio DeMente
-												</FormLabel>
-											)}
-											<FormControl>
-												<Input
-													disabled={disabled}
-													type="number"
-													className="w-24"
-													{...field}
-												/>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									);
-								}}
+							<EntryPriceField
+								key={index}
+								form={form}
+								index={index}
+								disabled={disabled}
 							/>
 						)}
 						{role !== Role.PROVIDER && (
