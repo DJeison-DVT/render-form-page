@@ -428,7 +428,7 @@ function EntryForm({
 								</FormItem>
 							)}
 						/>
-						{role !== Role.SUPERVISOR && (
+						{role !== Role.VALIDATOR && (
 							<FormField
 								control={form.control}
 								name={`entries.${index}.unitaryCost`}
@@ -457,12 +457,13 @@ function EntryForm({
 								}}
 							/>
 						)}
-						{role === Role.PETITIONER && (
+						{(role === Role.PETITIONER ||
+							role === Role.VALIDATOR) && (
 							<EntryPriceField
 								key={index}
 								form={form}
 								index={index}
-								disabled={disabled}
+								disabled={disabled || role === Role.VALIDATOR}
 							/>
 						)}
 						{role !== Role.PROVIDER && (

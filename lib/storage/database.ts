@@ -385,15 +385,13 @@ async function getPendingQuotes(phone: string, userRole: Role) {
 			return { success: true, quoteInformations };
 		}
 
-		const oppositeRole =
-			userRole === "PETITIONER" ? "VALIDATOR" : "PETITIONER";
-
 		const filteredQuotes = quoteInformations.filter(
 			(quoteInformation) =>
 				quoteInformation.quotes.length > 0 &&
-				(quoteInformation.quotes[0].createdByRole === oppositeRole ||
+				(quoteInformation.quotes[0].createdByRole !== userRole ||
 					(quoteInformation.providerId === null &&
-						userRole === "PETITIONER"))
+						userRole === "PETITIONER" &&
+						quoteInformation.quotes[0].createdByRole !== userRole))
 		);
 
 		return { success: true, quoteInformations: filteredQuotes };
