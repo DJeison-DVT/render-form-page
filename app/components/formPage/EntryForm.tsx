@@ -44,7 +44,7 @@ import {
 	AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import PushableComponent from "@/components/ui/pushableComponent";
 import { useSession } from "next-auth/react";
 import Loading from "@/components/Loading";
@@ -80,16 +80,24 @@ function EntryForm({
 	const { data: session } = useSession();
 	const message = form.getValues("comment");
 	const [solutionNames] = useState<ComboboxOptions[]>(solutionNameOptions);
-	const [selectedSolutionNames, setSelectedSolutionNames] =
-		useState<string>("");
+	const [selectedSolutionNames, setSelectedSolutionNames] = useState<
+		string[]
+	>([]);
 
-	function handleAppendMaterial(label: ComboboxOptions["label"]) {
+	function handleAppendMaterial(
+		index: number,
+		label: ComboboxOptions["label"]
+	) {
 		const newMaterial = {
 			value: label,
 			label,
 		};
 		solutionNames.push(newMaterial);
-		setSelectedSolutionNames(newMaterial.value);
+		setSelectedSolutionNames([
+			...selectedSolutionNames.slice(0, index),
+			newMaterial.value,
+			...selectedSolutionNames.slice(index + 1),
+		]);
 		form.setValue("client", newMaterial.value);
 	}
 
@@ -199,16 +207,28 @@ function EntryForm({
 											className="w-fit"
 											{...field}
 											options={solutionNames}
-											onCreate={handleAppendMaterial}
-											selected={selectedSolutionNames}
+											onCreate={() => {
+												handleAppendMaterial(
+													index,
+													field.value
+												);
+											}}
+											selected={field.value}
 											disabled={
 												disabled ||
 												role !== Role.PROVIDER
 											}
 											onChange={(value) => {
-												setSelectedSolutionNames(
-													value.value
-												);
+												setSelectedSolutionNames([
+													...selectedSolutionNames.slice(
+														0,
+														index
+													),
+													value.value,
+													...selectedSolutionNames.slice(
+														index + 1
+													),
+												]);
 												form.setValue(
 													`entries.${index}.name`,
 													value.value
@@ -231,10 +251,18 @@ function EntryForm({
 									<Select
 										onValueChange={field.onChange}
 										defaultValue={field.value}
+										disabled={
+											disabled || role !== Role.PROVIDER
+										}
 									>
 										<FormControl>
 											<SelectTrigger>
-												<SelectValue placeholder="Materia Prima" />
+												<SelectValue
+													placeholder={
+														field.value ||
+														"Materia Prima"
+													}
+												/>
 											</SelectTrigger>
 										</FormControl>
 										<SelectContent>
@@ -271,6 +299,7 @@ function EntryForm({
 												disabled ||
 												role !== Role.PROVIDER
 											}
+											className="w-24"
 											placeholder="300mm"
 											{...field}
 										/>
@@ -352,51 +381,68 @@ function EntryForm({
 							<FormField
 								control={form.control}
 								name={`entries.${index}.unitaryCost`}
-								render={({ field }) => (
-									<FormItem>
-										{index == 0 && (
-											<FormLabel>
-												Costo Unitario
-											</FormLabel>
-										)}
-										<FormControl>
-											<Input
-												disabled={
-													disabled ||
-													role !== Role.PROVIDER
-												}
-												type="number"
-												className="w-24"
-												{...field}
-											/>
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
+								render={({ field }) => {
+									return (
+										<FormItem>
+											{index == 0 && (
+												<FormLabel>
+													Costo Unitario
+												</FormLabel>
+											)}
+											<FormControl>
+												<Input
+													disabled={
+														disabled ||
+														role !== Role.PROVIDER
+													}
+													type="number"
+													className="w-24"
+													{...field}
+												/>
+											</FormControl>
+											<FormMessage />
+										</FormItem>
+									);
+								}}
 							/>
 						)}
 						{role === Role.PETITIONER && (
 							<FormField
 								control={form.control}
 								name={`entries.${index}.unitaryPrice`}
-								render={({ field }) => (
-									<FormItem>
-										{index == 0 && (
-											<FormLabel className="text-nowrap">
-												Precio DeMente
-											</FormLabel>
-										)}
-										<FormControl>
-											<Input
-												disabled={disabled}
-												type="number"
-												className="w-24"
-												{...field}
-											/>
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
+								render={({ field }) => {
+									const unitaryCost = form.watch(
+										`entries.${index}.unitaryCost`
+									);
+									useEffect(() => {
+										if (unitaryCost) {
+											const price = unitaryCost * 1.65;
+											form.setValue(
+												`entries.${index}.unitaryPrice`,
+												price
+											);
+										}
+									}, [unitaryCost, index, form.setValue]);
+
+									return (
+										<FormItem>
+											{index == 0 && (
+												<FormLabel className="text-nowrap">
+													Precio DeMente
+												</FormLabel>
+											)}
+											<FormControl>
+												<Input
+													disabled={disabled}
+													type="number"
+													className="w-24"
+													{...field}
+												/>
+											</FormControl>
+											<FormMessage />
+										</FormItem>
+									);
+								}}
 							/>
 						)}
 						{role !== Role.PROVIDER && (
@@ -412,7 +458,7 @@ function EntryForm({
 											<Input
 												disabled={
 													disabled ||
-													role === Role.VALIDATOR
+													role === Role.PETITIONER
 												}
 												type="number"
 												className="w-24"
