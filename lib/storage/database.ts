@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { Role } from "@prisma/client";
 import { z } from "zod";
 import { sendMessage } from "../messaging";
-import { savePDF } from "./gcloud";
+import { savePDF, upsertImage } from "./gcloud";
 
 const MESSAGE_TEMPLATE = "HX92dca13fd40b55ff25d9e3ffa3e10429";
 const NEXTAUTH_URL = process.env.NEXTAUTH_URL;
@@ -118,18 +118,20 @@ async function createQuote(
 	const validData = parsedData.data;
 
 	try {
-		// let imageUrls: string[] = [];
-		// for (const entry of validData.entries) {
-		// 	if (entry.image) {
-		// 		const url = await upsertImage(entry.image);
-		// 		if (url) {
-		// 			imageUrls.push(url);
-		// 		}
-		// 	}
-		// }
-		// if (imageUrls.length !== validData.entries.length) {
-		// 	throw new Error("Error al subir las imágenes");
-		// }
+		const imageUrls: string[] = [];
+		for (const entry of validData.entries) {
+			if (!entry.imageUrl && entry.image) {
+				const url = await upsertImage(entry.image);
+				if (url) {
+					imageUrls.push(url);
+				}
+			} else {
+				imageUrls.push(entry.imageUrl || "");
+			}
+		}
+		if (imageUrls.length !== validData.entries.length) {
+			throw new Error("Error al subir las imágenes");
+		}
 
 		const { newQuote } = await prisma.$transaction(async (transaction) => {
 			if (rejectedQuoteId) {
@@ -146,7 +148,7 @@ async function createQuote(
 					createdAt: new Date(),
 					comment: validData.comment,
 					entries: {
-						create: validData.entries.map((entry) => ({
+						create: validData.entries.map((entry, idx) => ({
 							name: entry.name,
 							sizes: entry.sizes,
 							material: entry.material,
@@ -156,7 +158,7 @@ async function createQuote(
 							unitaryPrice: entry.unitaryPrice,
 							unitaryCost: entry.unitaryCost,
 							unitaryFinalPrice: entry.unitaryFinalPrice,
-							// imageUrl: imageUrls[idx] || "",
+							imageUrl: imageUrls[idx] || "",
 						})),
 					},
 				},
@@ -442,10 +444,9 @@ async function getPendingProviderQuotes(phone: string) {
 
 		const filteredQuotes = providerQuotes.filter(
 			(providerQuotes) =>
-				providerQuotes.quoteInformation.quotes.length > 0 &&
+				providerQuotes.quoteInformation.quotes.length === 0 ||
 				providerQuotes.quoteInformation.quotes[0].createdByRole ===
-					Role.PETITIONER &&
-				providerQuotes.quoteInformation.providerId === null
+					Role.PETITIONER
 		);
 
 		return {

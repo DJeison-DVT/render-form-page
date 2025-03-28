@@ -182,6 +182,7 @@ export default function Confirmation() {
 						unitaryCost: entry.unitaryCost ?? 0,
 						unitaryFinalPrice: entry.unitaryFinalPrice ?? 0,
 						image: null,
+						imageUrl: entry.imageUrl ?? null,
 					})),
 				};
 

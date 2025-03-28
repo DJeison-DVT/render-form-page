@@ -5,8 +5,16 @@ const nextConfig: NextConfig = {
 	output: "standalone",
 	experimental: {
 		serverActions: {
-			bodySizeLimit: "8mb",
+			bodySizeLimit: "32mb",
 		},
+	},
+	images: {
+		remotePatterns: [
+			{
+				protocol: "https",
+				hostname: "storage.googleapis.com",
+			},
+		],
 	},
 };
 

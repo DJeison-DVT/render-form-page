@@ -86,6 +86,7 @@ export const EntrySchema = z.object({
 			),
 		z.null(),
 	]),
+	imageUrl: z.string().nullable(),
 	name: z.union([
 		z.string().nonempty("El nombre no puede estar vacío."),
 		solutionNameEnum,
@@ -168,6 +169,7 @@ export function initializeEntry() {
 	return {
 		name: "",
 		sizes: "",
+		imageUrl: null,
 		concept: "",
 		material: "",
 		materialSubtype: "",

@@ -33,7 +33,6 @@ import CommentDialog from "@/app/components/CommentDialog";
 import { useSession } from "next-auth/react";
 import Loading from "@/components/Loading";
 import { QuoteWithEntries } from "@/lib/types";
-// import { downloadImageAsFile } from "@/lib/serverUtils";
 
 type Provider = Record<string, string>;
 
@@ -112,30 +111,6 @@ export default function ProviderConfirmation() {
 		}
 		setDisabled(false);
 	};
-
-	// const fetchAndAssignImages = async (quote: QuoteWithEntries) => {
-	// 	const entries = quote.entries;
-
-	// 	for (let i = 0; i < entries.length; i++) {
-	// 		const entry = entries[i];
-
-	// 		if (entry.imageUrl) {
-	// 			try {
-	// 				const file = await downloadImageAsFile(
-	// 					entry.imageUrl,
-	// 					`entry-${i}.jpg`
-	// 				);
-	// 				console.log(file.name);
-	// 				// form.setValue(`entries.${i}.image`, file);
-	// 			} catch (error) {
-	// 				console.error(
-	// 					`Error downloading image for entry ${i}:`,
-	// 					error
-	// 				);
-	// 			}
-	// 		}
-	// 	}
-	// };
 
 	const onSubmitFinalize = async (
 		values: z.infer<typeof RenderUploadSchema>
@@ -225,12 +200,6 @@ export default function ProviderConfirmation() {
 				);
 				form.setValue("serial", quoteInformation.serial);
 
-				// const providerQuote = quoteInformation.ProviderQuotes[0];
-				// if (providerQuote.quote) {
-				// 	const quote = providerQuote.quote;
-				// await fetchAndAssignImages(quote);
-				// }
-
 				let providerQuotes: InformationProviderQuotes = {};
 				let hasQuotes = false;
 				const providerIds: Provider = {};
@@ -318,6 +287,7 @@ export default function ProviderConfirmation() {
 							unitaryCost: entry.unitaryCost ?? 0,
 							unitaryFinalPrice: entry.unitaryFinalPrice ?? 0,
 							image: null,
+							imageUrl: entry.imageUrl ?? null,
 					  }))
 					: [initializeEntry()],
 			};
