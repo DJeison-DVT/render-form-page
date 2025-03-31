@@ -87,7 +87,17 @@ export async function GET(request: Request) {
 		const template = handlebars.compile(templateHtml);
 		const html = template(quoteInformation);
 
-		const browser = await puppeteer.launch({ headless: true });
+		const browser = await puppeteer.launch({
+			headless: true,
+			args: [
+				"--no-sandbox",
+				"--disable-setuid-sandbox",
+				"--disable-dev-shm-usage",
+				"--disable-accelerated-2d-canvas",
+				"--disable-gpu",
+			],
+			executablePath: "/usr/bin/google-chrome-stable", // path to Google Chrome
+		});
 		const page = await browser.newPage();
 		await page.setContent(html, { waitUntil: "networkidle0" });
 

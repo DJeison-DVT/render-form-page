@@ -1,27 +1,25 @@
-FROM node:18-alpine AS base
+FROM node:18-slim AS base
 
-# Install dependencies only when needed
 FROM base AS deps
-# Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
-RUN apk add --no-cache libc6-compat python3 make g++
+RUN apt-get update && apt-get install -y python3 make g++
 WORKDIR /app
 
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
 
-# Install Google Chrome Stable and fonts
-# Note: this installs the necessary libs to make the browser work with Puppeteer.
-RUN apt-get update && apt-get install gnupg wget -y && \
+# Install Google Chrome Stable and fonts.
+# This installs the necessary libs for Puppeteer.
+RUN apt-get update && apt-get install -y gnupg wget && \
     wget --quiet --output-document=- https://dl-ssl.google.com/linux/linux_signing_key.pub | gpg --dearmor > /etc/apt/trusted.gpg.d/google-archive.gpg && \
     sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' && \
     apt-get update && \
-    apt-get install google-chrome-stable -y --no-install-recommends && \
+    apt-get install -y google-chrome-stable --no-install-recommends && \
     rm -rf /var/lib/apt/lists/*
 
-# Verify that Chrome is installed at the expected location
+# Verify that Chrome is installed.
 RUN ls -alh /usr/bin/google-chrome-stable && \
     /usr/bin/google-chrome-stable --version
 
-# Install dependencies based on the preferred package manager
+# Install dependencies based on the preferred package manager.
 COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* .npmrc* ./
 RUN \
     if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
@@ -32,20 +30,17 @@ RUN \
 
 RUN npm uninstall bcrypt && npm install bcrypt --build-from-source
 
-# Rebuild the source code only when needed
+# Rebuild the source code only when needed.
 FROM base AS builder
 WORKDIR /app
 
 ARG NEXT_PUBLIC_BUCKET_URL
 ENV NEXT_PUBLIC_BUCKET_URL=${NEXT_PUBLIC_BUCKET_URL}
 
-
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Next.js collects completely anonymous telemetry data about general usage.
-# Learn more here: https://nextjs.org/telemetry
-# Uncomment the following line in case you want to disable telemetry during the build.
+# Disable Next.js telemetry (optional).
 ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN npx prisma generate
@@ -83,8 +78,5 @@ USER nextjs
 EXPOSE 3000
 
 ENV PORT=3000
-
-# server.js is created by next build from the standalone output
-# https://nextjs.org/docs/pages/api-reference/config/next-config-js/output
 ENV HOSTNAME="0.0.0.0"
 CMD ["node", "server.js"]
