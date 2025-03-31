@@ -20,6 +20,11 @@ RUN npm uninstall bcrypt && npm install bcrypt --build-from-source
 # Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /app
+
+ARG NEXT_PUBLIC_BUCKET_URL
+ENV NEXT_PUBLIC_BUCKET_URL=${NEXT_PUBLIC_BUCKET_URL}
+
+
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
