@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      font-size: 12px;
+      padding: 30px;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo {
+      width: 100px;
+    }
+    .info {
+      text-align: right;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 30px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 5px;
+      vertical-align: top;
+    }
+    .notes {
+      margin-top: 40px;
+      font-size: 11px;
+    }
+    img.product-image {
+      height: 80px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <img src="logo.png" class="logo" />
+    <div class="info">
+      <h2>Cotización</h2>
+      <p><strong>Cliente:</strong> {{client}}</p>
+      <p><strong>Categoría:</strong> {{brand}}</p>
+      <p><strong>Fecha de la cotización:</strong> {{formatDate createdAt}}</p>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Fecha</th>
+        <th>Material</th>
+        <th>Concepto</th>
+        <th>Medidas</th>
+        <th>Imagen</th>
+        <th>Cantidad</th>
+        <th>Precio unitario</th>
+        <th>Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each quotes.[0].entries}}
+        <tr>
+          <td></td>
+          <td>{{material}}</td>
+          <td>{{concept}}</td>
+          <td>{{sizes}}</td>
+          <td><img class="product-image" src="{{imageUrl}}" /></td>
+          <td>{{range}}</td>
+          <td>{{formatCurrencyMXN unitaryFinalPrice}}</td>
+          <td>{{formatCurrencyMXN (multiply unitaryFinalPrice range)}}</td>
+        </tr>
+      {{/each}}
+    </tbody>
+  </table>
+
+  <div class="notes">
+    <strong>NOTAS:</strong>
+    <ul>
+      <li>Los precios no incluyen IVA, y están valuados en pesos mexicanos.</li>
+      <li>El Tiempo de producción se considera a partir de ODC y gráficos</li>
+      <li>Entrega en 1 punto CDMX</li>
+      <li>La validez de este documento es de 30 días a partir de la fecha de emisión.</li>
+    </ul>
+  </div>
+</body>
+</html>

@@ -4,7 +4,7 @@ import { formatMexicanPhoneNumber } from "@/lib/utils";
 import { getUserById } from "@/lib/storage/database";
 import { useEffect, useState } from "react";
 import { buildImageURL } from "@/lib/serverUtils";
-import { FileSearch } from "lucide-react";
+import { FileDown, FileSearch } from "lucide-react";
 import { useSession } from "next-auth/react";
 
 export default function QuoteInformationDisplay({
@@ -101,27 +101,37 @@ export default function QuoteInformationDisplay({
 			</div>
 			<div className="flex flex-col items-center gap-4 justify-center">
 				{(session?.user?.role === Role.PETITIONER ||
-					session?.user?.role === Role.SUPERVISOR) && (
-					<div>
-						Provedor:{" "}
-						{provider
-							? provider.name || provider.name
-							: "No asignado"}
+					session?.user?.role === Role.SUPERVISOR) &&
+					provider && (
+						<div>
+							Provedor: {provider.name} {provider.company}
+						</div>
+					)}
+				{pdfUrl && (
+					<a
+						href={pdfUrl}
+						target="_blank"
+						rel="noopener noreferrer"
+						className="flex items-center justify-center gap-2 bg-slate-400 text-white p-2 rounded-md"
+					>
+						<FileSearch size={32} />
+						Ver PDF
+					</a>
+				)}
+				{quoteInformation.finalizedAt && (
+					<div
+						onClick={() =>
+							window.open(
+								`/api/generate-quote?quoteId=${quoteInformation.id}`,
+								"_blank"
+							)
+						}
+						className="flex items-center justify-center gap-2 bg-slate-400 text-white p-2 rounded-md cursor-pointer"
+					>
+						<FileDown size={32} />
+						Render
 					</div>
 				)}
-				<div>
-					{pdfUrl && (
-						<a
-							href={pdfUrl}
-							target="_blank"
-							rel="noopener noreferrer"
-							className="flex items-center justify-center gap-2 bg-slate-400 text-white p-2 rounded-md"
-						>
-							Ver PDF
-							<FileSearch size={32} />
-						</a>
-					)}
-				</div>
 			</div>
 		</div>
 	);
