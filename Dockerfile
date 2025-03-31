@@ -6,20 +6,22 @@ FROM base AS deps
 RUN apk add --no-cache libc6-compat python3 make g++
 WORKDIR /app
 
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
+# Tell Puppeteer not to download its own Chromium and to use the system-installed version.
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 
-# Install Google Chrome Stable and fonts
-# Note: this installs the necessary libs to make the browser work with Puppeteer.
-RUN apt-get update && apt-get install gnupg wget -y && \
-    wget --quiet --output-document=- https://dl-ssl.google.com/linux/linux_signing_key.pub | gpg --dearmor > /etc/apt/trusted.gpg.d/google-archive.gpg && \
-    sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' && \
-    apt-get update && \
-    apt-get install google-chrome-stable -y --no-install-recommends && \
-    rm -rf /var/lib/apt/lists/*
+# Install Chromium and required libraries for headless operation with Puppeteer.
+RUN apk add --no-cache \
+    chromium \
+    nss \
+    freetype \
+    harfbuzz \
+    ca-certificates \
+    ttf-freefont
 
-# Verify that Chrome is installed at the expected location
-RUN ls -alh /usr/bin/google-chrome-stable && \
-    /usr/bin/google-chrome-stable --version
+# Verify that Chromium is installed and accessible.
+RUN ls -alh /usr/bin/chromium-browser && \
+    /usr/bin/chromium-browser --version
 
 # Install dependencies based on the preferred package manager
 COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* .npmrc* ./
