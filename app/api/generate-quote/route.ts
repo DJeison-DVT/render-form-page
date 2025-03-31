@@ -46,7 +46,7 @@ export async function GET(request: Request) {
 			);
 		}
 
-		let quoteInformation = await prisma.quoteInformation.findUnique({
+		const quoteInformation = await prisma.quoteInformation.findUnique({
 			where: {
 				id: quoteId,
 			},

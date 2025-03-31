@@ -26,7 +26,7 @@ import {
 	UseFormReturn,
 } from "react-hook-form";
 import { z } from "zod";
-import { Plus, CornerDownLeft, Trash, X, Search } from "lucide-react";
+import { Plus, CornerDownLeft, Trash, X } from "lucide-react";
 import {
 	Tooltip,
 	TooltipContent,
@@ -52,13 +52,6 @@ import Image from "next/image";
 import { Combobox, ComboboxOptions } from "@/components/ui/combobox";
 import EntryPriceField from "./EntryPriceField";
 import { Button } from "@/components/ui/button";
-import {
-	Dialog,
-	DialogContent,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger,
-} from "@/components/ui/dialog";
 import ZoomableImage from "../ZoomableImage";
 
 function EntryForm({

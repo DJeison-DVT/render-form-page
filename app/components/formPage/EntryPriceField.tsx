@@ -30,7 +30,7 @@ const EntryPriceField = ({
 			const price = unitaryCost * 1.65;
 			form.setValue(`entries.${index}.unitaryPrice`, price);
 		}
-	}, [unitaryCost, index, form]);
+	}, [unitaryCost, index, form, unitaryPrice]);
 
 	return (
 		<FormField
