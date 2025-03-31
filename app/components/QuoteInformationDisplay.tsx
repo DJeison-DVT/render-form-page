@@ -57,16 +57,26 @@ export default function QuoteInformationDisplay({
 								title="Fecha de la cotización"
 								value={quoteInformation.createdAt.toLocaleDateString()}
 							/>
-						</tr>
-						<tr>
 							<TableInformation
-								title="Numero de aprobación"
+								title="Número de solicitud"
 								value={
 									formatMexicanPhoneNumber(
-										quoteInformation.approvalContact
+										quoteInformation.requestContact
 									) || ""
 								}
 							/>
+							{session?.user?.role !== Role.PROVIDER && (
+								<TableInformation
+									title="Numero de aprobación"
+									value={
+										formatMexicanPhoneNumber(
+											quoteInformation.approvalContact
+										) || ""
+									}
+								/>
+							)}
+						</tr>
+						<tr>
 							<TableInformation
 								title="Cliente"
 								value={quoteInformation.client}
@@ -77,14 +87,6 @@ export default function QuoteInformationDisplay({
 							/>
 						</tr>
 						<tr>
-							<TableInformation
-								title="Número de solicitud"
-								value={
-									formatMexicanPhoneNumber(
-										quoteInformation.requestContact
-									) || ""
-								}
-							/>
 							<TableInformation
 								title="Marca"
 								value={quoteInformation.brand}

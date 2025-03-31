@@ -8,6 +8,7 @@ import { sendMessage } from "../messaging";
 import { savePDF, upsertImage } from "./gcloud";
 
 const MESSAGE_TEMPLATE = "HX92dca13fd40b55ff25d9e3ffa3e10429";
+const PROVIDER_SELECTED_TEMPLATE = "HXe168d0232e099e6736b1ccc920febe98";
 const NEXTAUTH_URL = process.env.NEXTAUTH_URL;
 
 async function createQuoteInformation(
@@ -246,7 +247,7 @@ async function createProviderQuote(
 			quoteInfoId,
 			data,
 			options?.rejectedQuoteId,
-			`${NEXTAUTH_URL}/renders/confirmation/provider/${quoteInfoId}`
+			`${NEXTAUTH_URL}/renders/confirmation/${quoteInfoId}/provider`
 		);
 
 		const quote = result.quote;
@@ -316,11 +317,20 @@ async function saveProvider(
 			throw new Error("Usuario no encontrado");
 		}
 
+		const provider = await prisma.user.findUnique({
+			where: {
+				id: providerId,
+			},
+		});
+		if (!provider) {
+			throw new Error("Proveedor no encontrado");
+		}
+
 		await createQuote(
 			quoteInfoId,
 			data,
 			options?.rejectedQuoteId,
-			`${NEXTAUTH_URL}/renders/confirmation/provider/${quoteInfoId}`
+			`${NEXTAUTH_URL}/renders/confirmation/${quoteInfoId}/provider`
 		);
 
 		await prisma.quoteInformation.update({
@@ -331,6 +341,12 @@ async function saveProvider(
 				providerId: providerId,
 				stage: "NEGOTIATING",
 			},
+		});
+
+		await sendMessage(provider.phone, PROVIDER_SELECTED_TEMPLATE, {
+			1: data.project,
+			2: data.serial,
+			3: `${NEXTAUTH_URL}/renders/confirmation/${quoteInfoId}/provider`,
 		});
 	} catch (error) {
 		console.error("Error in selectProvider:", error);
