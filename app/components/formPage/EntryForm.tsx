@@ -110,6 +110,8 @@ function EntryForm({
 		}
 	}, [form, receivedMessage]);
 
+	const BUCKET_URL = process.env.NEXT_PUBLIC_BUCKET_URL;
+
 	if (!session) {
 		return <Loading />;
 	}
@@ -118,6 +120,9 @@ function EntryForm({
 		<>
 			{receivedMessage && (
 				<div className="text-lg">Comentario: {receivedMessage}</div>
+			)}
+			{!BUCKET_URL && (
+				<div>No se ha configurado el bucket de imágenes.</div>
 			)}
 			<div className="flex justify-between items-center bg-white z-10 sticky top-0 p-2 border-b">
 				<h4 className="text-3xl font-bold">Cotización</h4>
@@ -172,14 +177,10 @@ function EntryForm({
 														</Button>
 													</div>
 												)}
-
-												{process.env
-													.NEXT_PUBLIC_BUCKET_URL &&
-												imageUrl ? (
+												{BUCKET_URL && imageUrl ? (
 													<Image
 														src={
-															process.env
-																.NEXT_PUBLIC_BUCKET_URL +
+															BUCKET_URL +
 															imageUrl
 														}
 														alt="Selected"
