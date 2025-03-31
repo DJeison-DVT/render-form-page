@@ -13,6 +13,11 @@ const NEXTAUTH_URL = process.env.NEXTAUTH_URL;
 async function createQuoteInformation(
 	data: z.infer<typeof ProposalUploadSchema>
 ) {
+	const approvalContact = process.env.NODE_APPROVAL_CONTACT;
+	if (!approvalContact) {
+		throw new Error("Approval contact not set in environment variables");
+	}
+
 	const parsedData = ProposalUploadSchema.safeParse(data);
 	if (!parsedData.success) {
 		console.error("Validation Error:", parsedData.error);
@@ -28,7 +33,7 @@ async function createQuoteInformation(
 		const quoteInformation = await prisma.quoteInformation.create({
 			data: {
 				company: validData.company,
-				approvalContact: validData.approvalContact,
+				approvalContact,
 				requestContact: validData.requestContact,
 				client: validData.client,
 				brand: validData.brand,
@@ -108,6 +113,11 @@ async function createQuote(
 	rejectedQuoteId?: number,
 	link?: string
 ) {
+	const approvalContact = process.env.NODE_APPROVAL_CONTACT;
+	if (!approvalContact) {
+		throw new Error("Approval contact not set in environment variables");
+	}
+
 	const parsedData = RenderUploadSchema.safeParse(data);
 
 	if (!parsedData.success) {
@@ -171,7 +181,7 @@ async function createQuote(
 
 		const target =
 			data.createdByRole == Role.PETITIONER
-				? data.approvalContact
+				? approvalContact
 				: data.requestContact;
 
 		await sendMessage(target, MESSAGE_TEMPLATE, {

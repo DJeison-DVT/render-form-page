@@ -116,7 +116,6 @@ export const EntrySchema = z.object({
 });
 
 const uploadSchema = z.object({
-	approvalContact: z.string(),
 	requestContact: z.string(),
 	company: z.string().nonempty(),
 	createdByRole: z.nativeEnum(Role),
@@ -183,7 +182,6 @@ export function initializeEntry() {
 
 export function initializeProposalUpload(phone: string) {
 	return {
-		approvalContact: process.env.NEXT_PUBLIC_APPROVAL_CONTACT,
 		requestContact: phone,
 		company: "",
 		createdByRole: Role.PETITIONER,
@@ -198,7 +196,6 @@ export function initializeProposalUpload(phone: string) {
 
 export function initializeRenderUpload(phone: string) {
 	return {
-		approvalContact: process.env.NEXT_PUBLIC_APPROVAL_CONTACT,
 		requestContact: phone,
 		entries: [initializeEntry()],
 		company: "",
