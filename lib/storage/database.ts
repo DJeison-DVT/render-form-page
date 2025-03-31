@@ -330,7 +330,7 @@ async function saveProvider(
 			quoteInfoId,
 			data,
 			options?.rejectedQuoteId,
-			`${NEXTAUTH_URL}/renders/confirmation/${quoteInfoId}/provider`
+			`${NEXTAUTH_URL}/renders/confirmation/${quoteInfoId}`
 		);
 
 		await prisma.quoteInformation.update({
