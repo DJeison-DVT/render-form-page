@@ -8,6 +8,7 @@ import { QuoteInformation } from "@prisma/client";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import QuoteTable from "./QuoteTable";
+import Loading from "@/components/Loading";
 
 export default function Page() {
 	const { id } = useParams();
@@ -65,7 +66,7 @@ export default function Page() {
 	if (loading) {
 		return (
 			<div className="w-full h-full flex justify-center items-center">
-				Cargando...
+				<Loading />
 			</div>
 		);
 	}

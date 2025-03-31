@@ -76,7 +76,7 @@ export async function GET(request: Request) {
 			entry.imageUrl = `${process.env.NEXT_PUBLIC_BUCKET_URL}${entry.imageUrl}`;
 		});
 
-		console.log("quoteInformation", quoteInformation);
+		console.log("Rendering PDF for quote ID:", quoteId);
 		const templatePath = path.resolve(
 			process.cwd(),
 			"app",
