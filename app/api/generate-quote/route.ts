@@ -4,6 +4,7 @@ import puppeteer from "puppeteer";
 import handlebars from "handlebars";
 import fs from "fs";
 import path from "path";
+import { prisma } from "@/lib/prisma";
 
 // Register a helper to format the date
 handlebars.registerHelper("formatDate", (dateStr: string) => {
@@ -28,49 +29,54 @@ handlebars.registerHelper("multiply", (a: number, b: number) => {
 	return a * b;
 });
 
+const imageUrls = {
+	alquipop: "/alquipop-logo.svg",
+	demente: "/demente-logo.png",
+};
+
 export async function GET(request: Request) {
 	try {
 		const { searchParams } = new URL(request.url);
 
-		const data = {
-			client: "Cosmic",
-			brand: "CPW",
-			createdAt: new Date().toISOString(),
-			quotes: [
-				{
-					entries: [
-						{
-							material: "Botadero",
-							concept:
-								"Botadero fabricado en Carton Corrugado Sencillo...",
-							sizes: "130 x 60 x 50",
-							range: 50,
-							imageUrl: `/logo.png`,
-							unitaryFinalPrice: 123.45,
-						},
-						{
-							material: "Botadero",
-							concept:
-								"Botadero fabricado en Carton Corrugado Sencillo...",
-							sizes: "130 x 60 x 50",
-							range: 100,
-							imageUrl: `/logo.png`,
-							unitaryFinalPrice: 234.56,
-						},
-						{
-							material: "Botadero",
-							concept:
-								"Botadero fabricado en Carton Corrugado Sencillo...",
-							sizes: "130 x 60 x 50",
-							range: 150,
-							imageUrl: `/logo.png`,
-							unitaryFinalPrice: 345.67,
-						},
-					],
-				},
-			],
-		};
+		const quoteId = searchParams.get("quoteId");
+		if (!quoteId) {
+			return NextResponse.json(
+				{ message: "Quote ID is required" },
+				{ status: 400 }
+			);
+		}
 
+		let quoteInformation = await prisma.quoteInformation.findUnique({
+			where: {
+				id: quoteId,
+			},
+			include: {
+				quotes: {
+					include: {
+						entries: true,
+					},
+					orderBy: {
+						createdAt: "desc",
+					},
+					take: 1,
+				},
+			},
+		});
+
+		if (!quoteInformation) {
+			return NextResponse.json(
+				{ message: "Quote not found" },
+				{ status: 404 }
+			);
+		}
+
+		const companyKey = quoteInformation.company as keyof typeof imageUrls;
+		quoteInformation.company = `${process.env.NEXTAUTH_URL}${imageUrls[companyKey]}`;
+		quoteInformation.quotes[0].entries.forEach((entry) => {
+			entry.imageUrl = `${process.env.NEXT_PUBLIC_BUCKET_URL}${entry.imageUrl}`;
+		});
+
+		console.log("quoteInformation", quoteInformation);
 		const templatePath = path.resolve(
 			process.cwd(),
 			"app",
@@ -79,7 +85,7 @@ export async function GET(request: Request) {
 		);
 		const templateHtml = fs.readFileSync(templatePath, "utf8");
 		const template = handlebars.compile(templateHtml);
-		const html = template(data);
+		const html = template(quoteInformation);
 
 		const browser = await puppeteer.launch({ headless: true });
 		const page = await browser.newPage();

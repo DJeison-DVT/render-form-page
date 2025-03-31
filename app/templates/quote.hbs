@@ -8,10 +8,11 @@
       font-size: 12px;
       padding: 30px;
     }
+
     .header {
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      gap: 2rem;
     }
     .logo {
       width: 100px;
@@ -24,14 +25,29 @@
       border-collapse: collapse;
       margin-top: 30px;
     }
+    thead th {
+      border: 1px solid #ccc;
+      padding: 5px;
+      background-color: #FDFF95;
+    }
+
+    .info {
+      background-color: #FDFF95; 
+      padding: 10px;
+      border-radius: 4px;
+    }
     th, td {
       border: 1px solid #ccc;
       padding: 5px;
       vertical-align: top;
     }
+
     .notes {
       margin-top: 40px;
       font-size: 11px;
+      background-color: #FDFF95; 
+      padding: 10px;
+      border-radius: 4px;
     }
     img.product-image {
       height: 80px;
@@ -40,7 +56,7 @@
 </head>
 <body>
   <div class="header">
-    <img src="logo.png" class="logo" />
+    <img src="{{company}}" class="logo" />
     <div class="info">
       <h2>Cotización</h2>
       <p><strong>Cliente:</strong> {{client}}</p>
@@ -65,7 +81,7 @@
     <tbody>
       {{#each quotes.[0].entries}}
         <tr>
-          <td></td>
+          <td>{{formatDate ../finalizedAt}}</td>
           <td>{{material}}</td>
           <td>{{concept}}</td>
           <td>{{sizes}}</td>
