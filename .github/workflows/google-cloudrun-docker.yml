@@ -75,6 +75,7 @@ jobs:
                       NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}
 
                       DATABASE_URL=${{ secrets.DATABASE_URL }}
+                      NEXT_PUBLIC_BUCKET_URL=${{ secrets.NEXT_PUBLIC_BUCKET_URL }}
 
             # If required, use the Cloud Run url output in later steps
 
