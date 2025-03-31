@@ -306,7 +306,11 @@ export default function ProviderConfirmation() {
 	}
 
 	if (role === Role.VALIDATOR) {
-		return <div>Error: No tienes permiso para acceder a esta página</div>;
+		return (
+			<div>
+				Error: No tienes permiso para acceder a esta página Validador
+			</div>
+		);
 	}
 
 	if (loading) {

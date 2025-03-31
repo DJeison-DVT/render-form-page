@@ -12,6 +12,17 @@ export async function sendMessage(
 	template: string,
 	variables: Record<number, string>
 ) {
+	if (process.env.NODE_ENV !== "production") {
+		console.log(
+			"Senging message to:",
+			target,
+			"with template:",
+			template,
+			"and variables:",
+			variables
+		);
+		return;
+	}
 	const message = await client.messages.create({
 		contentSid: template,
 		contentVariables: JSON.stringify(variables),

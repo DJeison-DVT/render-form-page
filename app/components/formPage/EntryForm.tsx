@@ -155,41 +155,38 @@ function EntryForm({
 										)}
 										<FormControl>
 											<div className="w-24 h-24 border border-gray-300 rounded-md overflow-hidden flex items-center justify-center bg-gray-100 relative">
+												{role === Role.PROVIDER && (
+													<div className="absolute top-0 left-0">
+														<Button
+															size="icon"
+															variant="ghost"
+															type="button"
+															onClick={() => {
+																form.setValue(
+																	`entries.${index}.imageUrl`,
+																	null
+																);
+															}}
+														>
+															<X />
+														</Button>
+													</div>
+												)}
+
 												{process.env
 													.NEXT_PUBLIC_BUCKET_URL &&
 												imageUrl ? (
-													<>
-														{role ===
-															Role.PROVIDER && (
-															<div className="absolute top-0 left-0">
-																<Button
-																	size="icon"
-																	variant="ghost"
-																	type="button"
-																	onClick={() => {
-																		form.setValue(
-																			`entries.${index}.imageUrl`,
-																			null
-																		);
-																		console.log();
-																	}}
-																>
-																	<X />
-																</Button>
-															</div>
-														)}
-														<Image
-															src={
-																process.env
-																	.NEXT_PUBLIC_BUCKET_URL +
-																imageUrl
-															}
-															alt="Selected"
-															className="object-cover w-full h-full"
-															width={100}
-															height={100}
-														/>
-													</>
+													<Image
+														src={
+															process.env
+																.NEXT_PUBLIC_BUCKET_URL +
+															imageUrl
+														}
+														alt="Selected"
+														className="object-cover w-full h-full"
+														width={100}
+														height={100}
+													/>
 												) : (
 													<>
 														<Input

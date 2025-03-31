@@ -64,7 +64,7 @@ jobs:
                       NODE_TWILIO_PHONE_NUMBER=${{ secrets.NODE_TWILIO_PHONE_NUMBER }}
                       NODE_TWILIO_MESSAGING_SERVICE_SID=${{ secrets.NODE_TWILIO_MESSAGING_SERVICE_SID }}
                       NEXT_PUBLIC_APPROVAL_CONTACT_EMAIL=${{ secrets.NEXT_PUBLIC_APPROVAL_CONTACT_EMAIL }}
-                      NODE_ENV="production"
+                      NODE_ENV={{ secrets.NODE_ENV }}
 
                       NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}
                       PROJECT_ID=${{ secrets.PROJECT_ID }}

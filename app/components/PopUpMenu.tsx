@@ -23,7 +23,11 @@ export default async function PopUpMenu() {
 
 	const user = session.user;
 	const role = user.role;
-	const adminRoles: Role[] = [Role.PETITIONER, Role.SUPERVISOR];
+	const adminRoles: Role[] = [
+		Role.PETITIONER,
+		Role.SUPERVISOR,
+		Role.VALIDATOR,
+	];
 
 	return (
 		<Popover>

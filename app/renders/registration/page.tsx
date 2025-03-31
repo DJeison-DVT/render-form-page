@@ -56,6 +56,30 @@ export default function Home() {
 				<Registered company={company} />
 			) : (
 				<Form {...form}>
+					<div
+						onClick={() => {
+							const result = ProposalUploadSchema.safeParse(
+								form.getValues()
+							);
+							if (result.success) {
+								console.log(
+									"Form values are valid:",
+									result.data
+								);
+							} else {
+								console.error(
+									"Form validation errors:",
+									result.error.errors
+								);
+							}
+
+							console.log("Form values:", form.getValues());
+							console.log("Form state:", form.formState);
+							console.log("Form errors:", form.formState.errors);
+						}}
+					>
+						Report
+					</div>
 					<form onSubmit={form.handleSubmit(onSubmit)}>
 						<div className="flex flex-col items-center justify-center h-screen">
 							<div className="flex flex-col justify-center items-center gap-12">
