@@ -26,7 +26,7 @@ import {
 	UseFormReturn,
 } from "react-hook-form";
 import { z } from "zod";
-import { Plus, CornerDownLeft, Trash, X } from "lucide-react";
+import { Plus, CornerDownLeft, Trash, X, Search } from "lucide-react";
 import {
 	Tooltip,
 	TooltipContent,
@@ -47,12 +47,18 @@ import { Textarea } from "@/components/ui/textarea";
 import { useEffect, useState } from "react";
 import PushableComponent from "@/components/ui/pushableComponent";
 import { useSession } from "next-auth/react";
-import Loading from "@/components/Loading";
 import { Role } from "@prisma/client";
 import Image from "next/image";
 import { Combobox, ComboboxOptions } from "@/components/ui/combobox";
 import EntryPriceField from "./EntryPriceField";
 import { Button } from "@/components/ui/button";
+import {
+	Dialog,
+	DialogContent,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from "@/components/ui/dialog";
 
 function EntryForm({
 	form,
@@ -113,7 +119,7 @@ function EntryForm({
 	const BUCKET_URL = process.env.NEXT_PUBLIC_BUCKET_URL;
 
 	if (!session) {
-		return <Loading />;
+		return <div>Cargando</div>;
 	}
 
 	const content = (
@@ -178,16 +184,49 @@ function EntryForm({
 													</div>
 												)}
 												{BUCKET_URL && imageUrl ? (
-													<Image
-														src={
-															BUCKET_URL +
-															imageUrl
-														}
-														alt="Selected"
-														className="object-cover w-full h-full"
-														width={100}
-														height={100}
-													/>
+													<>
+														<Image
+															src={
+																BUCKET_URL +
+																imageUrl
+															}
+															alt="Selected"
+															className="object-cover w-full h-full"
+															width={100}
+															height={100}
+														/>
+
+														<Dialog>
+															<DialogTrigger>
+																<div className="absolute top-0 right-0 p-2">
+																	<Search
+																		size={
+																			16
+																		}
+																	/>
+																</div>
+															</DialogTrigger>
+															<DialogContent>
+																<DialogHeader>
+																	<DialogTitle>
+																		Visualización
+																		de
+																		Imagen
+																	</DialogTitle>
+																</DialogHeader>
+																<Image
+																	src={
+																		BUCKET_URL +
+																		imageUrl
+																	}
+																	alt="Selected"
+																	className="object-cover w-full h-full"
+																	width={600}
+																	height={600}
+																/>
+															</DialogContent>
+														</Dialog>
+													</>
 												) : (
 													<>
 														<Input
