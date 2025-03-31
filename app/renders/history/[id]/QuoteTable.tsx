@@ -11,7 +11,7 @@ import {
 	TableHead,
 } from "@/components/ui/table";
 import { QuoteInformationWithQuotes } from "@/lib/types";
-import Image from "next/image";
+import ZoomableImage from "@/app/components/ZoomableImage";
 
 export default function QuoteTable({
 	quoteInformation,
@@ -33,6 +33,8 @@ export default function QuoteTable({
 			(prev) => (prev - 1 + quotes.length) % quotes.length
 		);
 	};
+
+	const BUCKET_URL = process.env.NEXT_PUBLIC_BUCKET_URL;
 
 	return (
 		<div className="flex justify-center h-full p-8">
@@ -63,7 +65,14 @@ export default function QuoteTable({
 						<div className="text-xl font-bold">Historial</div>
 					)}
 				</div>
-
+				{new Date(currentQuote.createdAt).toLocaleString("es-MX", {
+					year: "numeric",
+					month: "2-digit",
+					day: "2-digit",
+					hour: "2-digit",
+					minute: "2-digit",
+					hour12: false,
+				})}
 				<Table>
 					<TableHeader>
 						<TableRow>
@@ -73,34 +82,43 @@ export default function QuoteTable({
 							<TableHead>Concepto</TableHead>
 							<TableHead>Cantidad</TableHead>
 							<TableHead>Precio Unitario</TableHead>
+							<TableHead>Precio DeMente</TableHead>
+							<TableHead>Precio Final</TableHead>
 						</TableRow>
 					</TableHeader>
 					<TableBody>
 						{currentQuote.entries.map((entry) => (
 							<TableRow key={entry.id}>
 								<TableCell>
-									{entry.imageUrl ? (
-										<Image
-											src={entry.imageUrl}
-											alt={entry.name}
-											className="h-12 w-12 object-cover rounded"
-										/>
-									) : (
-										"No Image"
-									)}
+									<div className="max-w-[100px] max-h-[100px] relative">
+										{entry.imageUrl && BUCKET_URL ? (
+											<ZoomableImage
+												imageUrl={`${BUCKET_URL}${entry.imageUrl}`}
+											/>
+										) : (
+											"Sin imagen"
+										)}
+									</div>
 								</TableCell>
 								<TableCell>{entry.name}</TableCell>
 								<TableCell>{entry.sizes}</TableCell>
 								<TableCell>{entry.concept}</TableCell>
 								<TableCell>{entry.range}</TableCell>
 								<TableCell>
+									{entry.unitaryCost !== null
+										? formatCurrencyMXN(entry.unitaryCost)
+										: "N/A"}
+								</TableCell>
+								<TableCell>
 									{entry.unitaryPrice !== null
 										? formatCurrencyMXN(entry.unitaryPrice)
 										: "N/A"}
 								</TableCell>
 								<TableCell>
-									{entry.unitaryCost !== null
-										? formatCurrencyMXN(entry.unitaryCost)
+									{entry.unitaryFinalPrice !== null
+										? formatCurrencyMXN(
+												entry.unitaryFinalPrice
+										  )
 										: "N/A"}
 								</TableCell>
 							</TableRow>

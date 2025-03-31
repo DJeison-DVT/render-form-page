@@ -59,6 +59,7 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@/components/ui/dialog";
+import ZoomableImage from "../ZoomableImage";
 
 function EntryForm({
 	form,
@@ -184,49 +185,9 @@ function EntryForm({
 													</div>
 												)}
 												{BUCKET_URL && imageUrl ? (
-													<>
-														<Image
-															src={
-																BUCKET_URL +
-																imageUrl
-															}
-															alt="Selected"
-															className="object-cover w-full h-full"
-															width={100}
-															height={100}
-														/>
-
-														<Dialog>
-															<DialogTrigger>
-																<div className="absolute top-0 right-0 p-2">
-																	<Search
-																		size={
-																			16
-																		}
-																	/>
-																</div>
-															</DialogTrigger>
-															<DialogContent>
-																<DialogHeader>
-																	<DialogTitle>
-																		Visualización
-																		de
-																		Imagen
-																	</DialogTitle>
-																</DialogHeader>
-																<Image
-																	src={
-																		BUCKET_URL +
-																		imageUrl
-																	}
-																	alt="Selected"
-																	className="object-cover w-full h-full"
-																	width={600}
-																	height={600}
-																/>
-															</DialogContent>
-														</Dialog>
-													</>
+													<ZoomableImage
+														imageUrl={`${BUCKET_URL}${imageUrl}`}
+													/>
 												) : (
 													<>
 														<Input
