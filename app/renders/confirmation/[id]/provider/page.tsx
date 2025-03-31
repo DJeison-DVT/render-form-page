@@ -297,7 +297,7 @@ export default function ProviderConfirmation() {
 		return <div>Error: ID invalido</div>;
 	}
 
-	if (!session) {
+	if (!session || loading) {
 		return <Loading />;
 	}
 
@@ -305,14 +305,6 @@ export default function ProviderConfirmation() {
 		return (
 			<div>
 				Error: No tienes permiso para acceder a esta página Validador
-			</div>
-		);
-	}
-
-	if (loading) {
-		return (
-			<div className="flex justify-center items-center h-screen">
-				<p>Loading...</p>
 			</div>
 		);
 	}

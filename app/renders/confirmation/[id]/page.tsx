@@ -21,6 +21,7 @@ import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 import CommentDialog from "@/app/components/CommentDialog";
 import { useSession } from "next-auth/react";
+import Loading from "@/components/Loading";
 
 export default function Confirmation() {
 	const { id } = useParams();
@@ -211,11 +212,7 @@ export default function Confirmation() {
 	}
 
 	if (loading) {
-		return (
-			<div className="flex justify-center items-center h-screen">
-				<p>Loading...</p>
-			</div>
-		);
+		return <Loading />;
 	}
 
 	if (notFound) {
