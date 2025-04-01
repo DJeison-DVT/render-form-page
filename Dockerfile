@@ -18,8 +18,6 @@ RUN \
     else echo "Lockfile not found." && exit 1; \
     fi
 
-RUN apt-get install -y openssl
-
 RUN npm uninstall bcrypt && npm install bcrypt --build-from-source
 
 # Rebuild the source code only when needed.
