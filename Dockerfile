@@ -63,8 +63,11 @@ ENV NODE_ENV=production
 # ENV NEXT_TELEMETRY_DISABLED=1
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome-stable
 
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 --home /home/nextjs nextjs && \
+    mkdir -p /home/nextjs && chown nextjs:nodejs /home/nextjs
+
+ENV HOME=/home/nextjs
 
 COPY --from=builder /app/public ./public
 
