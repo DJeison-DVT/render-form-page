@@ -8,7 +8,6 @@ import QuoteCard from "./components/QuoteCard";
 import { QuoteInformationWithQuotes } from "@/lib/types";
 import Link from "next/link";
 import { History } from "lucide-react";
-import Head from "next/head";
 
 export default async function Dashboard() {
 	const session = await auth();
