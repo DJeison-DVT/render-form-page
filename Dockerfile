@@ -7,6 +7,8 @@ WORKDIR /app
 # Tell Puppeteer not to download its own Chromium and to use the system-installed version.
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 
+RUN apt-get update -y && apt-get install -y openssl
+
 # Install dependencies based on the preferred package manager.
 COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* .npmrc* ./
 RUN \
@@ -32,8 +34,6 @@ COPY . .
 
 # Disable Next.js telemetry (optional).
 ENV NEXT_TELEMETRY_DISABLED=1
-
-RUN apt-get update -y && apt-get install -y openssl
 
 RUN npx prisma generate
 
