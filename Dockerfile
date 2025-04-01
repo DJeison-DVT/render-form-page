@@ -6,22 +6,6 @@ WORKDIR /app
 
 # Tell Puppeteer not to download its own Chromium and to use the system-installed version.
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
-ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
-
-# Install Google Chrome Stable and fonts.
-# This installs the necessary libs for Puppeteer.
-
-RUN apt-get update && apt-get install -y gnupg wget && \
-    wget --quiet --output-document=- https://dl-ssl.google.com/linux/linux_signing_key.pub | gpg --dearmor > /etc/apt/trusted.gpg.d/google-archive.gpg && \
-    sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' && \
-    apt-get update && \
-    apt-get install -y openssl && \
-    apt-get install -y google-chrome-stable --no-install-recommends && \
-    rm -rf /var/lib/apt/lists/*
-
-# Verify that Chrome is installed.
-RUN ls -alh /usr/bin/google-chrome-stable && \
-    /usr/bin/google-chrome-stable --version
 
 # Install dependencies based on the preferred package manager.
 COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* .npmrc* ./
@@ -31,6 +15,8 @@ RUN \
     elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm i --frozen-lockfile; \
     else echo "Lockfile not found." && exit 1; \
     fi
+
+RUN apt-get install -y openssl
 
 RUN npm uninstall bcrypt && npm install bcrypt --build-from-source
 
@@ -57,12 +43,26 @@ RUN \
     fi
 
 # Production image, copy all the files and run nextx
-FROM deps AS runner
+FROM base AS runner
 WORKDIR /app
+
+# Install Google Chrome only in runner.
+RUN apt-get update && apt-get install -y gnupg wget && \
+    wget --quiet --output-document=- https://dl-ssl.google.com/linux/linux_signing_key.pub | gpg --dearmor > /etc/apt/trusted.gpg.d/google-archive.gpg && \
+    sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main >> /etc/apt/sources.list.d/google.list' && \
+    apt-get update && \
+    apt-get install -y google-chrome-stable --no-install-recommends && \
+    rm -rf /var/lib/apt/lists/*
+
+# (Optional) Verify that Chrome is installed.
+RUN ls -alh /usr/bin/google-chrome-stable && \
+    /usr/bin/google-chrome-stable --version
+
 
 ENV NODE_ENV=production
 # Uncomment the following line in case you want to disable telemetry during runtime.
 # ENV NEXT_TELEMETRY_DISABLED=1
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome-stable
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
