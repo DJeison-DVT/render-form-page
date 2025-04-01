@@ -4,7 +4,9 @@ FROM base AS deps
 RUN apt-get update && apt-get install -y python3 make g++
 WORKDIR /app
 
+# Tell Puppeteer not to download its own Chromium and to use the system-installed version.
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 
 # Install Google Chrome Stable and fonts.
 # This installs the necessary libs for Puppeteer.
@@ -55,7 +57,7 @@ RUN \
     fi
 
 # Production image, copy all the files and run nextx
-FROM base AS runner
+FROM deps AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
