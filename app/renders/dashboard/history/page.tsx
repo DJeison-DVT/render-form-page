@@ -20,15 +20,16 @@ export default async function Dashboard() {
 		result.quoteInformations as QuoteInformationWithQuotes[];
 
 	return (
-		<div className="h-screen flex flex-col justify-start items-center max-w-[80vw] mx-auto pt-[5vh] overflow-y-auto relative">
-			<div className="absolute top-0 right-0 py-8">
+		<div className="h-screen flex flex-col justify-start items-center overflow-y-auto">
+			<div className="flex justify-between items-center w-full p-2 shadow-md">
+				<div></div>
+				<div className="text-3xl">Cotizaciones Completadas</div>
 				<Link href="/renders/dashboard">
-					<div className="hover:bg-slate-200 rounded-lg transition-colors duration-200 cursor-pointer p-2">
-						<MoveLeft size={32} />
+					<div className="hover:bg-slate-200 rounded-lg transition-colors duration-200 cursor-pointer p-2 flex items-center gap-2 text-lg font-semibold">
+						<MoveLeft size={32} /> Volver
 					</div>
 				</Link>
 			</div>
-			<div className="text-3xl p-4">Cotizaciones Completadas</div>
 			<div className="flex flex-col items-center gap-4">
 				{quoteInformations.length > 0 &&
 					quoteInformations.map((quoteInformation) => (
