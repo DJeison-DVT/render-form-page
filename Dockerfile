@@ -33,6 +33,8 @@ COPY . .
 # Disable Next.js telemetry (optional).
 ENV NEXT_TELEMETRY_DISABLED=1
 
+RUN apt-get update -y && apt-get install -y openssl
+
 RUN npx prisma generate
 
 RUN \
