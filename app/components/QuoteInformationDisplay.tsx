@@ -54,25 +54,27 @@ export default function QuoteInformationDisplay({
 					<tbody>
 						<tr>
 							<TableInformation
+								title="Fecha de entrega estimada"
+								value={quoteInformation.estimatedDeliveryDate.toLocaleDateString()}
+							/>
+						</tr>
+						<tr>
+							<TableInformation
 								title="Fecha de la cotización"
 								value={quoteInformation.createdAt.toLocaleDateString()}
 							/>
 							<TableInformation
 								title="Número de solicitud"
-								value={
-									formatMexicanPhoneNumber(
-										quoteInformation.requestContact
-									) || ""
-								}
+								value={formatMexicanPhoneNumber(
+									quoteInformation.requestContact
+								)}
 							/>
 							{session?.user?.role !== Role.PROVIDER && (
 								<TableInformation
 									title="Numero de aprobación"
-									value={
-										formatMexicanPhoneNumber(
-											quoteInformation.approvalContact
-										) || ""
-									}
+									value={formatMexicanPhoneNumber(
+										quoteInformation.approvalContact
+									)}
 								/>
 							)}
 						</tr>
