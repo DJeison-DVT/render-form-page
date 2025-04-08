@@ -11,16 +11,10 @@ import {
 	FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { getUsers } from "@/lib/storage/database";
 import { Upload } from "lucide-react";
-import { useEffect, useState } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { z } from "zod";
-
-interface checkboxOptions {
-	id: string;
-	label: string;
-}
+import { UserOption, useUsersByRole } from "./useUsersByRole";
 
 export default function ProviderSelection({
 	form,
@@ -29,21 +23,7 @@ export default function ProviderSelection({
 	form: UseFormReturn<z.infer<typeof ProposalUploadSchema>>;
 	disabled?: boolean;
 }) {
-	const [providers, setProviders] = useState<checkboxOptions[]>([]);
-
-	const fetchProviders = async () => {
-		const users = await getUsers("PROVIDER");
-		setProviders(
-			users.map((user) => ({
-				id: user.id,
-				label: user.company || user.name,
-			}))
-		);
-	};
-
-	useEffect(() => {
-		fetchProviders();
-	}, []);
+	const providers: UserOption[] = useUsersByRole("PROVIDER");
 	return (
 		<div>
 			<div className="flex gap-12">
@@ -100,7 +80,7 @@ export default function ProviderSelection({
 													/>
 												</FormControl>
 												<FormLabel className="text-sm font-normal">
-													{item.label}
+													{item.name}
 												</FormLabel>
 											</FormItem>
 										);
