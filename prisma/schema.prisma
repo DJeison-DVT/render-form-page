@@ -15,20 +15,21 @@ datasource db {
 }
 
 model QuoteInformation {
-  id              String    @id @default(uuid())
-  company         String
-  approvalContact String
-  requestContact  String
-  createdAt       DateTime  @default(now()) @db.Timestamp(6)
-  updatedAt       DateTime  @default(now()) @updatedAt @db.Timestamp(6)
-  finalizedAt     DateTime?
-  client          String
-  brand           String
-  project         String
-  serial          String
-  stage           Stage     @default(QUOTING)
-  pdfUrl          String?
-  providerId      String?
+  id                    String    @id @default(uuid())
+  company               String
+  approvalContact       String
+  requestContact        String
+  estimatedDeliveryDate DateTime  @db.Date
+  createdAt             DateTime  @default(now()) @db.Timestamp(6)
+  updatedAt             DateTime  @default(now()) @updatedAt @db.Timestamp(6)
+  finalizedAt           DateTime?
+  client                String
+  brand                 String
+  project               String
+  serial                String
+  stage                 Stage     @default(QUOTING)
+  pdfUrl                String?
+  providerId            String?
 
   quotes         Quote[]
   ProviderQuotes ProviderQuotes[]

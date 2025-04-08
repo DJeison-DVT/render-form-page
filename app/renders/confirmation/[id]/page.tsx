@@ -176,6 +176,9 @@ export default function Confirmation() {
 						.toISOString()
 						.split("T")[0],
 					createdByRole: role as Role,
+					estimatedDeliveryDate: new Date(
+						quoteInformation.estimatedDeliveryDate
+					),
 					comment: quoteInformation.quote.comment ?? "",
 					entries: quoteInformation.entries.map((entry) => ({
 						...entry,

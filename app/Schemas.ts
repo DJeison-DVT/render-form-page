@@ -117,12 +117,16 @@ export const EntrySchema = z.object({
 
 const uploadSchema = z.object({
 	requestContact: z.string(),
-	company: z.string().nonempty(),
+	company: z.string().nonempty("La empresa no puede estar vacía."),
+	estimatedDeliveryDate: z.date(),
 	createdByRole: z.nativeEnum(Role),
-	client: z.string().nonempty(),
-	brand: z.string().nonempty(),
-	project: z.string().nonempty(),
-	serial: z.string().nonempty(),
+	client: z.string().nonempty("El cliente no puede estar vacío."),
+	brand: z.string().nonempty("La marca no puede estar vacía."),
+	project: z.string().nonempty("El proyecto no puede estar vacío."),
+	serial: z.string().nonempty("El serial no puede estar vacío."),
+	approvalContact: z
+		.string()
+		.nonempty("El contacto de aprobación no puede estar vacío."),
 });
 
 // Assuming EntrySchema is already defined
@@ -183,6 +187,8 @@ export function initializeEntry() {
 export function initializeProposalUpload(phone: string) {
 	return {
 		requestContact: phone,
+		approvalContact: "",
+		estimatedDeliveryDate: new Date(),
 		company: "",
 		createdByRole: Role.PETITIONER,
 		client: "",
@@ -197,6 +203,8 @@ export function initializeProposalUpload(phone: string) {
 export function initializeRenderUpload(phone: string) {
 	return {
 		requestContact: phone,
+		approvalContact: "",
+		estimatedDeliveryDate: new Date(),
 		entries: [initializeEntry()],
 		company: "",
 		createdByRole: Role.PETITIONER,

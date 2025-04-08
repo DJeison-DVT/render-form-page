@@ -15,6 +15,14 @@ import { useEffect, useState } from "react";
 import { Separator } from "@/components/ui/separator";
 import { Combobox, ComboboxOptions } from "@/components/ui/combobox";
 import { getClients } from "@/lib/storage/database";
+import { UserOption, useUsersByRole } from "./useUsersByRole";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 
 function ContactInformation({
 	form,
@@ -25,6 +33,8 @@ function ContactInformation({
 }) {
 	const [clients, setClients] = useState<ComboboxOptions[]>([]);
 	const [selectedClient, setSelectedClient] = useState<string>("");
+	const validators: UserOption[] = useUsersByRole("VALIDATOR");
+	const [defaultValidator, setDefaultValidator] = useState<string>("");
 
 	function handleAppendClient(label: ComboboxOptions["label"]) {
 		const newClient = {
@@ -73,8 +83,90 @@ function ContactInformation({
 		getClientOptions();
 	}, []);
 
+	useEffect(() => {
+		if (validators.length > 0) {
+			const filteredValidators = validators.filter(
+				(validator) => validator.phone === "5579675625"
+			);
+			if (filteredValidators.length === 0) {
+				return;
+			}
+			setDefaultValidator(filteredValidators[0].phone);
+			form.setValue("approvalContact", filteredValidators[0].phone);
+		}
+	}, [validators, form]);
+
 	return (
 		<div className="flex gap-4 h-40">
+			<div className="flex flex-col gap-4">
+				<FormField
+					control={form.control}
+					name="approvalContact"
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel>Contacto de aprobación</FormLabel>
+							<Select
+								onValueChange={field.onChange}
+								disabled={disabled}
+								value={field.value}
+								defaultValue={defaultValidator}
+							>
+								<FormControl>
+									<SelectTrigger>
+										<SelectValue />
+									</SelectTrigger>
+								</FormControl>
+								<SelectContent>
+									{validators.map((item) => (
+										<SelectItem
+											key={item.id}
+											value={item.phone}
+										>
+											{item.name}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
+				<FormField
+					control={form.control}
+					name="estimatedDeliveryDate"
+					render={({ field }) => {
+						const dateString = field.value
+							? new Date(field.value).toISOString().split("T")[0]
+							: "";
+
+						return (
+							<FormItem>
+								<FormLabel>Fecha de entrega estimada</FormLabel>
+								<FormControl>
+									<Input
+										type="date"
+										placeholder="YYYY-MM-DD"
+										disabled={disabled}
+										value={dateString}
+										onChange={(e) =>
+											field.onChange(
+												e.target.value
+													? new Date(e.target.value)
+													: null
+											)
+										}
+										onBlur={field.onBlur}
+										name={field.name}
+										ref={field.ref}
+									/>
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						);
+					}}
+				/>
+			</div>
+			<Separator orientation="vertical" className="h-full" />
 			<div className="flex flex-col gap-4">
 				<FormField
 					control={form.control}

@@ -194,6 +194,14 @@ export default function ProviderConfirmation() {
 					"requestContact",
 					quoteInformation.requestContact
 				);
+				form.setValue(
+					"approvalContact",
+					quoteInformation.approvalContact
+				);
+				form.setValue(
+					"estimatedDeliveryDate",
+					quoteInformation.estimatedDeliveryDate
+				);
 				form.setValue("serial", quoteInformation.serial);
 
 				let providerQuotes: InformationProviderQuotes = {};
