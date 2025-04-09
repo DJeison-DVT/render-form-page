@@ -57,7 +57,8 @@ export default function Confirmation() {
 	const role = session?.user?.role;
 
 	const onSubmitUpdate = async (
-		values: z.infer<typeof RenderUploadSchema>
+		values: z.infer<typeof RenderUploadSchema>,
+		accepted: boolean = false
 	) => {
 		if (!quote || !role || !id || Array.isArray(id)) {
 			return;
@@ -76,13 +77,23 @@ export default function Confirmation() {
 		}
 
 		values.createdByRole = role as Role;
+
+		if (!accepted) {
+			for (const entry of values.entries) {
+				entry.unitaryFinalPrice = 0;
+			}
+		} else {
+			if (!checkAmountsNotZero()) {
+				return;
+			}
+		}
+
+		setDisabled(true);
 		if (form.formState.isValid) {
 			try {
-				setDisabled(true);
 				await createQuote(id, values, quote.id);
 				setRegistered(true);
 				form.reset();
-				setDisabled(false);
 			} catch (error) {
 				const message = error instanceof Error ? error.message : "";
 				toast({
@@ -92,6 +103,7 @@ export default function Confirmation() {
 				});
 			}
 		}
+		setDisabled(false);
 	};
 
 	const handleUpload = async () => {
@@ -101,16 +113,55 @@ export default function Confirmation() {
 		}
 	};
 
+	const handleAccept = async () => {
+		const result = RenderUploadSchema.safeParse(form.getValues());
+		if (result.success) {
+			if (role === Role.VALIDATOR) {
+				await onSubmitUpdate(form.getValues(), true);
+			} else {
+				await onSubmitFinalize();
+			}
+		}
+	};
+
+	const checkAmountsNotZero = () => {
+		let amountsAreNotZero = true;
+		for (const entry of form.getValues().entries) {
+			if (
+				entry.unitaryCost === 0 ||
+				entry.unitaryPrice === 0 ||
+				entry.unitaryFinalPrice === 0
+			) {
+				amountsAreNotZero = false;
+				break;
+			}
+		}
+
+		if (!amountsAreNotZero) {
+			toast({
+				variant: "destructive",
+				title: "Error",
+				description: "Los valores no pueden ser cero",
+			});
+			return false;
+		}
+		return true;
+	};
+
 	const onSubmitFinalize = async () => {
 		if (!id || Array.isArray(id)) {
 			return;
 		}
+
+		if (!checkAmountsNotZero()) {
+			return;
+		}
+
+		setDisabled(true);
 		try {
-			setDisabled(true);
 			await finalizeQuote(id);
 			setRegistered(true);
 			form.reset();
-			setDisabled(false);
 		} catch (error) {
 			const message = error instanceof Error ? error.message : "";
 			toast({
@@ -119,6 +170,7 @@ export default function Confirmation() {
 				description: message,
 			});
 		}
+		setDisabled(false);
 	};
 
 	useEffect(() => {
@@ -233,7 +285,11 @@ export default function Confirmation() {
 			) : (
 				<div className="h-screen overflow-y-hidden">
 					<Form {...form}>
-						<form onSubmit={form.handleSubmit(onSubmitUpdate)}>
+						<form
+							onSubmit={form.handleSubmit((values) =>
+								onSubmitUpdate(values)
+							)}
+						>
 							{quoteInformation && (
 								<QuoteInformationDisplay
 									quoteInformation={quoteInformation}
@@ -261,49 +317,34 @@ export default function Confirmation() {
 												form={form}
 												disabled={disabled}
 												upload={handleUpload}
-												rejection={
-													role === Role.PETITIONER
-												}
+												rejection
 											>
-												{role === Role.VALIDATOR ? (
-													<div
-														className={`cursor-pointer bg-gray-800/90 text-white rounded-md hover:bg-gray-700/90 gap-2 p-1 px-2 transition flex justify-center items-center text-xl ${
-															form.formState
-																.isValid
-																? ""
-																: "opacity-50 pointer-events-none"
-														}`}
-													>
-														<RefreshCw />
-														Actualizar
-													</div>
-												) : (
-													<div
-														className={`cursor-pointer bg-gray-800/90 text-white rounded-md hover:bg-gray-700/90 gap-2 p-1 px-2 transition flex justify-center items-center text-xl ${
-															form.formState
-																.isValid
-																? ""
-																: "opacity-50 pointer-events-none"
-														}`}
-													>
-														<Undo />
-														Rechazar
-													</div>
-												)}
-											</CommentDialog>
-											{role === Role.PETITIONER && (
 												<div
-													className={
-														"cursor-pointer bg-gray-800/90 text-white rounded-md hover:bg-gray-700/90 gap-2 p-1 px-2 transition flex justify-center items-center text-xl"
-													}
-													onClick={() => {
-														onSubmitFinalize();
-													}}
+													className={`cursor-pointer bg-gray-800/90 text-white rounded-md hover:bg-gray-700/90 gap-2 p-1 px-2 transition flex justify-center items-center text-xl ${
+														form.formState.isValid
+															? ""
+															: "opacity-50 pointer-events-none"
+													}`}
 												>
-													<CheckCheck />
-													Finalizar
+													<Undo />
+													{role === Role.VALIDATOR
+														? "Rechazar"
+														: "Actualizar"}
 												</div>
-											)}
+											</CommentDialog>
+											<div
+												className={`cursor-pointer bg-gray-800/90 text-white rounded-md hover:bg-gray-700/90 gap-2 p-1 px-2 transition flex justify-center items-center text-xl ${
+													form.formState.isValid
+														? ""
+														: "opacity-50 pointer-events-none"
+												}`}
+												onClick={handleAccept}
+											>
+												<CheckCheck />
+												{role === Role.PETITIONER
+													? "Finalizar"
+													: "Aceptar"}
+											</div>
 										</>
 									)}
 								</div>

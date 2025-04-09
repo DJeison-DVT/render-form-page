@@ -7,7 +7,7 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@/components/ui/dialog";
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form";
@@ -30,8 +30,14 @@ export default function CommentDialog({
 	disabled,
 	children,
 }: CommentDialogProps) {
+	const [open, setOpen] = useState(false);
+
+	useEffect(() => {
+		form.setValue("comment", "");
+	}, [form, open]);
+
 	return (
-		<Dialog>
+		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger disabled={!form.formState.isValid}>
 				{children}
 			</DialogTrigger>
