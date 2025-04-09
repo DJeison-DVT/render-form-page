@@ -46,6 +46,9 @@ export default function QuoteInformationDisplay({
 		}
 	}, [quoteInformation.providerId, quoteInformation.pdfUrl]);
 
+	const permittedRoles: Role[] = [Role.PETITIONER, Role.SUPERVISOR];
+	const isPermitted = permittedRoles.includes(session?.user.role as Role);
+
 	return (
 		<div className="flex justify-around items-center p-8">
 			<CompanyImage company={quoteInformation.company} size={150} />
@@ -57,6 +60,12 @@ export default function QuoteInformationDisplay({
 								title="Fecha de entrega estimada"
 								value={quoteInformation.estimatedDeliveryDate.toLocaleDateString()}
 							/>
+							{isPermitted && provider && (
+								<TableInformation
+									title="Proveedor"
+									value={provider?.name}
+								/>
+							)}
 						</tr>
 						<tr>
 							<TableInformation
@@ -101,40 +110,35 @@ export default function QuoteInformationDisplay({
 					</tbody>
 				</table>
 			</div>
-			<div className="flex flex-col items-center gap-4 justify-center">
-				{(session?.user?.role === Role.PETITIONER ||
-					session?.user?.role === Role.SUPERVISOR) &&
-					provider && (
-						<div>
-							Provedor: {provider.name} {provider.company}
+			{isPermitted && (
+				<div className="flex flex-col items-center gap-4 justify-center">
+					{pdfUrl && !quoteInformation.providerId && (
+						<a
+							href={pdfUrl}
+							target="_blank"
+							rel="noopener noreferrer"
+							className="flex items-center justify-center gap-2 bg-slate-400 text-white p-2 rounded-md"
+						>
+							<FileSearch size={32} />
+							PDF de Render
+						</a>
+					)}
+					{quoteInformation.finalizedAt && (
+						<div
+							onClick={() =>
+								window.open(
+									`/api/generate-quote?quoteId=${quoteInformation.id}`,
+									"_blank"
+								)
+							}
+							className="flex items-center justify-center gap-2 bg-slate-400 text-white p-2 rounded-md cursor-pointer"
+						>
+							<FileDown size={32} />
+							Cotización
 						</div>
 					)}
-				{pdfUrl && (
-					<a
-						href={pdfUrl}
-						target="_blank"
-						rel="noopener noreferrer"
-						className="flex items-center justify-center gap-2 bg-slate-400 text-white p-2 rounded-md"
-					>
-						<FileSearch size={32} />
-						Ver PDF
-					</a>
-				)}
-				{quoteInformation.finalizedAt && (
-					<div
-						onClick={() =>
-							window.open(
-								`/api/generate-quote?quoteId=${quoteInformation.id}`,
-								"_blank"
-							)
-						}
-						className="flex items-center justify-center gap-2 bg-slate-400 text-white p-2 rounded-md cursor-pointer"
-					>
-						<FileDown size={32} />
-						Render
-					</div>
-				)}
-			</div>
+				</div>
+			)}
 		</div>
 	);
 }
