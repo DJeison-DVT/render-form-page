@@ -81,7 +81,7 @@ async function getQuoteInformation(id: string, single = false) {
 			include: {
 				quotes: {
 					where: {
-						OR: [
+						AND: [
 							{ providerQuotesUserId: null },
 							{ providerQuotesQuoteInformationId: null },
 						],
@@ -97,7 +97,20 @@ async function getQuoteInformation(id: string, single = false) {
 			},
 		});
 
-		return { success: true, quoteInformation };
+		const users = await prisma.user.findMany({
+			where: {
+				OR: [
+					{ phone: quoteInformation?.approvalContact },
+					{ phone: quoteInformation?.requestContact },
+				],
+			},
+			select: {
+				name: true,
+				phone: true,
+			},
+		});
+
+		return { success: true, quoteInformation, users };
 	} catch (error) {
 		console.error("Error in getQuoteInformation:", error);
 		throw new Error("Error al obtener la cotización");

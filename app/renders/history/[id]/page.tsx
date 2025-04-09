@@ -18,6 +18,7 @@ export default function Page() {
 	const [notFound, setNotFound] = useState(false);
 	const [quoteInformation, setQuoteInformation] =
 		useState<QuoteInformationWithQuotes | null>(null);
+	const [users, setUsers] = useState<Record<string, string>>({});
 
 	useEffect(() => {
 		const fetchQuoteInformation = async () => {
@@ -34,13 +35,21 @@ export default function Page() {
 					setLoading(false);
 					return;
 				}
-				if (!response.quoteInformation) {
+				if (!response.quoteInformation || !response.users) {
 					setNotFound(true);
 					setLoading(false);
 					return;
 				}
 
 				setQuoteInformation(response.quoteInformation);
+				const usersMap: Record<string, string> = response.users.reduce(
+					(acc: Record<string, string>, user) => {
+						acc[user.phone] = user.name;
+						return acc;
+					},
+					{}
+				);
+				setUsers(usersMap);
 			} catch (error) {
 				const message =
 					error instanceof Error
@@ -81,7 +90,7 @@ export default function Page() {
 				quoteInformation={quoteInformation as QuoteInformation}
 			/>
 			{quoteInformation && (
-				<QuoteTable quoteInformation={quoteInformation} />
+				<QuoteTable quoteInformation={quoteInformation} users={users} />
 			)}
 		</div>
 	);

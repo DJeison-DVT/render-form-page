@@ -10,13 +10,16 @@ import {
 	TableCell,
 	TableHead,
 } from "@/components/ui/table";
-import { QuoteInformationWithQuotes } from "@/lib/types";
+import { QuoteInformationWithQuotes, RoleTranslations } from "@/lib/types";
 import ZoomableImage from "@/app/components/ZoomableImage";
+import { CalendarArrowUp, UserRoundPen } from "lucide-react";
 
 export default function QuoteTable({
 	quoteInformation,
+	users,
 }: {
 	quoteInformation: QuoteInformationWithQuotes;
+	users: Record<string, string>;
 }) {
 	const [currentQuoteIndex, setCurrentQuoteIndex] = useState(0);
 
@@ -65,14 +68,26 @@ export default function QuoteTable({
 						<div className="text-xl font-bold">Historial</div>
 					)}
 				</div>
-				{new Date(currentQuote.createdAt).toLocaleString("es-MX", {
-					year: "numeric",
-					month: "2-digit",
-					day: "2-digit",
-					hour: "2-digit",
-					minute: "2-digit",
-					hour12: false,
-				})}
+				<div className="flex gap-2">
+					<CalendarArrowUp />
+					{new Date(currentQuote.createdAt).toLocaleString("es-MX", {
+						year: "numeric",
+						month: "2-digit",
+						day: "2-digit",
+						hour: "2-digit",
+						minute: "2-digit",
+						hour12: false,
+					})}
+				</div>
+				<div className="flex gap-2">
+					<UserRoundPen />
+					{RoleTranslations[currentQuote.createdByRole]}
+					{currentQuote.createdByRole === "PETITIONER" ? (
+						<div>{users[quoteInformation.requestContact]}</div>
+					) : (
+						<div>{users[quoteInformation.approvalContact]}</div>
+					)}
+				</div>
 				<Table>
 					<TableHeader>
 						<TableRow>
