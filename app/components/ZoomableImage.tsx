@@ -30,17 +30,21 @@ export default function ZoomableImage({ imageUrl }: ZoomableImageProps) {
 						<Search size={16} />
 					</div>
 				</DialogTrigger>
-				<DialogContent>
+				<DialogContent className="max-w-[95vw] max-h-[95vh]">
 					<DialogHeader>
 						<DialogTitle>Visualización de Imagen</DialogTitle>
 					</DialogHeader>
-					<Image
-						src={imageUrl}
-						alt="Selected"
-						className="object-cover w-full h-full"
-						width={600}
-						height={600}
-					/>
+					<div className="max-w-[90vw] max-h-[90vh] overflow-auto">
+						<div className="relative w-full h-full min-h-[85vh] ">
+							<Image
+								src={imageUrl}
+								alt="Selected"
+								fill
+								sizes="(max-width: 90vw) 90vw, (max-height: 90vh) 90vh"
+								className="object-contain"
+							/>
+						</div>
+					</div>
 				</DialogContent>
 			</Dialog>
 		</>
