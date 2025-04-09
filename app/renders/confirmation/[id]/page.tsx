@@ -13,7 +13,7 @@ import {
 } from "@/lib/storage/database";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Quote, QuoteInformation, Role } from "@prisma/client";
-import { CheckCheck, RefreshCw, Undo } from "lucide-react";
+import { CheckCheck, Undo } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
