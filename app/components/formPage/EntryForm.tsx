@@ -108,6 +108,8 @@ function EntryForm({
 		if (message && receivedMessage === "") {
 			setReceivedMessage(message);
 		}
+
+		form.setValue("comment", "");
 	}, [form, receivedMessage]);
 
 	const BUCKET_URL = process.env.NEXT_PUBLIC_BUCKET_URL;
