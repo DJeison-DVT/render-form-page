@@ -110,20 +110,25 @@ export default function QuoteInformationDisplay({
 					</tbody>
 				</table>
 			</div>
-			{isPermitted && (
-				<div className="flex flex-col items-center gap-4 justify-center">
-					{pdfUrl && !quoteInformation.providerId && (
-						<a
-							href={pdfUrl}
-							target="_blank"
-							rel="noopener noreferrer"
-							className="flex items-center justify-center gap-2 bg-slate-400 text-white p-2 rounded-md"
-						>
-							<FileSearch size={32} />
-							PDF de Render
-						</a>
-					)}
-					{quoteInformation.finalizedAt && (
+			<div className="flex flex-col items-center gap-4 justify-center">
+				{pdfUrl && !quoteInformation.providerId && (
+					<a
+						href={pdfUrl}
+						target="_blank"
+						rel="noopener noreferrer"
+						className="flex items-center justify-center gap-2 bg-slate-400 text-white p-2 rounded-md"
+					>
+						<FileSearch size={32} />
+						PDF de Render
+					</a>
+				)}
+				{isPermitted && quoteInformation.finalizedAt && (
+					<>
+						{provider && (
+							<div>
+								Proveedor: {provider.name} <br />
+							</div>
+						)}
 						<div
 							onClick={() =>
 								window.open(
@@ -136,9 +141,9 @@ export default function QuoteInformationDisplay({
 							<FileDown size={32} />
 							Cotización
 						</div>
-					)}
-				</div>
-			)}
+					</>
+				)}
+			</div>
 		</div>
 	);
 }
