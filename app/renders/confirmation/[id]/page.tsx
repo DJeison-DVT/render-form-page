@@ -22,6 +22,7 @@ import { z } from "zod";
 import CommentDialog from "@/app/components/CommentDialog";
 import { useSession } from "next-auth/react";
 import Loading from "@/components/Loading";
+import ChangeAprovalContact from "./components/ChangeAprovalContact";
 
 export default function Confirmation() {
 	const { id } = useParams();
@@ -173,94 +174,96 @@ export default function Confirmation() {
 		setDisabled(false);
 	};
 
+	const fetchQuoteInformation = async () => {
+		if (!id || typeof id !== "string") {
+			setNotFound(true);
+			setLoading(false);
+			return;
+		}
+
+		if (!role) {
+			setNotFound(true);
+			setLoading(false);
+			return;
+		}
+
+		try {
+			const response = await getQuoteInformation(id, true);
+
+			if (!response || !response.success) {
+				setLoading(false);
+				return;
+			}
+			if (!response.quoteInformation) {
+				setNotFound(true);
+				setLoading(false);
+				return;
+			}
+
+			const quoteInformation = {
+				...response.quoteInformation,
+				quote: response.quoteInformation.quotes[0],
+				entries: response.quoteInformation.quotes[0]?.entries || [],
+			};
+
+			if (!quoteInformation.providerId) {
+				setNotFound(true);
+				return;
+			}
+
+			if (quoteInformation.finalizedAt) {
+				router.push(`/renders/history/${id}`);
+				return;
+			}
+
+			if (quoteInformation.quote.createdByRole === role) {
+				setDisabled(true);
+			}
+
+			setQuote(quoteInformation.quote);
+
+			const transformedData = {
+				...quoteInformation,
+				date: quoteInformation.createdAt.toISOString().split("T")[0],
+				createdByRole: role as Role,
+				estimatedDeliveryDate: new Date(
+					quoteInformation.estimatedDeliveryDate
+				),
+				comment: quoteInformation.quote.comment ?? "",
+				entries: quoteInformation.entries.map((entry) => ({
+					...entry,
+					unitaryPrice: entry.unitaryPrice ?? 0,
+					unitaryCost: entry.unitaryCost ?? 0,
+					unitaryFinalPrice: entry.unitaryFinalPrice ?? 0,
+					image: null,
+					imageUrl: entry.imageUrl ?? null,
+				})),
+			};
+
+			form.reset(transformedData);
+			setQuoteInformation(quoteInformation);
+		} catch (error) {
+			const message =
+				error instanceof Error
+					? error.message
+					: "An unknown error occurred.";
+			toast({
+				variant: "destructive",
+				title: "Ocurrió un error",
+				description: message,
+			});
+		} finally {
+			setLoading(false);
+		}
+	};
+
 	useEffect(() => {
-		const fetchQuoteInformation = async () => {
-			if (!id || typeof id !== "string") {
-				setNotFound(true);
-				setLoading(false);
-				return;
-			}
-
-			if (!role) {
-				setNotFound(true);
-				setLoading(false);
-				return;
-			}
-
-			try {
-				const response = await getQuoteInformation(id, true);
-
-				if (!response || !response.success) {
-					setLoading(false);
-					return;
-				}
-				if (!response.quoteInformation) {
-					setNotFound(true);
-					setLoading(false);
-					return;
-				}
-
-				const quoteInformation = {
-					...response.quoteInformation,
-					quote: response.quoteInformation.quotes[0],
-					entries: response.quoteInformation.quotes[0]?.entries || [],
-				};
-
-				if (!quoteInformation.providerId) {
-					setNotFound(true);
-					return;
-				}
-
-				if (quoteInformation.finalizedAt) {
-					router.push(`/renders/history/${id}`);
-					return;
-				}
-
-				if (quoteInformation.quote.createdByRole === role) {
-					setDisabled(true);
-				}
-
-				setQuote(quoteInformation.quote);
-
-				const transformedData = {
-					...quoteInformation,
-					date: quoteInformation.createdAt
-						.toISOString()
-						.split("T")[0],
-					createdByRole: role as Role,
-					estimatedDeliveryDate: new Date(
-						quoteInformation.estimatedDeliveryDate
-					),
-					comment: quoteInformation.quote.comment ?? "",
-					entries: quoteInformation.entries.map((entry) => ({
-						...entry,
-						unitaryPrice: entry.unitaryPrice ?? 0,
-						unitaryCost: entry.unitaryCost ?? 0,
-						unitaryFinalPrice: entry.unitaryFinalPrice ?? 0,
-						image: null,
-						imageUrl: entry.imageUrl ?? null,
-					})),
-				};
-
-				form.reset(transformedData);
-				setQuoteInformation(quoteInformation);
-			} catch (error) {
-				const message =
-					error instanceof Error
-						? error.message
-						: "An unknown error occurred.";
-				toast({
-					variant: "destructive",
-					title: "Ocurrió un error",
-					description: message,
-				});
-			} finally {
-				setLoading(false);
-			}
-		};
-
 		fetchQuoteInformation();
-	}, [id, role, toast, form, router]);
+	}, []);
+
+	const onApprovalContactChange = async () => {
+		fetchQuoteInformation();
+	};
 
 	if (!id || Array.isArray(id)) {
 		return <div>Error: ID invalido</div>;
@@ -290,11 +293,23 @@ export default function Confirmation() {
 								onSubmitUpdate(values)
 							)}
 						>
-							{quoteInformation && (
-								<QuoteInformationDisplay
-									quoteInformation={quoteInformation}
-								/>
-							)}
+							<div className="flex gap-4 justify-between items-center">
+								{quoteInformation && (
+									<>
+										<div className="flex-1">
+											<QuoteInformationDisplay
+												quoteInformation={
+													quoteInformation
+												}
+											/>
+										</div>
+										<ChangeAprovalContact
+											quoteInformation={quoteInformation}
+											onChange={onApprovalContactChange}
+										/>
+									</>
+								)}
+							</div>
 							<div className="flex justify-center">
 								<div className="w-fit">
 									{role && (

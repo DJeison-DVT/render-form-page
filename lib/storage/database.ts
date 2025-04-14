@@ -2,7 +2,7 @@
 
 import { ProposalUploadSchema, RenderUploadSchema } from "@/app/Schemas";
 import { prisma } from "@/lib/prisma";
-import { Role } from "@prisma/client";
+import { QuoteInformation, Role } from "@prisma/client";
 import { z } from "zod";
 import { sendMessage } from "../messaging";
 import { savePDF, upsertImage } from "./gcloud";
@@ -201,6 +201,56 @@ async function createQuote(
 	} catch (error) {
 		console.error("Error in createQuoteInformation:", error);
 		throw new Error("Error al crear la cotización");
+	}
+}
+
+async function updateValidator(
+	quoteInfo: QuoteInformation,
+	validatorPhone: string
+) {
+	try {
+		const validator = await prisma.user.findUnique({
+			where: {
+				phone: validatorPhone,
+			},
+		});
+
+		if (!validator) {
+			throw new Error("Usuario no encontrado");
+		}
+
+		if (validator.phone === quoteInfo.approvalContact) {
+			throw new Error("El validador ya es el contacto de aprobación");
+		}
+
+		const quoteInformation = await prisma.quoteInformation.update({
+			where: {
+				id: quoteInfo.id,
+			},
+			data: {
+				approvalContact: validator.phone,
+			},
+		});
+
+		await sendMessage(validator.phone, MESSAGE_TEMPLATE, {
+			1: quoteInformation.serial,
+			2: quoteInformation.project,
+			3: `${NEXTAUTH_URL}/renders/confirmation/${quoteInfo.id}`,
+		});
+		return { success: true, quoteInformation };
+	} catch (error) {
+		const errorMessage = error as Error;
+		if (errorMessage.message === "Usuario no encontrado") {
+			throw new Error("Usuario no encontrado");
+		}
+		if (
+			errorMessage.message ===
+			"El validador ya es el contacto de aprobación"
+		) {
+			throw new Error("El validador ya es el contacto de aprobación");
+		}
+		console.error("Error in updateValidator:", error);
+		throw new Error("Error al actualizar el validador");
 	}
 }
 
@@ -542,4 +592,5 @@ export {
 	saveProvider,
 	getPendingProviderQuotes,
 	getUserById,
+	updateValidator,
 };
