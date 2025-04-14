@@ -124,11 +124,6 @@ export default function QuoteInformationDisplay({
 				)}
 				{isPermitted && quoteInformation.finalizedAt && (
 					<>
-						{provider && (
-							<div>
-								Proveedor: {provider.name} <br />
-							</div>
-						)}
 						<div
 							onClick={() =>
 								window.open(
