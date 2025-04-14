@@ -19,7 +19,7 @@ export function useUsersByRole(role: Role): UserOption[] {
 					users.map((user) => ({
 						id: user.id,
 						phone: user.phone,
-						name: user.company || user.name,
+						name: user.name,
 					}))
 				);
 			} catch (error) {

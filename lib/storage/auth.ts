@@ -9,7 +9,7 @@ import { Role } from "@prisma/client";
 const SALT_ROUNDS = 10;
 
 async function registerUser(userData: z.infer<typeof userCreationSchema>) {
-	const { phone, password, name, email, role, company } = userData;
+	const { phone, password, name, email, role } = userData;
 	if (!phone || !password || !name || !email || !role) {
 		throw new Error("Missing required fields");
 	}
@@ -32,7 +32,6 @@ async function registerUser(userData: z.infer<typeof userCreationSchema>) {
 			name,
 			email,
 			role: castRole,
-			company,
 		},
 	});
 

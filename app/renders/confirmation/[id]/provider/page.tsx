@@ -209,7 +209,7 @@ export default function ProviderConfirmation() {
 				const providerIds: Provider = {};
 
 				for (const provider of quoteInformation.ProviderQuotes) {
-					const alias = provider.user.company || provider.user.name;
+					const alias = provider.user.name;
 					if (!Object.keys(providerQuotes).includes(alias)) {
 						providerQuotes[alias] = null;
 						providerIds[alias] = provider.user.id;
@@ -219,9 +219,7 @@ export default function ProviderConfirmation() {
 						providerQuotes = {};
 						providerQuotes[alias] = null;
 						if (provider.quote) {
-							providerQuotes[
-								provider.user.company || provider.user.name
-							] = provider.quote;
+							providerQuotes[provider.user.name] = provider.quote;
 						}
 						break;
 					}
@@ -230,9 +228,7 @@ export default function ProviderConfirmation() {
 					}
 
 					if (provider.quote) {
-						providerQuotes[
-							provider.user.company || provider.user.name
-						] = provider.quote;
+						providerQuotes[provider.user.name] = provider.quote;
 					}
 				}
 

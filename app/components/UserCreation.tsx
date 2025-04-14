@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import {
 	Form,
 	FormControl,
-	FormDescription,
 	FormField,
 	FormItem,
 	FormLabel,
@@ -42,7 +41,6 @@ export default function UserCreation() {
 	const form = useForm<z.infer<typeof userCreationSchema>>({
 		resolver: zodResolver(userCreationSchema),
 		defaultValues: {
-			company: "",
 			email: "",
 			name: "",
 			password: "",
@@ -101,7 +99,9 @@ export default function UserCreation() {
 							name="name"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Nombre</FormLabel>
+									<FormLabel>
+										Nombre de Identificación
+									</FormLabel>
 									<FormControl>
 										<Input {...field} />
 									</FormControl>
@@ -132,23 +132,6 @@ export default function UserCreation() {
 										<Input {...field} />
 									</FormControl>
 									<FormMessage />
-								</FormItem>
-							)}
-						/>
-						<FormField
-							control={form.control}
-							name="company"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Compañía</FormLabel>
-									<FormControl>
-										<Input {...field} />
-									</FormControl>
-									<FormMessage />
-									<FormDescription>
-										Nombre de la compañía que representa el
-										usuario.
-									</FormDescription>
 								</FormItem>
 							)}
 						/>
