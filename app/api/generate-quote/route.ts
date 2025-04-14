@@ -29,9 +29,23 @@ handlebars.registerHelper("multiply", (a: number, b: number) => {
 	return a * b;
 });
 
-const imageUrls = {
+const companyImageUrls = {
 	alquipop: "/alquipop-logo.svg",
 	demente: "/demente-logo.png",
+};
+
+const companyTemplates = {
+	alquipop: "alquipopQuote.hbs",
+	demente: "dementeQuote.hbs",
+};
+
+const companySettings = {
+	alquipop: {
+		landscape: true,
+	},
+	demente: {
+		landscape: false,
+	},
 };
 
 export async function GET(request: Request) {
@@ -70,8 +84,16 @@ export async function GET(request: Request) {
 			);
 		}
 
-		const companyKey = quoteInformation.company as keyof typeof imageUrls;
-		quoteInformation.company = `${process.env.NEXTAUTH_URL}${imageUrls[companyKey]}`;
+		const companyTemplate =
+			quoteInformation.company as keyof typeof companyTemplates;
+		const companyKey =
+			quoteInformation.company as keyof typeof companyImageUrls;
+		const companySetting =
+			companySettings[
+				quoteInformation.company as keyof typeof companySettings
+			];
+
+		quoteInformation.company = `${process.env.NEXTAUTH_URL}${companyImageUrls[companyKey]}`;
 		quoteInformation.quotes[0].entries.forEach((entry) => {
 			entry.imageUrl = `${process.env.NEXT_PUBLIC_BUCKET_URL}${entry.imageUrl}`;
 		});
@@ -81,29 +103,35 @@ export async function GET(request: Request) {
 			process.cwd(),
 			"app",
 			"templates",
-			"quote.hbs"
+			companyTemplates[companyTemplate]
 		);
 		const templateHtml = fs.readFileSync(templatePath, "utf8");
 		const template = handlebars.compile(templateHtml);
 		const html = template(quoteInformation);
 
+		const isDevelopment = process.env.NODE_ENV === "development";
+
 		const browser = await puppeteer.launch({
 			headless: true,
-			args: [
-				"--no-sandbox",
-				"--disable-setuid-sandbox",
-				"--disable-dev-shm-usage",
-				"--disable-accelerated-2d-canvas",
-				"--disable-gpu",
-			],
-			executablePath: "/usr/bin/google-chrome-stable", // path to Google Chrome
+			args: !isDevelopment
+				? [
+						"--no-sandbox",
+						"--disable-setuid-sandbox",
+						"--disable-dev-shm-usage",
+						"--disable-accelerated-2d-canvas",
+						"--disable-gpu",
+				  ]
+				: [],
+			...(!isDevelopment && {
+				executablePath: "/usr/bin/google-chrome-stable", // path to Google Chrome
+			}),
 		});
 		const page = await browser.newPage();
 		await page.setContent(html, { waitUntil: "networkidle0" });
 
 		const pdfBuffer = await page.pdf({
 			format: "A4",
-			landscape: true,
+			landscape: companySetting.landscape,
 			printBackground: true,
 		});
 

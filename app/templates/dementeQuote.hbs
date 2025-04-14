@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      font-size: 12px;
+      padding: 30px;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      width: 100px;
+    }
+
+    .info {
+      color-align: right;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 30px;
+    }
+
+    thead th {
+      border: 1px solid #000;
+      padding: 5px;
+      background-color: #000;
+      color: white;
+    }
+
+    .info {
+      border: 1px solid #000;
+      padding: 2px;
+      font-size: 8px;
+    }
+
+    th,
+    td {
+      border: 1px solid #000;
+      padding: 5px;
+      vertical-align: top;
+    }
+
+    .notes {
+      margin-top: 10px;
+      font-size: 8px;
+    }
+
+    img.product-image {
+      height: 80px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="header">
+    <div>
+      <strong>Cotización de Produtos y Servicios</strong>
+      <div class="info">
+        <p>Cliente: {{client}}</p>
+        <p>Fecha: {{formatDate createdAt}}</p>
+        <p>Marca: {{brand}}</p>
+        <p>Proyecto: {{project}}</p>
+        <p>Referencia: {{serial}}</p>
+        <p>Proveedor: D3M3NT SA DE CV</p>
+      </div>
+    </div>
+    <img src="{{company}}" class="logo" />
+
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Material</th>
+        <th>Concepto</th>
+        <th>Medidas</th>
+        <th>Imagen</th>
+        <th>Piezas</th>
+        <th>Precio únitario</th>
+        <th>TOTAL</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each quotes.[0].entries}}
+      <tr>
+        <td><img class="product-image" src="{{imageUrl}}" /></td>
+        <td>{{concept}}</td>
+        <td>{{sizes}}</td>
+        <td>{{material}}</td>
+        <td>{{range}}</td>
+        <td>{{formatCurrencyMXN unitaryFinalPrice}}</td>
+        <td>{{formatCurrencyMXN (multiply unitaryFinalPrice range)}}</td>
+      </tr>
+      {{/each}}
+    </tbody>
+  </table>
+
+  <div class="notes">
+    <strong>Condiciones Generales:
+    </strong>
+    <div>
+      Los precios no incluyen IVA, valuados en pesos mexicanos. <br>
+      Entrega en 1 punto CDMX. <br>
+      La validez de este documento es de 30 días a partir de la fecha de emisión. <br>
+    </div>
+</body>
+
+</html>
