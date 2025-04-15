@@ -117,6 +117,7 @@ export default function Confirmation() {
 	const handleAccept = async () => {
 		const result = RenderUploadSchema.safeParse(form.getValues());
 		if (result.success) {
+			form.setValue("comment", "");
 			if (role === Role.VALIDATOR) {
 				await onSubmitUpdate(form.getValues(), true);
 			} else {

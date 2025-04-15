@@ -94,7 +94,6 @@ export default function ProviderConfirmation() {
 		values.createdByRole = role;
 		if (form.formState.isValid && providerIds && provider) {
 			try {
-				console.log(providerIds[provider]);
 				await createProviderQuote(id, providerIds[provider], values, {
 					rejectedQuoteId: quote?.id,
 				});
@@ -133,6 +132,7 @@ export default function ProviderConfirmation() {
 		setDisabled(true);
 		try {
 			if (quote && form.formState.isValid && providerIds && provider) {
+				values.comment = "";
 				await saveProvider(id, providerIds[provider], values, {
 					rejectedQuoteId: quote.id,
 				});
