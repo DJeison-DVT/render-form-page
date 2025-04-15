@@ -32,7 +32,6 @@ export default function Home() {
 		if (form.formState.isValid) {
 			try {
 				setDisabled(true);
-				console.log("Submitting form with values:", values);
 				await createQuoteInformation(values);
 				setCompany(values.company);
 				setRegistered(true);
@@ -76,7 +75,9 @@ export default function Home() {
 								<Button
 									type="submit"
 									size={"xl"}
-									disabled={!form.formState.isValid}
+									disabled={
+										!form.formState.isValid && disabled
+									}
 								>
 									<Upload />
 									Enviar

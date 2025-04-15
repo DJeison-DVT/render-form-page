@@ -7,6 +7,8 @@ import { buildImageURL } from "@/lib/serverUtils";
 import { FileDown, FileSearch } from "lucide-react";
 import { useSession } from "next-auth/react";
 
+const sixHoursInMs = 6 * 60 * 60 * 1000;
+
 export default function QuoteInformationDisplay({
 	quoteInformation,
 }: {
@@ -58,7 +60,10 @@ export default function QuoteInformationDisplay({
 						<tr>
 							<TableInformation
 								title="Fecha de entrega estimada"
-								value={quoteInformation.estimatedDeliveryDate.toLocaleDateString()}
+								value={new Date(
+									quoteInformation.estimatedDeliveryDate.getTime() +
+										sixHoursInMs
+								).toLocaleDateString()}
 							/>
 							{isPermitted && provider && (
 								<TableInformation
