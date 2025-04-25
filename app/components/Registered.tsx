@@ -8,7 +8,7 @@ export default function Registered({ company }: { company: string }) {
 			<h2 className="text-2xl font-bold mb-4">
 				¡Gracias por tu cotización!
 			</h2>
-			<CompanyImage company={company} size={400} />
+			<CompanyImage company={company} />
 			<p>En breve nos pondremos en contacto contigo.</p>
 			<Button className="mt-4">
 				<Link href="/renders/dashboard">Ir al dashboard</Link>
