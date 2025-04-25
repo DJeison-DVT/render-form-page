@@ -44,7 +44,7 @@ import {
 	AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import PushableComponent from "@/components/ui/pushableComponent";
 import { useSession } from "next-auth/react";
 import { Quote, Role } from "@prisma/client";
@@ -117,7 +117,7 @@ function EntryForm({
 		: "";
 
 	const content = (
-		<>
+		<div className="p-0 mt-4 lg:mt-0 lg:p-4 flex justify-center items-start h-[80vh] lg:h-[60vh] flex-col">
 			{pastQuote?.comment && (
 				<div className="text-lg">
 					{sender}: {pastQuote?.comment}
@@ -126,7 +126,7 @@ function EntryForm({
 			{!BUCKET_URL && (
 				<div>No se ha configurado el bucket de imágenes.</div>
 			)}
-			<div className="flex justify-between items-center bg-white z-10 sticky top-0 p-2 border-b">
+			<div className="flex w-full justify-between items-center bg-white z-10 sticky top-0 p-2 border-b">
 				<h4 className="text-3xl font-bold">Cotización</h4>
 				{role === Role.PROVIDER && (
 					<TooltipProvider>
@@ -147,7 +147,7 @@ function EntryForm({
 					</TooltipProvider>
 				)}
 			</div>
-			<div className="overflow-y-auto w-screen md:w-full md:flex-grow">
+			<div className="overflow-y-scroll h-full w-screen md:w-full md:flex-grow">
 				{form.getValues().entries.map((entry, index) => (
 					<div key={index} className="p-2 flex gap-4 relative">
 						<FormField
@@ -619,7 +619,7 @@ function EntryForm({
 					</div>
 				))}
 			</div>
-		</>
+		</div>
 	);
 
 	return modal ? (

@@ -324,6 +324,7 @@ export default function Confirmation() {
 				<div className="h-screen overflow-y-hidden">
 					<Form {...form}>
 						<form
+							className="h-full"
 							onSubmit={form.handleSubmit((values) =>
 								onSubmitUpdate(values)
 							)}
@@ -351,22 +352,18 @@ export default function Confirmation() {
 									</>
 								)}
 							</div>
-							<div className="flex justify-center">
-								<div className="w-fit">
-									{role && (
-										<EntryForm
-											form={form}
-											fieldArrayAppend={fieldArrayAppend}
-											fieldArrayInsert={fieldArrayInsert}
-											fieldArrayRemove={fieldArrayRemove}
-											users={users}
-											pastQuote={quote}
-											disabled={disabled}
-											role={role as Role}
-										/>
-									)}
-								</div>
-							</div>
+							{role && (
+								<EntryForm
+									form={form}
+									fieldArrayAppend={fieldArrayAppend}
+									fieldArrayInsert={fieldArrayInsert}
+									fieldArrayRemove={fieldArrayRemove}
+									users={users}
+									pastQuote={quote}
+									disabled={disabled}
+									role={role as Role}
+								/>
+							)}
 							<div className="fixed bottom-4 right-4 flex justify-end gap-4">
 								<div className="flex gap-2">
 									{quote?.targetRole === role && (
