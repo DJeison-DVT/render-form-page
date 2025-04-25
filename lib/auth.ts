@@ -5,7 +5,7 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import bcrypt from "bcrypt";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { JWT } from "next-auth/jwt";
-import { object, string, z } from "zod";
+import { object, string } from "zod";
 // import { registerUser } from "./storage/auth";
 // import { Role } from "@prisma/client";
 // import { userCreationSchema } from "@/app/Schemas";
