@@ -82,7 +82,6 @@ function EntryForm({
 		})
 	);
 
-	const [receivedMessage, setReceivedMessage] = useState("");
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const { data: session } = useSession();
 	const [solutionNames] = useState<ComboboxOptions[]>(solutionNameOptions);
@@ -107,13 +106,6 @@ function EntryForm({
 		form.setValue("client", newMaterial.value);
 	}
 
-	useEffect(() => {
-		const message = form.getValues("comment");
-		if (message && receivedMessage === "") {
-			setReceivedMessage(message);
-		}
-	}, [form, receivedMessage]);
-
 	const BUCKET_URL = process.env.NEXT_PUBLIC_BUCKET_URL;
 
 	if (!session) {
@@ -126,9 +118,9 @@ function EntryForm({
 
 	const content = (
 		<>
-			{receivedMessage && (
+			{pastQuote?.comment && (
 				<div className="text-lg">
-					{sender}: {receivedMessage}
+					{sender}: {pastQuote?.comment}
 				</div>
 			)}
 			{!BUCKET_URL && (
