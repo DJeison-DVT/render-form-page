@@ -6,11 +6,9 @@ import bcrypt from "bcrypt";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { JWT } from "next-auth/jwt";
 import { object, string, z } from "zod";
-import { registerUser } from "./storage/auth";
-import { Role } from "@prisma/client";
-import { userCreationSchema } from "@/app/Schemas";
 // import { registerUser } from "./storage/auth";
 // import { Role } from "@prisma/client";
+// import { userCreationSchema } from "@/app/Schemas";
 
 export const signInSchema = object({
 	phone: string({ required_error: "Se requiere un número de teléfono" })
@@ -67,19 +65,19 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 					credentials
 				);
 
-				let user = await prisma.user.findUnique({
+				const user = await prisma.user.findUnique({
 					where: { phone },
 				});
 				if (!user) {
-					const newUser: z.infer<typeof userCreationSchema> = {
-						password,
-						phone,
-						role: Role.PETITIONER,
-						email: "diegovt.arbt@gmail.com",
-						name: "Diego Villanueva",
-					};
-					user = await registerUser(newUser);
-					// throw new Error("User not found");
+					// const newUser: z.infer<typeof userCreationSchema> = {
+					// 	password,
+					// 	phone,
+					// 	role: Role.PETITIONER,
+					// 	email: "luisa.martinez@dmente.mx",
+					// 	name: "Marisa",
+					// };
+					// user = await registerUser(newUser);
+					throw new Error("User not found");
 				}
 
 				if (!user.password) {
