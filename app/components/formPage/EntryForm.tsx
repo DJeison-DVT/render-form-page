@@ -136,24 +136,26 @@ function EntryForm({
 			)}
 			<div className="flex justify-between items-center bg-white z-10 sticky top-0 p-2 border-b">
 				<h4 className="text-3xl font-bold">Cotización</h4>
-				<TooltipProvider>
-					<Tooltip>
-						<TooltipTrigger>
-							<PushableComponent
-								onClick={() => {
-									fieldArrayAppend(initializeEntry());
-								}}
-							>
-								<Plus />
-							</PushableComponent>
-						</TooltipTrigger>
-						<TooltipContent>
-							<p>Nueva Entrada</p>
-						</TooltipContent>
-					</Tooltip>
-				</TooltipProvider>
+				{role === Role.PROVIDER && (
+					<TooltipProvider>
+						<Tooltip>
+							<TooltipTrigger>
+								<PushableComponent
+									onClick={() => {
+										fieldArrayAppend(initializeEntry());
+									}}
+								>
+									<Plus />
+								</PushableComponent>
+							</TooltipTrigger>
+							<TooltipContent>
+								<p>Nueva Entrada</p>
+							</TooltipContent>
+						</Tooltip>
+					</TooltipProvider>
+				)}
 			</div>
-			<div className="overflow-y-auto flex-grow">
+			<div className="overflow-y-auto w-screen md:w-full md:flex-grow">
 				{form.getValues().entries.map((entry, index) => (
 					<div key={index} className="p-2 flex gap-4 relative">
 						<FormField
@@ -164,7 +166,7 @@ function EntryForm({
 									`entries.${index}.imageUrl`
 								);
 								return (
-									<FormItem>
+									<FormItem className="hidden md:block">
 										{index == 0 && (
 											<FormLabel>Imagen</FormLabel>
 										)}
@@ -247,7 +249,7 @@ function EntryForm({
 							control={form.control}
 							name={`entries.${index}.name`}
 							render={({ field }) => (
-								<FormItem>
+								<FormItem className="hidden md:block">
 									{index == 0 && (
 										<>
 											<FormLabel>Material</FormLabel>
@@ -296,7 +298,7 @@ function EntryForm({
 							control={form.control}
 							name={`entries.${index}.material`}
 							render={({ field }) => (
-								<FormItem>
+								<FormItem className="hidden md:block">
 									{index == 0 && (
 										<FormLabel>Materia Prima</FormLabel>
 									)}
@@ -341,7 +343,7 @@ function EntryForm({
 							control={form.control}
 							name={`entries.${index}.materialSubtype`}
 							render={({ field }) => (
-								<FormItem>
+								<FormItem className="hidden md:block">
 									{index == 0 && (
 										<FormLabel>Subtipo</FormLabel>
 									)}
@@ -364,7 +366,7 @@ function EntryForm({
 							control={form.control}
 							name={`entries.${index}.sizes`}
 							render={({ field }) => (
-								<FormItem>
+								<FormItem className="hidden md:block">
 									{index == 0 && (
 										<FormLabel>Medidas</FormLabel>
 									)}
@@ -386,7 +388,7 @@ function EntryForm({
 							control={form.control}
 							name={`entries.${index}.concept`}
 							render={({ field }) => (
-								<FormItem>
+								<FormItem className="max-w-[200px]">
 									{index == 0 && (
 										<FormLabel>Concepto</FormLabel>
 									)}
@@ -401,7 +403,7 @@ function EntryForm({
 													role === Role.PETITIONER
 												)
 											}
-											className="min-w-96"
+											className="w-[180px] md:h-fit"
 										/>
 									</FormControl>
 									<FormMessage />

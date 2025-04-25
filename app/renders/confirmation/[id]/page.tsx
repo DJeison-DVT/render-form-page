@@ -331,7 +331,7 @@ export default function Confirmation() {
 							<div className="flex gap-4 justify-between items-center">
 								{quoteInformation && (
 									<>
-										<div className="flex-1">
+										<div className="md:flex hidden flex-1">
 											<QuoteInformationDisplay
 												quoteInformation={
 													quoteInformation

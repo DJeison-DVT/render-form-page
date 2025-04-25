@@ -74,7 +74,7 @@ export default function ChangeAprovalContact({
 	};
 
 	return (
-		<div className="flex flex-col gap-4 pr-10">
+		<div className="flex flex-col md:gap-4 gap-2 md:pr-10 pr-0 mx-auto mt-2 md:mt-0">
 			<div>Cambiar contacto de aprobación</div>
 			<Select
 				value={validator?.phone || ""}
