@@ -52,7 +52,7 @@ export default function QuoteInformationDisplay({
 	const isPermitted = permittedRoles.includes(session?.user.role as Role);
 
 	return (
-		<div className="flex justify-around items-center p-8">
+		<div className="flex justify-around items-center flex-1 p-8">
 			<CompanyImage company={quoteInformation.company} size={150} />
 			<div>
 				<table className="table-auto border-collapse  w-full">
