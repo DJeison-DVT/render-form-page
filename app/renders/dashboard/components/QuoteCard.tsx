@@ -16,13 +16,10 @@ export default function QuoteCard({
 }: QuoteCardProps) {
 	return (
 		<Link key={quoteInformation.id} href={link}>
-			<div className="flex justify-between items-center p-4 w-[900px] border-2 rounded-md border-gray-300 text-lg">
-				<div className="flex min-w-80">
-					<CompanyImage
-						company={quoteInformation.company}
-						size={124}
-					/>
-					<div className="flex flex-col items-start justify-center px-4">
+			<div className="flex flex-col lg:flex-row justify-between items-center p-4 lg:w-[900px] w-80 border-2 rounded-md border-gray-300 text-lg">
+				<div className="flex min-w-80 justify-center items-center ">
+					<CompanyImage company={quoteInformation.company} />
+					<div className="flex flex-col items-center lg:items-start justify-center px-4">
 						<div className="font-bold text-xl">
 							{quoteInformation.client}
 						</div>
@@ -30,7 +27,7 @@ export default function QuoteCard({
 						<div>{quoteInformation.serial}</div>
 					</div>
 				</div>
-				<div className="flex flex-col items-end justify-center">
+				<div className="flex flex-col items-center text-center lg:text-end lg:items-end justify-center">
 					{quoteInformation.quotes.length > 0 &&
 						(role === Role.PETITIONER ||
 							role === Role.VALIDATOR) && (
@@ -41,23 +38,15 @@ export default function QuoteCard({
 										quoteInformation.createdAt
 									)}
 								</div>
-								{quoteInformation.providerContact && (
-									<>
-										<div>
-											Fecha de Actualizacion:{" "}
-											{formatDateString(
-												quoteInformation.quotes[0]
-													.createdAt
-											)}
-										</div>
-										<div>
-											Cantidad de Listados:{" "}
-											{
-												quoteInformation.quotes[0]
-													.entries.length
-											}
-										</div>
-									</>
+								{quoteInformation.providerContact ? (
+									<div>
+										Fecha de Actualizacion:{" "}
+										{formatDateString(
+											quoteInformation.quotes[0].createdAt
+										)}
+									</div>
+								) : (
+									<div>Sin Proveedor Asignado</div>
 								)}
 							</>
 						)}

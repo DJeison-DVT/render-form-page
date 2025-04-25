@@ -53,7 +53,7 @@ export default function QuoteInformationDisplay({
 
 	return (
 		<div className="flex justify-around items-center flex-1 p-8">
-			<CompanyImage company={quoteInformation.company} size={150} />
+			<CompanyImage company={quoteInformation.company} />
 			<div>
 				<table className="table-auto border-collapse  w-full">
 					<tbody>

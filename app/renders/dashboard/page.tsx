@@ -38,18 +38,24 @@ export default async function Dashboard() {
 
 	return (
 		<>
-			<div className="h-screen flex flex-col justify-start items-center overflow-y-auto">
-				<div className="flex justify-between items-center w-full p-2 shadow-md mb-4">
+			<div className="h-screen flex flex-col justify-start items-center overflow-y-auto ">
+				<div className="flex justify-between items-center w-full p-2 shadow-md mb-4 min-h-14">
 					<div></div>
-					<div className="text-3xl">Cotizaciones pendientes</div>
-
-					<Link href="/renders/dashboard/history">
-						<div className="hover:bg-slate-200 rounded-lg transition-colors duration-200 cursor-pointer p-2 flex items-center gap-2 text-lg font-semibold">
-							<History size={32} /> Historial
-						</div>
-					</Link>
+					<div className="text-xl lg:text-3xl">
+						Cotizaciones pendientes
+					</div>
+					<div>
+						<Link
+							href="/renders/dashboard/history"
+							className="hidden lg:block"
+						>
+							<div className="hover:bg-slate-200 rounded-lg transition-colors duration-200 cursor-pointer p-2 flex items-center gap-2 text-lg font-semibold">
+								<History size={32} /> Historial
+							</div>
+						</Link>
+					</div>
 				</div>
-				<div className="flex flex-col items-center gap-4">
+				<div className="flex flex-wrap lg:flex-col items-center gap-4 justify-center">
 					{quoteInformation &&
 						quoteInformation.length > 0 &&
 						quoteInformation.map((quoteInformation) => (
