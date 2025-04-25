@@ -5,7 +5,10 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import bcrypt from "bcrypt";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { JWT } from "next-auth/jwt";
-import { object, string } from "zod";
+import { object, string, z } from "zod";
+import { registerUser } from "./storage/auth";
+import { Role } from "@prisma/client";
+import { userCreationSchema } from "@/app/Schemas";
 // import { registerUser } from "./storage/auth";
 // import { Role } from "@prisma/client";
 
@@ -64,11 +67,19 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 					credentials
 				);
 
-				const user = await prisma.user.findUnique({
+				let user = await prisma.user.findUnique({
 					where: { phone },
 				});
 				if (!user) {
-					throw new Error("User not found");
+					const newUser: z.infer<typeof userCreationSchema> = {
+						password,
+						phone,
+						role: Role.PETITIONER,
+						email: "diegovt.arbt@gmail.com",
+						name: "Diego Villanueva",
+					};
+					user = await registerUser(newUser);
+					// throw new Error("User not found");
 				}
 
 				if (!user.password) {

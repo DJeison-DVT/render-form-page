@@ -1,7 +1,7 @@
 import { QuoteInformation, Role, User } from "@prisma/client";
 import CompanyImage from "./CompanyImage";
 import { formatMexicanPhoneNumber } from "@/lib/utils";
-import { getUserById } from "@/lib/storage/database";
+import { getUserByPhone } from "@/lib/storage/database";
 import { useEffect, useState } from "react";
 import { buildImageURL } from "@/lib/serverUtils";
 import { FileDown, FileSearch } from "lucide-react";
@@ -41,12 +41,12 @@ export default function QuoteInformationDisplay({
 		};
 
 		buildPDFUrl();
-		if (quoteInformation.providerId) {
-			getUserById(quoteInformation.providerId).then((provider) =>
+		if (quoteInformation.providerContact) {
+			getUserByPhone(quoteInformation.providerContact).then((provider) =>
 				setProvider(provider)
 			);
 		}
-	}, [quoteInformation.providerId, quoteInformation.pdfUrl]);
+	}, [quoteInformation.providerContact, quoteInformation.pdfUrl]);
 
 	const permittedRoles: Role[] = [Role.PETITIONER, Role.SUPERVISOR];
 	const isPermitted = permittedRoles.includes(session?.user.role as Role);
@@ -116,7 +116,7 @@ export default function QuoteInformationDisplay({
 				</table>
 			</div>
 			<div className="flex flex-col items-center gap-4 justify-center">
-				{pdfUrl && !quoteInformation.providerId && (
+				{pdfUrl && !quoteInformation.providerContact && (
 					<a
 						href={pdfUrl}
 						target="_blank"

@@ -47,7 +47,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useEffect, useState } from "react";
 import PushableComponent from "@/components/ui/pushableComponent";
 import { useSession } from "next-auth/react";
-import { Role } from "@prisma/client";
+import { Quote, Role } from "@prisma/client";
 import Image from "next/image";
 import { Combobox, ComboboxOptions } from "@/components/ui/combobox";
 import EntryPriceField from "./EntryPriceField";
@@ -60,6 +60,8 @@ function EntryForm({
 	fieldArrayInsert,
 	fieldArrayRemove,
 	role,
+	pastQuote,
+	users,
 	disabled = false,
 	modal = false,
 }: {
@@ -68,6 +70,8 @@ function EntryForm({
 	fieldArrayInsert: UseFieldArrayInsert<z.infer<typeof RenderUploadSchema>>;
 	fieldArrayRemove: UseFieldArrayRemove;
 	role: Role;
+	pastQuote: Quote | undefined;
+	users: Record<string, string>;
 	disabled?: boolean;
 	modal?: boolean;
 }) {
@@ -116,10 +120,16 @@ function EntryForm({
 		return <div>Cargando</div>;
 	}
 
+	const sender = pastQuote?.createdByPhone
+		? users[pastQuote.createdByPhone]
+		: "";
+
 	const content = (
 		<>
 			{receivedMessage && (
-				<div className="text-lg">Comentario: {receivedMessage}</div>
+				<div className="text-lg">
+					{sender}: {receivedMessage}
+				</div>
 			)}
 			{!BUCKET_URL && (
 				<div>No se ha configurado el bucket de imágenes.</div>
@@ -386,7 +396,10 @@ function EntryForm({
 											{...field}
 											disabled={
 												disabled ||
-												role !== Role.PROVIDER
+												!(
+													role === Role.PROVIDER ||
+													role === Role.PETITIONER
+												)
 											}
 											className="min-w-96"
 										/>

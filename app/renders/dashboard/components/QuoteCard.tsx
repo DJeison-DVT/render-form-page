@@ -41,7 +41,7 @@ export default function QuoteCard({
 										quoteInformation.createdAt
 									)}
 								</div>
-								{quoteInformation.providerId && (
+								{quoteInformation.providerContact && (
 									<>
 										<div>
 											Fecha de Actualizacion:{" "}

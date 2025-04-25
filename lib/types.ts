@@ -9,6 +9,9 @@ export const RoleTranslations: Record<Role, string> = {
 
 export type QuoteInformationWithQuotes = Prisma.QuoteInformationGetPayload<{
 	include: {
+		approver: true;
+		requester: true;
+		provider: true;
 		quotes: {
 			include: {
 				entries: true;

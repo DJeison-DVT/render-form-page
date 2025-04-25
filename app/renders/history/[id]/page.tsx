@@ -35,21 +35,30 @@ export default function Page() {
 					setLoading(false);
 					return;
 				}
-				if (!response.quoteInformation || !response.users) {
+				if (!response.quoteInformation) {
 					setNotFound(true);
 					setLoading(false);
 					return;
 				}
 
-				setQuoteInformation(response.quoteInformation);
-				const usersMap: Record<string, string> = response.users.reduce(
-					(acc: Record<string, string>, user) => {
-						acc[user.phone] = user.name;
-						return acc;
-					},
-					{}
-				);
-				setUsers(usersMap);
+				const quoteInformation = response.quoteInformation;
+
+				setQuoteInformation(quoteInformation);
+				const contactUsers: Record<string, string> = {
+					[quoteInformation.approvalContact]:
+						quoteInformation.approver.name,
+					[quoteInformation.requestContact]:
+						quoteInformation.requester.name,
+					...(quoteInformation.providerContact &&
+					quoteInformation.provider
+						? {
+								[quoteInformation.providerContact]:
+									quoteInformation.provider.name,
+						  }
+						: {}),
+				};
+
+				setUsers(contactUsers);
 			} catch (error) {
 				const message =
 					error instanceof Error

@@ -56,6 +56,7 @@ export default function ProviderConfirmation() {
 	const [providers, setProviders] = useState<InformationProviderQuotes>();
 	const [quoteInformation, setQuoteInformation] =
 		useState<QuoteInformation>();
+	const [users, setUsers] = useState<Record<string, string>>({});
 
 	const form = useForm<z.infer<typeof RenderUploadSchema>>({
 		resolver: zodResolver(RenderUploadSchema),
@@ -179,7 +180,7 @@ export default function ProviderConfirmation() {
 
 				const quoteInformation = response.quoteInformation;
 				if (
-					quoteInformation.providerId ||
+					quoteInformation.providerContact ||
 					quoteInformation.stage !== "QUOTING"
 				) {
 					setNotFound(true);
@@ -247,6 +248,19 @@ export default function ProviderConfirmation() {
 					setNotFound(true);
 				}
 
+				const users: Record<string, string> = {};
+				for (const provider of quoteInformation.ProviderQuotes) {
+					if (provider.user.phone !== phone) {
+						users[provider.user.phone] = provider.user.name;
+					}
+				}
+
+				users[quoteInformation.requestContact] =
+					quoteInformation.requester.name;
+				users[quoteInformation.approvalContact] =
+					quoteInformation.approver.name;
+
+				setUsers(users);
 				setQuoteInformation(quoteInformation);
 			} catch (error) {
 				const message =
@@ -364,6 +378,8 @@ export default function ProviderConfirmation() {
 											fieldArrayAppend={fieldArrayAppend}
 											fieldArrayInsert={fieldArrayInsert}
 											fieldArrayRemove={fieldArrayRemove}
+											pastQuote={quote}
+											users={users}
 											disabled={disabled}
 											role={role}
 										/>

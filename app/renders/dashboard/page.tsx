@@ -16,25 +16,25 @@ export default async function Dashboard() {
 		return null;
 	}
 
-	let result: {
-		success: boolean;
-		quoteInformations?: QuoteInformationWithQuotes[];
-	} | null = null;
-
+	const quoteInformation: QuoteInformationWithQuotes[] = [];
 	if (session.user.role === Role.PROVIDER) {
-		result = await getPendingProviderQuotes(session.user.phone);
-	} else {
-		result = await getPendingQuotes(
-			session.user.phone,
-			session.user.role as Role
-		);
+		const result = await getPendingProviderQuotes(session.user.phone);
+		if (!result.success) {
+			return null;
+		}
+		quoteInformation.push(...result.quoteInformations);
 	}
+
+	const result = await getPendingQuotes(
+		session.user.phone,
+		session.user.role as Role
+	);
 
 	if (!result.success) {
 		return null;
 	}
-	const quoteInformations =
-		result.quoteInformations as QuoteInformationWithQuotes[];
+
+	quoteInformation.push(...result.quoteInformations);
 
 	return (
 		<>
@@ -50,8 +50,9 @@ export default async function Dashboard() {
 					</Link>
 				</div>
 				<div className="flex flex-col items-center gap-4">
-					{quoteInformations.length > 0 &&
-						quoteInformations.map((quoteInformation) => (
+					{quoteInformation &&
+						quoteInformation.length > 0 &&
+						quoteInformation.map((quoteInformation) => (
 							<QuoteCard
 								role={session.user.role as Role}
 								key={quoteInformation.id}
@@ -59,7 +60,7 @@ export default async function Dashboard() {
 								link={`/renders/confirmation/${
 									quoteInformation.id
 								}${
-									quoteInformation.providerId
+									quoteInformation.providerContact
 										? ""
 										: "/provider"
 								}`}

@@ -17,8 +17,6 @@ datasource db {
 model QuoteInformation {
   id                    String    @id @default(uuid())
   company               String
-  approvalContact       String
-  requestContact        String
   estimatedDeliveryDate DateTime  @db.Date
   createdAt             DateTime  @default(now()) @db.Timestamp(6)
   updatedAt             DateTime  @default(now()) @updatedAt @db.Timestamp(6)
@@ -29,11 +27,17 @@ model QuoteInformation {
   serial                String
   stage                 Stage     @default(QUOTING)
   pdfUrl                String?
-  providerId            String?
 
-  quotes         Quote[]
+  approvalContact String
+  requestContact  String
+  providerContact String?
+
   ProviderQuotes ProviderQuotes[]
-  provider       User?            @relation(fields: [providerId], references: [id])
+  quotes         Quote[]
+
+  provider  User? @relation("QuoteInformationToProvider", fields: [providerContact], references: [phone])
+  approver  User  @relation("QuoteInformationToApprover", fields: [approvalContact], references: [phone], onDelete: Cascade)
+  requester User  @relation("QuoteInformationToRequester", fields: [requestContact], references: [phone], onDelete: Cascade)
 }
 
 enum Stage {
@@ -48,6 +52,10 @@ model Quote {
   rejectedAt    DateTime?
   comment       String?
   createdByRole Role
+  targetRole    Role
+
+  createdByPhone String
+  createdBy      User   @relation("QuoteCreatedBy", fields: [createdByPhone], references: [phone], onDelete: Cascade)
 
   quoteInformationId String
   quoteInformation   QuoteInformation @relation(fields: [quoteInformationId], references: [id], onDelete: Cascade)
@@ -126,17 +134,21 @@ model Session {
 }
 
 model User {
-  id               String             @id @default(cuid())
-  name             String
-  phone            String             @unique
-  email            String             @unique
-  image            String?
-  role             Role               @default(PETITIONER)
-  password         String
-  accounts         Account[]
-  sessions         Session[]
-  ProviderQuotes   ProviderQuotes[]
-  QuoteInformation QuoteInformation[]
+  id             String           @id @default(cuid())
+  name           String
+  phone          String           @unique
+  email          String           @unique
+  image          String?
+  role           Role             @default(PETITIONER)
+  password       String
+  accounts       Account[]
+  sessions       Session[]
+  ProviderQuotes ProviderQuotes[]
+
+  providedQuoteInformations  QuoteInformation[] @relation("QuoteInformationToProvider")
+  approvedQuoteInformations  QuoteInformation[] @relation("QuoteInformationToApprover")
+  requestedQuoteInformations QuoteInformation[] @relation("QuoteInformationToRequester")
+  quotesCreatedBy            Quote[]            @relation("QuoteCreatedBy")
 
   @@map("users")
 }

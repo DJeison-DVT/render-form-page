@@ -13,10 +13,10 @@ import {
 } from "@/lib/storage/database";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Quote, QuoteInformation, Role } from "@prisma/client";
-import { CheckCheck, Undo } from "lucide-react";
+import { CheckCheck, Redo, Undo } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 import CommentDialog from "@/app/components/CommentDialog";
@@ -37,6 +37,7 @@ export default function Confirmation() {
 	const [notFound, setNotFound] = useState(false);
 	const [registered, setRegistered] = useState(false);
 	const [quote, setQuote] = useState<Quote>();
+	const [users, setUsers] = useState<Record<string, string>>({});
 
 	const [quoteInformation, setQuoteInformation] =
 		useState<QuoteInformation>();
@@ -56,12 +57,14 @@ export default function Confirmation() {
 	});
 
 	const role = session?.user?.role;
+	const phone = session?.user?.phone;
 
 	const onSubmitUpdate = async (
 		values: z.infer<typeof RenderUploadSchema>,
-		accepted: boolean = false
+		accepted: boolean = false,
+		target: Role = Role.PETITIONER
 	) => {
-		if (!quote || !role || !id || Array.isArray(id)) {
+		if (!quote || !role || !phone || !id || Array.isArray(id)) {
 			return;
 		}
 
@@ -83,16 +86,21 @@ export default function Confirmation() {
 			for (const entry of values.entries) {
 				entry.unitaryFinalPrice = 0;
 			}
+
+			if (target === Role.PROVIDER) {
+				for (const entry of values.entries) {
+					entry.unitaryPrice = 0;
+				}
+			}
 		} else {
 			if (!checkAmountsNotZero()) {
 				return;
 			}
 		}
 
-		setDisabled(true);
 		if (form.formState.isValid) {
 			try {
-				await createQuote(id, values, quote.id);
+				await createQuote(id, values, target, phone, quote.id);
 				setRegistered(true);
 				form.reset();
 			} catch (error) {
@@ -110,7 +118,11 @@ export default function Confirmation() {
 	const handleUpload = async () => {
 		const result = RenderUploadSchema.safeParse(form.getValues());
 		if (result.success) {
-			await onSubmitUpdate(form.getValues());
+			if (role === Role.PETITIONER) {
+				await onSubmitUpdate(form.getValues(), false, Role.VALIDATOR);
+			} else {
+				await onSubmitUpdate(form.getValues());
+			}
 		}
 	};
 
@@ -123,6 +135,13 @@ export default function Confirmation() {
 			} else {
 				await onSubmitFinalize();
 			}
+		}
+	};
+
+	const handleRenegotiate = async () => {
+		const result = RenderUploadSchema.safeParse(form.getValues());
+		if (result.success) {
+			await onSubmitUpdate(form.getValues(), false, Role.PROVIDER);
 		}
 	};
 
@@ -175,7 +194,7 @@ export default function Confirmation() {
 		setDisabled(false);
 	};
 
-	const fetchQuoteInformation = async () => {
+	const fetchQuoteInformation = useCallback(async () => {
 		if (!id || typeof id !== "string") {
 			setNotFound(true);
 			setLoading(false);
@@ -207,7 +226,7 @@ export default function Confirmation() {
 				entries: response.quoteInformation.quotes[0]?.entries || [],
 			};
 
-			if (!quoteInformation.providerId) {
+			if (!quoteInformation.providerContact) {
 				setNotFound(true);
 				return;
 			}
@@ -217,7 +236,7 @@ export default function Confirmation() {
 				return;
 			}
 
-			if (quoteInformation.quote.createdByRole === role) {
+			if (quoteInformation.quote.targetRole !== role) {
 				setDisabled(true);
 			}
 
@@ -242,6 +261,21 @@ export default function Confirmation() {
 			};
 
 			form.reset(transformedData);
+			const users: Record<string, string> = {
+				[quoteInformation.approvalContact]:
+					quoteInformation.approver.name,
+				[quoteInformation.requestContact]:
+					quoteInformation.requester.name,
+
+				...(quoteInformation.provider?.name
+					? {
+							[quoteInformation.providerContact]:
+								quoteInformation.provider.name,
+					  }
+					: {}),
+			};
+
+			setUsers(users);
 			setQuoteInformation(quoteInformation);
 		} catch (error) {
 			const message =
@@ -256,11 +290,11 @@ export default function Confirmation() {
 		} finally {
 			setLoading(false);
 		}
-	};
+	}, [id, role, router, form, toast]);
 
 	useEffect(() => {
 		fetchQuoteInformation();
-	}, []);
+	}, [fetchQuoteInformation]);
 
 	const onApprovalContactChange = async () => {
 		fetchQuoteInformation();
@@ -304,10 +338,16 @@ export default function Confirmation() {
 												}
 											/>
 										</div>
-										<ChangeAprovalContact
-											quoteInformation={quoteInformation}
-											onChange={onApprovalContactChange}
-										/>
+										{role !== Role.PROVIDER && (
+											<ChangeAprovalContact
+												quoteInformation={
+													quoteInformation
+												}
+												onChange={
+													onApprovalContactChange
+												}
+											/>
+										)}
 									</>
 								)}
 							</div>
@@ -319,6 +359,8 @@ export default function Confirmation() {
 											fieldArrayAppend={fieldArrayAppend}
 											fieldArrayInsert={fieldArrayInsert}
 											fieldArrayRemove={fieldArrayRemove}
+											users={users}
+											pastQuote={quote}
 											disabled={disabled}
 											role={role as Role}
 										/>
@@ -327,13 +369,32 @@ export default function Confirmation() {
 							</div>
 							<div className="fixed bottom-4 right-4 flex justify-end gap-4">
 								<div className="flex gap-2">
-									{quote?.createdByRole !== role && (
+									{quote?.targetRole === role && (
 										<>
+											{role === Role.PETITIONER && (
+												<CommentDialog
+													form={form}
+													disabled={disabled}
+													upload={handleRenegotiate}
+													rejection
+												>
+													<div
+														className={`cursor-pointer bg-gray-800/90 text-white rounded-md hover:bg-gray-700/90 gap-2 p-1 px-2 transition flex justify-center items-center text-xl ${
+															form.formState
+																.isValid
+																? ""
+																: "opacity-50 pointer-events-none"
+														}`}
+													>
+														<Undo />
+														Renegociar
+													</div>
+												</CommentDialog>
+											)}
 											<CommentDialog
 												form={form}
 												disabled={disabled}
 												upload={handleUpload}
-												rejection
 											>
 												<div
 													className={`cursor-pointer bg-gray-800/90 text-white rounded-md hover:bg-gray-700/90 gap-2 p-1 px-2 transition flex justify-center items-center text-xl ${
@@ -342,25 +403,35 @@ export default function Confirmation() {
 															: "opacity-50 pointer-events-none"
 													}`}
 												>
-													<Undo />
-													{role === Role.VALIDATOR
-														? "Rechazar"
-														: "Actualizar"}
+													{role === Role.VALIDATOR ? (
+														<>
+															<Undo />
+															Rechazar
+														</>
+													) : (
+														<>
+															<Redo />
+															Actualizar
+														</>
+													)}
 												</div>
 											</CommentDialog>
-											<div
-												className={`cursor-pointer bg-gray-800/90 text-white rounded-md hover:bg-gray-700/90 gap-2 p-1 px-2 transition flex justify-center items-center text-xl ${
-													form.formState.isValid
-														? ""
-														: "opacity-50 pointer-events-none"
-												}`}
-												onClick={handleAccept}
-											>
-												<CheckCheck />
-												{role === Role.PETITIONER
-													? "Finalizar"
-													: "Aceptar"}
-											</div>
+											{(role === Role.VALIDATOR ||
+												role === Role.PETITIONER) && (
+												<div
+													className={`cursor-pointer bg-gray-800/90 text-white rounded-md hover:bg-gray-700/90 gap-2 p-1 px-2 transition flex justify-center items-center text-xl ${
+														form.formState.isValid
+															? ""
+															: "opacity-50 pointer-events-none"
+													}`}
+													onClick={handleAccept}
+												>
+													<CheckCheck />
+													{role === Role.PETITIONER
+														? "Finalizar"
+														: "Aceptar"}
+												</div>
+											)}
 										</>
 									)}
 								</div>
