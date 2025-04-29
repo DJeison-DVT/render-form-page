@@ -22,10 +22,10 @@ export default function QuoteInformationDisplay({
 		value: string;
 	}) => (
 		<>
-			<td className="border bg-slate-100 px-4 py-2 font-semibold">
+			<td className="border bg-slate-100 md:px-4 md:py-2 font-semibold">
 				{title}:
 			</td>
-			<td className="border px-4 py-2">{value}</td>
+			<td className="border md:px-4 md:py-2">{value}</td>
 		</>
 	);
 	const [provider, setProvider] = useState<User | null>(null);
@@ -52,70 +52,72 @@ export default function QuoteInformationDisplay({
 	const isPermitted = permittedRoles.includes(session?.user.role as Role);
 
 	return (
-		<div className="flex justify-around items-center flex-1 p-8">
-			<CompanyImage company={quoteInformation.company} />
-			<div>
-				<table className="table-auto border-collapse  w-full">
-					<tbody>
-						<tr>
-							<TableInformation
-								title="Fecha de entrega estimada"
-								value={new Date(
-									quoteInformation.estimatedDeliveryDate.getTime() +
-										sixHoursInMs
-								).toLocaleDateString()}
-							/>
-							{isPermitted && provider && (
+		<div className="lg:flex-row flex-col flex justify-around items-center flex-1 pl-4 pt-8 md:p-8 gap-4 lg:gap-0 text-sm md:text-base">
+			<div className="flex items-center justify-between w-full flex-1">
+				<CompanyImage company={quoteInformation.company} />
+				<div>
+					<table className="table-auto border-collapse  w-full">
+						<tbody>
+							<tr>
 								<TableInformation
-									title="Proveedor"
-									value={provider?.name}
+									title="Fecha de entrega estimada"
+									value={new Date(
+										quoteInformation.estimatedDeliveryDate.getTime() +
+											sixHoursInMs
+									).toLocaleDateString()}
 								/>
-							)}
-						</tr>
-						<tr>
-							<TableInformation
-								title="Fecha de la cotización"
-								value={quoteInformation.createdAt.toLocaleDateString()}
-							/>
-							<TableInformation
-								title="Número de solicitud"
-								value={formatMexicanPhoneNumber(
-									quoteInformation.requestContact
+								{isPermitted && provider && (
+									<TableInformation
+										title="Proveedor"
+										value={provider?.name}
+									/>
 								)}
-							/>
-							{session?.user?.role !== Role.PROVIDER && (
+							</tr>
+							<tr>
 								<TableInformation
-									title="Numero de aprobación"
+									title="Fecha de la cotización"
+									value={quoteInformation.createdAt.toLocaleDateString()}
+								/>
+								<TableInformation
+									title="Número de solicitud"
 									value={formatMexicanPhoneNumber(
-										quoteInformation.approvalContact
+										quoteInformation.requestContact
 									)}
 								/>
-							)}
-						</tr>
-						<tr>
-							<TableInformation
-								title="Cliente"
-								value={quoteInformation.client}
-							/>
-							<TableInformation
-								title="Proyecto"
-								value={quoteInformation.project}
-							/>
-						</tr>
-						<tr>
-							<TableInformation
-								title="Marca"
-								value={quoteInformation.brand}
-							/>
-							<TableInformation
-								title="Serial"
-								value={quoteInformation.serial}
-							/>
-						</tr>
-					</tbody>
-				</table>
+								{session?.user?.role !== Role.PROVIDER && (
+									<TableInformation
+										title="Numero de aprobación"
+										value={formatMexicanPhoneNumber(
+											quoteInformation.approvalContact
+										)}
+									/>
+								)}
+							</tr>
+							<tr>
+								<TableInformation
+									title="Cliente"
+									value={quoteInformation.client}
+								/>
+								<TableInformation
+									title="Proyecto"
+									value={quoteInformation.project}
+								/>
+							</tr>
+							<tr>
+								<TableInformation
+									title="Marca"
+									value={quoteInformation.brand}
+								/>
+								<TableInformation
+									title="Serial"
+									value={quoteInformation.serial}
+								/>
+							</tr>
+						</tbody>
+					</table>
+				</div>
 			</div>
-			<div className="flex flex-col items-center gap-4 justify-center">
+			<div className="flex flex-col items-center gap-2 md:gap-4 justify-center">
 				{pdfUrl && (
 					<a
 						href={pdfUrl}

@@ -40,8 +40,8 @@ export default function QuoteTable({
 	const BUCKET_URL = process.env.NEXT_PUBLIC_BUCKET_URL;
 
 	return (
-		<div className="flex justify-center h-full p-8">
-			<div className="space-y-4 max-w-screen-2xl flex-1">
+		<div className="flex justify-start h-full p-2 md:p-8 overflow-x-auto text-sm md:text-base">
+			<div className="min-w-max md:space-y-4">
 				<div className="flex justify-between items-center">
 					{quotes.length > 1 ? (
 						<>

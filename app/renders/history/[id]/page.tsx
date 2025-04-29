@@ -94,7 +94,7 @@ export default function Page() {
 	}
 
 	return (
-		<div className="flex flex-col w-full h-full">
+		<div className="flex flex-col w-screen h-screen overflow-auto">
 			<QuoteInformationDisplay
 				quoteInformation={quoteInformation as QuoteInformation}
 			/>
