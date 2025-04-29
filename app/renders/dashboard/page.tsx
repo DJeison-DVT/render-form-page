@@ -52,18 +52,16 @@ export default async function Dashboard({ searchParams }: DashboardPageProps) {
 	return (
 		<>
 			<div className="h-screen flex flex-col justify-start items-center overflow-y-auto ">
-				<div className="flex justify-between items-center w-full p-2 shadow-md mb-4 min-h-14">
-					<div>
-						<Searchbar
-							route="/renders/dashboard"
-							className="hidden lg:block ml-12"
-							initialQuery={query}
-						/>
-					</div>
-					<div className="text-xl lg:text-3xl">
+				<div className="w-full p-2 shadow-md mb-4 min-h-14 grid grid-cols-1 lg:grid-cols-3">
+					<Searchbar
+						route="/renders/dashboard"
+						className="hidden lg:block ml-12 lg:w-56 w-28"
+						initialQuery={query}
+					/>
+					<div className="flex justify-center items-center text-xl lg:text-3xl text-center">
 						Cotizaciones pendientes
 					</div>
-					<div>
+					<div className="flex justify-end items-center">
 						<Link
 							href="/renders/dashboard/history"
 							className="hidden lg:block"

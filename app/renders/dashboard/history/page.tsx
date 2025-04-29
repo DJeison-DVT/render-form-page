@@ -42,20 +42,22 @@ export default async function Dashboard({ searchParams }: DashboardPageProps) {
 
 	return (
 		<div className="h-screen flex flex-col justify-start items-center overflow-y-auto">
-			<div className="flex justify-between items-center w-full p-2 shadow-md mb-4">
-				<div>
-					<Searchbar
-						route="/renders/dashboard/history"
-						className="hidden lg:block ml-12"
-						initialQuery={query}
-					/>
+			<div className="w-full p-2 shadow-md mb-4 min-h-14 grid grid-cols-1 lg:grid-cols-3">
+				<Searchbar
+					route="/renders/dashboard/history"
+					className="hidden lg:block ml-12 lg:w-56 w-28"
+					initialQuery={query}
+				/>
+				<div className="flex justify-center items-center text-xl lg:text-3xl text-center">
+					Cotizaciones Completadas
 				</div>
-				<div className="text-3xl">Cotizaciones Completadas</div>
-				<Link href="/renders/dashboard">
-					<div className="hover:bg-slate-200 rounded-lg transition-colors duration-200 cursor-pointer p-2 flex items-center gap-2 text-lg font-semibold">
-						<MoveLeft size={32} /> Volver
-					</div>
-				</Link>
+				<div className="flex justify-end items-center">
+					<Link href="/renders/dashboard" className="hidden lg:block">
+						<div className="hover:bg-slate-200 rounded-lg transition-colors duration-200 cursor-pointer p-2 flex items-center gap-2 text-lg font-semibold">
+							<MoveLeft size={32} /> Volver
+						</div>
+					</Link>
+				</div>
 			</div>
 			<HistoryPagination
 				page={pagination.page}
