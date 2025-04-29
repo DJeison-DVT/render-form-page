@@ -7,16 +7,18 @@ import { Role } from "@prisma/client";
 import QuoteCard from "./components/QuoteCard";
 import { QuoteInformationWithQuotes } from "@/lib/types";
 import Link from "next/link";
-import { History, Search } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { headers } from "next/headers";
+import { History } from "lucide-react";
+import Searchbar from "./components/Searchbar";
 
-export default async function Dashboard({
-	searchParams,
-}: {
-	searchParams: { query?: string };
-}) {
-	const query = searchParams.query?.trim() ?? "";
+type DashboardPageProps = {
+	searchParams: Promise<{
+		query?: string;
+	}>;
+};
+
+export default async function Dashboard({ searchParams }: DashboardPageProps) {
+	const sp = await searchParams;
+	const query = sp.query?.trim() ?? "";
 	const session = await auth();
 
 	if (!session) {
@@ -52,21 +54,11 @@ export default async function Dashboard({
 			<div className="h-screen flex flex-col justify-start items-center overflow-y-auto ">
 				<div className="flex justify-between items-center w-full p-2 shadow-md mb-4 min-h-14">
 					<div>
-						<div className="hidden lg:block ml-12">
-							<form
-								action="/renders/dashboard"
-								method="get"
-								className="hidden lg:block ml-12"
-							>
-								<Input
-									name="query"
-									defaultValue={query}
-									icon={<Search size={16} />}
-									placeholder="Buscar…"
-									aria-label="Buscar"
-								/>
-							</form>
-						</div>
+						<Searchbar
+							route="/renders/dashboard"
+							className="hidden lg:block ml-12"
+							initialQuery={query}
+						/>
 					</div>
 					<div className="text-xl lg:text-3xl">
 						Cotizaciones pendientes

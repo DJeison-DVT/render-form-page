@@ -43,7 +43,8 @@ export default async function QuoteCard({
 							quoteInformation.estimatedDeliveryDate
 						)}
 					</div>
-					{quoteInformation.quotes.length > 0 &&
+					{quoteInformation.quotes &&
+						quoteInformation.quotes.length > 0 &&
 						(role === Role.PETITIONER ||
 							role === Role.VALIDATOR) && (
 							<>

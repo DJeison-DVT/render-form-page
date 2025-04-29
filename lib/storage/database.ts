@@ -6,7 +6,13 @@ import { QuoteInformation, Role } from "@prisma/client";
 import { z } from "zod";
 import { sendMessage } from "../messaging";
 import { savePDF, upsertImage } from "./gcloud";
-import { QuoteInformationWithQuotes } from "../types";
+import {
+	ProviderQuoteFilter,
+	QuoteInformationFilter,
+	QuoteInformationPendingFilter,
+	QuoteInformationWithQuotes,
+	RoleFilter,
+} from "../types";
 
 const MESSAGE_TEMPLATE = "HX92dca13fd40b55ff25d9e3ffa3e10429";
 const PROVIDER_SELECTED_TEMPLATE = "HX33c698bec0b2902e42812d47e5812666";
@@ -544,18 +550,19 @@ function getRoleFilter(userRole: string, phone: string) {
 
 async function getPendingQuotes(phone: string, userRole: Role, query: string) {
 	try {
-		const baseWhere: any = { finalizedAt: null };
-
-		if (userRole !== Role.SUPERVISOR) {
-			Object.assign(baseWhere, getRoleFilter(userRole, phone));
-		}
-
+		const where: QuoteInformationPendingFilter & RoleFilter = {
+			...getRoleFilter(userRole, phone),
+			finalizedAt: null,
+		};
 		if (query.trim()) {
-			baseWhere.serial = { contains: query.trim(), mode: "insensitive" };
+			where.serial = {
+				contains: query.trim(),
+				mode: "insensitive",
+			};
 		}
 
 		const quoteInformations = await prisma.quoteInformation.findMany({
-			where: baseWhere,
+			where,
 			include: {
 				provider: true,
 				approver: true,
@@ -597,9 +604,9 @@ async function getPendingProviderQuotes(phone: string, query: string) {
 			throw new Error("Usuario no encontrado");
 		}
 
-		const qiWhere: any = { providerContact: null };
+		const where: ProviderQuoteFilter = { providerContact: null };
 		if (query.trim()) {
-			qiWhere.serial = {
+			where.serial = {
 				contains: query.trim(),
 				mode: "insensitive",
 			};
@@ -608,7 +615,7 @@ async function getPendingProviderQuotes(phone: string, query: string) {
 		const providerQuotes = await prisma.providerQuotes.findMany({
 			where: {
 				userId: user.id,
-				quoteInformation: qiWhere,
+				quoteInformation: where,
 			},
 			include: {
 				quoteInformation: {
@@ -645,7 +652,11 @@ async function getPendingProviderQuotes(phone: string, query: string) {
 	}
 }
 
-async function getCompleteQuotes(phone: string) {
+async function getCompleteQuotes(
+	phone: string,
+	query: string,
+	page: number = 1
+) {
 	try {
 		const user = await prisma.user.findUnique({
 			where: {
@@ -657,27 +668,41 @@ async function getCompleteQuotes(phone: string) {
 			throw new Error("Usuario no encontrado");
 		}
 
-		const roleFilter = getRoleFilter(user.role, phone);
+		const where: QuoteInformationFilter & RoleFilter = {
+			...getRoleFilter(user.role, phone),
+			finalizedAt: { not: null },
+		};
+		if (query.trim()) {
+			where.serial = {
+				contains: query.trim(),
+				mode: "insensitive",
+			};
+		}
+
+		const total = await prisma.quoteInformation.count({ where });
+		const PAGE_SIZE = 16;
+		const skip = (page - 1) * PAGE_SIZE;
+		const totalPages = Math.ceil(total / PAGE_SIZE);
 
 		const quoteInformations = await prisma.quoteInformation.findMany({
-			where: {
-				finalizedAt: { not: null },
-				...roleFilter,
-			},
-			include: {
-				quotes: {
-					include: {
-						entries: true,
-					},
-					orderBy: {
-						createdAt: "desc",
-					},
-					take: 1,
-				},
+			where,
+			skip,
+			take: PAGE_SIZE,
+			orderBy: {
+				createdAt: "desc",
 			},
 		});
 
-		return { success: true, quoteInformations };
+		return {
+			success: true,
+			quoteInformations,
+			pagination: {
+				page,
+				pageSize: PAGE_SIZE,
+				total,
+				totalPages,
+			},
+		};
 	} catch (error) {
 		console.error("Error in getCompleteQuotes:", error);
 		throw new Error("Error al obtener las cotizaciones");

@@ -25,3 +25,25 @@ export type QuoteWithEntries = Prisma.QuoteGetPayload<{
 		entries: true;
 	};
 }>;
+
+export interface QuoteInformationFilter {
+	finalizedAt: { not: null };
+	serial?: ContainsFilter;
+}
+
+export interface QuoteInformationPendingFilter {
+	finalizedAt: null;
+	serial?: ContainsFilter;
+}
+
+export interface ProviderQuoteFilter {
+	providerContact: null;
+	serial?: ContainsFilter;
+}
+
+export interface ContainsFilter {
+	contains: string;
+	mode: "insensitive";
+}
+
+export type RoleFilter = Record<string, unknown>;
