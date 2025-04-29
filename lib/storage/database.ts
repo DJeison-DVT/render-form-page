@@ -680,7 +680,7 @@ async function getCompleteQuotes(
 		}
 
 		const total = await prisma.quoteInformation.count({ where });
-		const PAGE_SIZE = 16;
+		const PAGE_SIZE = 5;
 		const skip = (page - 1) * PAGE_SIZE;
 		const totalPages = Math.ceil(total / PAGE_SIZE);
 

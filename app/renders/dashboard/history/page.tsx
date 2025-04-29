@@ -5,6 +5,7 @@ import { QuoteInformationWithQuotes } from "@/lib/types";
 import { MoveLeft } from "lucide-react";
 import Link from "next/link";
 import Searchbar from "../components/Searchbar";
+import HistoryPagination from "../components/HistoryPagination";
 
 type DashboardPageProps = {
 	searchParams: Promise<{
@@ -28,7 +29,7 @@ export default async function Dashboard({ searchParams }: DashboardPageProps) {
 		return null;
 	}
 
-	const { success, quoteInformations } = await getCompleteQuotes(
+	const { success, quoteInformations, pagination } = await getCompleteQuotes(
 		session.user.phone,
 		query,
 		page
@@ -44,7 +45,7 @@ export default async function Dashboard({ searchParams }: DashboardPageProps) {
 			<div className="flex justify-between items-center w-full p-2 shadow-md mb-4">
 				<div>
 					<Searchbar
-						route="/renders/dashboard"
+						route="/renders/dashboard/history"
 						className="hidden lg:block ml-12"
 						initialQuery={query}
 					/>
@@ -56,6 +57,11 @@ export default async function Dashboard({ searchParams }: DashboardPageProps) {
 					</div>
 				</Link>
 			</div>
+			<HistoryPagination
+				page={pagination.page}
+				totalPages={pagination.totalPages}
+				query={query}
+			/>
 			<div className="flex flex-col items-center gap-4">
 				{qIs.length > 0 &&
 					qIs.map((qi) => (
