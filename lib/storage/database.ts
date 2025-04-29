@@ -542,49 +542,34 @@ function getRoleFilter(userRole: string, phone: string) {
 	}
 }
 
-async function getPendingQuotes(phone: string, userRole: Role) {
+async function getPendingQuotes(phone: string, userRole: Role, query: string) {
 	try {
-		let quoteInformations;
+		const baseWhere: any = { finalizedAt: null };
 
-		if (userRole === Role.SUPERVISOR) {
-			quoteInformations = await prisma.quoteInformation.findMany({
-				where: { finalizedAt: null },
-				include: {
-					quotes: {
-						include: { entries: true },
-						orderBy: { createdAt: "desc" },
-						take: 1,
-					},
-				},
-			});
-		} else {
-			const roleFilter = getRoleFilter(userRole, phone);
-			quoteInformations = await prisma.quoteInformation.findMany({
-				where: {
-					finalizedAt: null,
-					...roleFilter,
-				},
-				include: {
-					provider: true,
-					approver: true,
-					requester: true,
-					quotes: {
-						orderBy: {
-							createdAt: "desc",
-						},
-						take: 1,
-						include: {
-							entries: true,
-						},
-					},
-				},
-			});
+		if (userRole !== Role.SUPERVISOR) {
+			Object.assign(baseWhere, getRoleFilter(userRole, phone));
 		}
 
+		if (query.trim()) {
+			baseWhere.serial = { contains: query.trim(), mode: "insensitive" };
+		}
+
+		const quoteInformations = await prisma.quoteInformation.findMany({
+			where: baseWhere,
+			include: {
+				provider: true,
+				approver: true,
+				requester: true,
+				quotes: {
+					orderBy: { createdAt: "desc" },
+					take: 1,
+					include: { entries: true },
+				},
+			},
+		});
+
 		const filteredQuotes = quoteInformations.filter(
-			(quoteInformation) =>
-				quoteInformation.quotes.length > 0 &&
-				quoteInformation.quotes[0].targetRole === userRole
+			(qi) => qi.quotes.length > 0 && qi.quotes[0].targetRole === userRole
 		);
 
 		return {
@@ -597,7 +582,7 @@ async function getPendingQuotes(phone: string, userRole: Role) {
 	}
 }
 
-async function getPendingProviderQuotes(phone: string) {
+async function getPendingProviderQuotes(phone: string, query: string) {
 	try {
 		const user = await prisma.user.findUnique({
 			where: {
@@ -612,12 +597,18 @@ async function getPendingProviderQuotes(phone: string) {
 			throw new Error("Usuario no encontrado");
 		}
 
+		const qiWhere: any = { providerContact: null };
+		if (query.trim()) {
+			qiWhere.serial = {
+				contains: query.trim(),
+				mode: "insensitive",
+			};
+		}
+
 		const providerQuotes = await prisma.providerQuotes.findMany({
 			where: {
 				userId: user.id,
-				quoteInformation: {
-					providerContact: null,
-				},
+				quoteInformation: qiWhere,
 			},
 			include: {
 				quoteInformation: {
@@ -639,16 +630,14 @@ async function getPendingProviderQuotes(phone: string) {
 			},
 		});
 
-		const filteredQuotes = providerQuotes.filter(
-			(providerQuotes) =>
-				providerQuotes.quoteInformation.quotes.length === 0 ||
-				providerQuotes.quoteInformation.quotes[0].targetRole ===
-					Role.PROVIDER
-		);
+		const filtered = providerQuotes.filter((pq) => {
+			const qArr = pq.quoteInformation.quotes;
+			return qArr.length === 0 || qArr[0].targetRole === Role.PROVIDER;
+		});
 
 		return {
 			success: true,
-			quoteInformations: filteredQuotes.map((pq) => pq.quoteInformation),
+			quoteInformations: filtered.map((pq) => pq.quoteInformation),
 		};
 	} catch (error) {
 		console.error("Error in getPendingProviderQuotes:", error);

@@ -7,9 +7,16 @@ import { Role } from "@prisma/client";
 import QuoteCard from "./components/QuoteCard";
 import { QuoteInformationWithQuotes } from "@/lib/types";
 import Link from "next/link";
-import { History } from "lucide-react";
+import { History, Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { headers } from "next/headers";
 
-export default async function Dashboard() {
+export default async function Dashboard({
+	searchParams,
+}: {
+	searchParams: { query?: string };
+}) {
+	const query = searchParams.query?.trim() ?? "";
 	const session = await auth();
 
 	if (!session) {
@@ -18,7 +25,10 @@ export default async function Dashboard() {
 
 	const quoteInformation: QuoteInformationWithQuotes[] = [];
 	if (session.user.role === Role.PROVIDER) {
-		const result = await getPendingProviderQuotes(session.user.phone);
+		const result = await getPendingProviderQuotes(
+			session.user.phone,
+			query
+		);
 		if (!result.success) {
 			return null;
 		}
@@ -27,7 +37,8 @@ export default async function Dashboard() {
 
 	const result = await getPendingQuotes(
 		session.user.phone,
-		session.user.role as Role
+		session.user.role as Role,
+		query
 	);
 
 	if (!result.success) {
@@ -40,7 +51,23 @@ export default async function Dashboard() {
 		<>
 			<div className="h-screen flex flex-col justify-start items-center overflow-y-auto ">
 				<div className="flex justify-between items-center w-full p-2 shadow-md mb-4 min-h-14">
-					<div></div>
+					<div>
+						<div className="hidden lg:block ml-12">
+							<form
+								action="/renders/dashboard"
+								method="get"
+								className="hidden lg:block ml-12"
+							>
+								<Input
+									name="query"
+									defaultValue={query}
+									icon={<Search size={16} />}
+									placeholder="Buscar…"
+									aria-label="Buscar"
+								/>
+							</form>
+						</div>
+					</div>
 					<div className="text-xl lg:text-3xl">
 						Cotizaciones pendientes
 					</div>
