@@ -19,6 +19,11 @@ export default async function QuoteCard({
 		? { total: 0, providerMade: 0 }
 		: await getQuoteProvidersCount(quoteInformation.id);
 
+	// const duplicate = async () => {
+	// 	"use server";
+
+	// 	await cloneQuoteInformationWithRelations(quoteInformation.id);
+	// };
 	return (
 		<Link key={quoteInformation.id} href={link}>
 			<div className="flex flex-col lg:flex-row justify-between items-center p-4 lg:w-[900px] w-80 border-2 rounded-md border-gray-300 text-lg">
@@ -67,6 +72,11 @@ export default async function QuoteCard({
 			</div>
 		</Link>
 	);
+}
+{
+	/* <form action={duplicate}>
+	<button>Clone Quote</button>
+</form> */
 }
 
 function formatDateString(date: Date): string {

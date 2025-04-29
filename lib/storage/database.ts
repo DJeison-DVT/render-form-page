@@ -727,6 +727,88 @@ const getUserByPhone = async (phone: string) => {
 	return user;
 };
 
+// async function cloneQuoteInformationWithRelations(
+// 	originalId: string,
+// 	copies = 20
+// ) {
+// 	// 1) Load the “master” record (with its most recent quote + entries)
+// 	const master = await prisma.quoteInformation.findUnique({
+// 		where: { id: originalId },
+// 		include: {
+// 			quotes: {
+// 				orderBy: { createdAt: "desc" },
+// 				take: 1,
+// 				include: { entries: true },
+// 			},
+// 		},
+// 	});
+// 	if (!master) {
+// 		throw new Error(`QuoteInformation ${originalId} not found`);
+// 	}
+
+// 	const clones: QuoteInformation[] = [];
+
+// 	// 2) For each copy, spin up a transaction to create the clone + its quote+entries
+// 	for (let i = 1; i <= copies; i++) {
+// 		await prisma.$transaction(async (tx) => {
+// 			// Clone the QuoteInformation (new UUID auto-generated)
+// 			const qi = await tx.quoteInformation.create({
+// 				data: {
+// 					company: master.company,
+// 					estimatedDeliveryDate: master.estimatedDeliveryDate,
+// 					client: master.client,
+// 					brand: master.brand,
+// 					project: master.project,
+// 					// append suffix so “serial” stays unique
+// 					serial: `${master.serial}-${i}`,
+// 					stage: master.stage,
+// 					pdfUrl: master.pdfUrl,
+// 					approvalContact: master.approvalContact,
+// 					requestContact: master.requestContact,
+// 					providerContact: master.providerContact,
+// 					finalizedAt: master.finalizedAt,
+// 				},
+// 			});
+// 			clones.push(qi);
+
+// 			// If there was a latest quote, clone that too
+// 			const [origQuote] = master.quotes;
+// 			if (origQuote) {
+// 				const newQuote = await tx.quote.create({
+// 					data: {
+// 						comment: origQuote.comment,
+// 						createdByRole: origQuote.createdByRole,
+// 						targetRole: origQuote.targetRole,
+// 						createdByPhone: origQuote.createdByPhone,
+// 						quoteInformationId: qi.id,
+// 					},
+// 				});
+
+// 				// And clone its entries
+// 				for (const e of origQuote.entries) {
+// 					await tx.entry.create({
+// 						data: {
+// 							name: e.name,
+// 							imageUrl: e.imageUrl,
+// 							material: e.material,
+// 							materialSubtype: e.materialSubtype,
+// 							sizes: e.sizes,
+// 							concept: e.concept,
+// 							range: e.range,
+// 							unitaryCost: e.unitaryCost,
+// 							unitaryPrice: e.unitaryPrice,
+// 							unitaryFinalPrice: e.unitaryFinalPrice,
+// 							quoteId: newQuote.id,
+// 						},
+// 					});
+// 				}
+// 			}
+// 		});
+// 	}
+
+// 	return clones;
+// }
+
 export {
 	createQuoteInformation,
 	getQuoteInformation,
@@ -743,4 +825,5 @@ export {
 	getPendingProviderQuotes,
 	getUserByPhone,
 	updateValidator,
+	// cloneQuoteInformationWithRelations,
 };

@@ -24,6 +24,10 @@ export default async function Dashboard({ searchParams }: DashboardPageProps) {
 		return null;
 	}
 
+	if (session.user.role === "PROVIDER") {
+		return null;
+	}
+
 	const { success, quoteInformations } = await getCompleteQuotes(
 		session.user.phone,
 		query,
