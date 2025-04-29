@@ -117,7 +117,7 @@ export default function QuoteInformationDisplay({
 					</table>
 				</div>
 			</div>
-			<div className="flex flex-col items-center gap-2 md:gap-4 justify-center">
+			<div className="flex flex-col items-center gap-2 md:gap-4 justify-center p-2">
 				{pdfUrl && (
 					<a
 						href={pdfUrl}
