@@ -1,4 +1,5 @@
 import CompanyImage from "@/app/components/CompanyImage";
+import { getQuoteProvidersCount } from "@/lib/storage/database";
 import { QuoteInformationWithQuotes } from "@/lib/types";
 import { Role } from "@prisma/client";
 import Link from "next/link";
@@ -9,11 +10,15 @@ interface QuoteCardProps {
 	link: string;
 }
 
-export default function QuoteCard({
+export default async function QuoteCard({
 	role,
 	quoteInformation,
 	link,
 }: QuoteCardProps) {
+	const { total, providerMade } = quoteInformation.providerContact
+		? { total: 0, providerMade: 0 }
+		: await getQuoteProvidersCount(quoteInformation.id);
+
 	return (
 		<Link key={quoteInformation.id} href={link}>
 			<div className="flex flex-col lg:flex-row justify-between items-center p-4 lg:w-[900px] w-80 border-2 rounded-md border-gray-300 text-lg">
@@ -28,25 +33,32 @@ export default function QuoteCard({
 					</div>
 				</div>
 				<div className="flex flex-col items-center text-center lg:text-end lg:items-end justify-center">
+					<div>
+						Fecha de Comienzo:{" "}
+						{formatDateString(quoteInformation.createdAt)}
+					</div>
+					<div>
+						Fecha de Entrega:{" "}
+						{formatDateString(
+							quoteInformation.estimatedDeliveryDate
+						)}
+					</div>
 					{quoteInformation.quotes.length > 0 &&
 						(role === Role.PETITIONER ||
 							role === Role.VALIDATOR) && (
 							<>
-								<div>
-									Fecha de Comienzo:{" "}
-									{formatDateString(
-										quoteInformation.createdAt
-									)}
-								</div>
 								{quoteInformation.providerContact ? (
 									<div>
-										Fecha de Actualizacion:{" "}
+										Último cambio:{" "}
 										{formatDateString(
 											quoteInformation.quotes[0].createdAt
 										)}
 									</div>
 								) : (
-									<div>Sin Proveedor Asignado</div>
+									<div>
+										Cotizaciones de proveedores:{" "}
+										{providerMade} de {total}
+									</div>
 								)}
 							</>
 						)}

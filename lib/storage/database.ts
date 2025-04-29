@@ -331,6 +331,33 @@ async function getQuoteProviders(id: string) {
 	}
 }
 
+async function getQuoteProvidersCount(id: string) {
+	const total = await prisma.quoteInformation.findUnique({
+		where: { id },
+		include: {
+			ProviderQuotes: {
+				include: { quote: true },
+			},
+			_count: {
+				select: { ProviderQuotes: true },
+			},
+		},
+	});
+
+	const providerMade = await prisma.quote.count({
+		where: {
+			quoteInformationId: id,
+			createdByRole: "PROVIDER",
+			rejectedAt: null,
+		},
+	});
+
+	return {
+		total: total?._count.ProviderQuotes || 0,
+		providerMade,
+	};
+}
+
 async function createProviderQuote(
 	quoteInfoId: string,
 	providerId: string,
@@ -698,6 +725,7 @@ export {
 	getQuoteProviders,
 	createProviderQuote,
 	saveProvider,
+	getQuoteProvidersCount,
 	getPendingProviderQuotes,
 	getUserByPhone,
 	updateValidator,
