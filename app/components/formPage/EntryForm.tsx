@@ -117,10 +117,13 @@ function EntryForm({
 		: "";
 
 	const content = (
-		<div className="p-0 mt-4 lg:mt-0 lg:p-4 flex justify-center items-start h-[80vh] lg:h-[60vh] flex-col">
+		<div className="p-0 mt-4 m-0 lg:m-4 lg:mt-0 lg:p-4 flex justify-center items-start h-[80vh] lg:h-[60vh] flex-col">
 			{pastQuote?.comment && (
-				<div className="text-lg">
-					{sender}: {pastQuote?.comment}
+				<div>
+					<div className="text-xl font-bold">Comentario</div>
+					<div className="text-lg">
+						{sender}: {pastQuote?.comment}
+					</div>
 				</div>
 			)}
 			{!BUCKET_URL && (
@@ -149,7 +152,10 @@ function EntryForm({
 			</div>
 			<div className="overflow-y-scroll h-full w-screen md:w-full md:flex-grow">
 				{form.getValues().entries.map((entry, index) => (
-					<div key={index} className="p-2 flex gap-4 relative">
+					<div
+						key={index}
+						className="p-2 flex gap-4 relative justify-center"
+					>
 						<FormField
 							control={form.control}
 							name={`entries.${index}.image`}

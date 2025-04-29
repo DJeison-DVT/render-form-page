@@ -376,7 +376,7 @@ export default function Confirmation() {
 													rejection
 												>
 													<div
-														className={`cursor-pointer bg-gray-800/90 text-white rounded-md hover:bg-gray-700/90 gap-2 p-1 px-2 transition flex justify-center items-center text-xl ${
+														className={`cursor-pointer bg-gray-800/90 text-white rounded-md hover:bg-gray-700/90 gap-2 p-1 px-2 transition flex justify-center items-center lg:text-xl md:text-lg text-sm ${
 															form.formState
 																.isValid
 																? ""
@@ -394,7 +394,7 @@ export default function Confirmation() {
 												upload={handleUpload}
 											>
 												<div
-													className={`cursor-pointer bg-gray-800/90 text-white rounded-md hover:bg-gray-700/90 gap-2 p-1 px-2 transition flex justify-center items-center text-xl ${
+													className={`cursor-pointer bg-gray-800/90 text-white rounded-md hover:bg-gray-700/90 gap-2 p-1 px-2 transition flex justify-center items-center lg:text-xl md:text-lg text-sm ${
 														form.formState.isValid
 															? ""
 															: "opacity-50 pointer-events-none"
@@ -416,7 +416,7 @@ export default function Confirmation() {
 											{(role === Role.VALIDATOR ||
 												role === Role.PETITIONER) && (
 												<div
-													className={`cursor-pointer bg-gray-800/90 text-white rounded-md hover:bg-gray-700/90 gap-2 p-1 px-2 transition flex justify-center items-center text-xl ${
+													className={`cursor-pointer bg-gray-800/90 text-white rounded-md hover:bg-gray-700/90 gap-2 p-1 px-2 transition flex justify-center items-center lg:text-xl md:text-lg text-sm ${
 														form.formState.isValid
 															? ""
 															: "opacity-50 pointer-events-none"

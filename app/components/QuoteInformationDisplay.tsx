@@ -116,7 +116,7 @@ export default function QuoteInformationDisplay({
 				</table>
 			</div>
 			<div className="flex flex-col items-center gap-4 justify-center">
-				{pdfUrl && !quoteInformation.providerContact && (
+				{pdfUrl && (
 					<a
 						href={pdfUrl}
 						target="_blank"
