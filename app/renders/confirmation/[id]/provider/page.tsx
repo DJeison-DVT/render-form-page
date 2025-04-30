@@ -244,7 +244,10 @@ export default function ProviderConfirmation() {
 				setProviderIds(providerIds);
 				setProvider(providers[0]);
 
-				if (!hasQuotes && role === Role.PETITIONER) {
+				if (
+					(!hasQuotes && role === Role.PETITIONER) ||
+					(!hasQuotes && role === Role.SUPERVISOR)
+				) {
 					setNotFound(true);
 				}
 

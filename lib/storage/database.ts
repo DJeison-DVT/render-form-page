@@ -545,6 +545,8 @@ function getRoleFilter(userRole: string, phone: string) {
 
 		case "PROVIDER":
 			return { providerContact: phone };
+		case "SUPERVISOR":
+			return {};
 	}
 }
 
@@ -575,9 +577,14 @@ async function getPendingQuotes(phone: string, userRole: Role, query: string) {
 			},
 		});
 
-		const filteredQuotes = quoteInformations.filter(
-			(qi) => qi.quotes.length > 0 && qi.quotes[0].targetRole === userRole
-		);
+		const filteredQuotes =
+			userRole === "SUPERVISOR"
+				? quoteInformations.filter((qi) => qi.quotes.length > 0)
+				: quoteInformations.filter(
+						(qi) =>
+							qi.quotes.length > 0 &&
+							qi.quotes[0].targetRole === userRole
+				  );
 
 		return {
 			success: true,
