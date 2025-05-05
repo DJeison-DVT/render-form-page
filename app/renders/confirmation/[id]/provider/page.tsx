@@ -345,7 +345,7 @@ export default function ProviderConfirmation() {
 			) : (
 				<div className="h-screen overflow-y-hidden p-4">
 					<div className="m-2 flex justify-end">
-						{providers && Object.keys(providers).length > 1 && (
+						{providers && Object.keys(providers).length >= 1 && (
 							<Select
 								value={provider}
 								onValueChange={setProvider}

@@ -53,7 +53,7 @@ export default function QuoteInformationDisplay({
 
 	return (
 		<div className="lg:flex-row flex-col flex justify-around items-center flex-1 pl-4 pt-8 md:p-8 gap-4 lg:gap-0 text-sm md:text-base">
-			<div className="flex items-center justify-between w-full flex-1">
+			<div className="flex items-center justify-around w-full flex-1">
 				<CompanyImage company={quoteInformation.company} />
 				<div>
 					<table className="table-auto border-collapse  w-full">

@@ -142,13 +142,18 @@ async function getQuoteInformation(id: string, single = false) {
 	}
 }
 
+type CreateQuoteOptions = {
+	rejectedQuoteId?: number;
+	link?: string;
+	providerPhone?: string;
+};
+
 async function createQuote(
 	quoteInfoId: string,
 	data: z.infer<typeof RenderUploadSchema>,
 	target: Role,
 	senderPhone: string,
-	rejectedQuoteId?: number,
-	link?: string
+	options: CreateQuoteOptions = {}
 ) {
 	const parsedData = RenderUploadSchema.safeParse(data);
 
@@ -191,9 +196,9 @@ async function createQuote(
 		}
 
 		const { newQuote } = await prisma.$transaction(async (transaction) => {
-			if (rejectedQuoteId) {
+			if (options.rejectedQuoteId) {
 				await transaction.quote.update({
-					where: { id: rejectedQuoteId },
+					where: { id: options.rejectedQuoteId },
 					data: { rejectedAt: new Date() },
 				});
 			}
@@ -234,7 +239,8 @@ async function createQuote(
 		} else if (target === Role.VALIDATOR) {
 			targetPhone = quoteInformation.approver.phone;
 		} else if (target === Role.PROVIDER) {
-			targetPhone = quoteInformation.provider?.phone || "";
+			targetPhone =
+				quoteInformation.provider?.phone || options.providerPhone || "";
 		} else {
 			throw new Error("Rol no válido para enviar mensaje");
 		}
@@ -242,8 +248,8 @@ async function createQuote(
 		await sendMessage(targetPhone, MESSAGE_TEMPLATE, {
 			1: data.serial,
 			2: data.project,
-			3: link
-				? link
+			3: options.link
+				? options.link
 				: `${NEXTAUTH_URL}/renders/confirmation/${quoteInfoId}`,
 		});
 
@@ -392,8 +398,11 @@ async function createProviderQuote(
 			data.createdByRole === Role.PROVIDER
 				? user.phone
 				: data.requestContact,
-			options?.rejectedQuoteId,
-			`${NEXTAUTH_URL}/renders/confirmation/${quoteInfoId}/provider`
+			{
+				rejectedQuoteId: options?.rejectedQuoteId,
+				link: `${NEXTAUTH_URL}/renders/confirmation/${quoteInfoId}/provider`,
+				providerPhone: user.phone,
+			}
 		);
 
 		const quote = result.quote;
@@ -477,8 +486,10 @@ async function saveProvider(
 			data,
 			Role.VALIDATOR,
 			data.requestContact,
-			options?.rejectedQuoteId,
-			`${NEXTAUTH_URL}/renders/confirmation/${quoteInfoId}`
+			{
+				rejectedQuoteId: options?.rejectedQuoteId,
+				link: `${NEXTAUTH_URL}/renders/confirmation/${quoteInfoId}/provider`,
+			}
 		);
 
 		await prisma.quoteInformation.update({

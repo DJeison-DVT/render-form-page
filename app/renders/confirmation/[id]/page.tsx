@@ -100,7 +100,9 @@ export default function Confirmation() {
 
 		if (form.formState.isValid) {
 			try {
-				await createQuote(id, values, target, phone, quote.id);
+				await createQuote(id, values, target, phone, {
+					rejectedQuoteId: quote.id,
+				});
 				setRegistered(true);
 				form.reset();
 			} catch (error) {
