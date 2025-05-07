@@ -4,8 +4,9 @@ import { formatMexicanPhoneNumber } from "@/lib/utils";
 import { getUserByPhone } from "@/lib/storage/database";
 import { useEffect, useState } from "react";
 import { buildImageURL } from "@/lib/serverUtils";
-import { FileDown, FileSearch } from "lucide-react";
+import { FileSearch } from "lucide-react";
 import { useSession } from "next-auth/react";
+import { GenerateQuote } from "./GenerateQuote";
 
 const sixHoursInMs = 6 * 60 * 60 * 1000;
 
@@ -48,7 +49,11 @@ export default function QuoteInformationDisplay({
 		}
 	}, [quoteInformation.providerContact, quoteInformation.pdfUrl]);
 
-	const permittedRoles: Role[] = [Role.PETITIONER, Role.SUPERVISOR];
+	const permittedRoles: Role[] = [
+		Role.PETITIONER,
+		Role.SUPERVISOR,
+		Role.SUPERVISOR,
+	];
 	const isPermitted = permittedRoles.includes(session?.user.role as Role);
 
 	return (
@@ -130,20 +135,14 @@ export default function QuoteInformationDisplay({
 					</a>
 				)}
 				{isPermitted && quoteInformation.finalizedAt && (
-					<>
-						<div
-							onClick={() =>
-								window.open(
-									`/api/generate-quote?quoteId=${quoteInformation.id}`,
-									"_blank"
-								)
-							}
-							className="flex items-center justify-center gap-2 bg-slate-400 text-white p-2 rounded-md cursor-pointer"
-						>
-							<FileDown size={32} />
-							Cotización
-						</div>
-					</>
+					<GenerateQuote
+						quoteURL={`/api/generate-quote?quoteId=${quoteInformation.id}`}
+					/>
+				)}
+				{!isPermitted && quoteInformation.providerContact && (
+					<GenerateQuote
+						quoteURL={`/api/generate-quote?quoteId=${quoteInformation.id}&provider=true`}
+					/>
 				)}
 			</div>
 		</div>

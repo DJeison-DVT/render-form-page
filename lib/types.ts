@@ -27,7 +27,7 @@ export type QuoteWithEntries = Prisma.QuoteGetPayload<{
 }>;
 
 export interface QuoteInformationFilter {
-	finalizedAt: { not: null };
+	finalizedAt?: { not: null };
 	serial?: ContainsFilter;
 }
 

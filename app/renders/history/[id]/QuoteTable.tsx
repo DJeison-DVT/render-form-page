@@ -13,6 +13,8 @@ import {
 import { QuoteInformationWithQuotes, RoleTranslations } from "@/lib/types";
 import ZoomableImage from "@/app/components/ZoomableImage";
 import { CalendarArrowUp, UserRoundPen } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { Role } from "@prisma/client";
 
 export default function QuoteTable({
 	quoteInformation,
@@ -21,10 +23,13 @@ export default function QuoteTable({
 	quoteInformation: QuoteInformationWithQuotes;
 	users: Record<string, string>;
 }) {
+	const { data: session } = useSession();
 	const [currentQuoteIndex, setCurrentQuoteIndex] = useState(0);
 
 	const quotes = quoteInformation.quotes;
 	const currentQuote = quotes[currentQuoteIndex];
+
+	const role = session?.user.role;
 
 	// Function to cycle quotes
 	const handleNextQuote = () => {
@@ -41,7 +46,7 @@ export default function QuoteTable({
 
 	return (
 		<div className="flex justify-start h-full p-2 md:p-8 overflow-x-auto text-sm md:text-base">
-			<div className="min-w-max md:space-y-4">
+			<div className="min-w-max md:space-y-4 mx-auto">
 				<div className="flex justify-between items-center">
 					{quotes.length > 1 ? (
 						<>
@@ -96,9 +101,15 @@ export default function QuoteTable({
 							<TableHead>Tamaños</TableHead>
 							<TableHead>Concepto</TableHead>
 							<TableHead>Cantidad</TableHead>
-							<TableHead>Precio Unitario</TableHead>
-							<TableHead>Precio DeMente</TableHead>
-							<TableHead>Precio Final</TableHead>
+							{role !== Role.VALIDATOR && (
+								<TableHead>Precio Unitario</TableHead>
+							)}
+							{role !== Role.PROVIDER && (
+								<>
+									<TableHead>Precio DeMente</TableHead>
+									<TableHead>Precio Final</TableHead>
+								</>
+							)}
 						</TableRow>
 					</TableHeader>
 					<TableBody>
@@ -119,23 +130,33 @@ export default function QuoteTable({
 								<TableCell>{entry.sizes}</TableCell>
 								<TableCell>{entry.concept}</TableCell>
 								<TableCell>{entry.range}</TableCell>
-								<TableCell>
-									{entry.unitaryCost !== null
-										? formatCurrencyMXN(entry.unitaryCost)
-										: "N/A"}
-								</TableCell>
-								<TableCell>
-									{entry.unitaryPrice !== null
-										? formatCurrencyMXN(entry.unitaryPrice)
-										: "N/A"}
-								</TableCell>
-								<TableCell>
-									{entry.unitaryFinalPrice !== null
-										? formatCurrencyMXN(
-												entry.unitaryFinalPrice
-										  )
-										: "N/A"}
-								</TableCell>
+								{role !== Role.VALIDATOR && (
+									<TableCell>
+										{entry.unitaryCost !== null
+											? formatCurrencyMXN(
+													entry.unitaryCost
+											  )
+											: "N/A"}
+									</TableCell>
+								)}
+								{role !== Role.PROVIDER && (
+									<>
+										<TableCell>
+											{entry.unitaryPrice !== null
+												? formatCurrencyMXN(
+														entry.unitaryPrice
+												  )
+												: "N/A"}
+										</TableCell>
+										<TableCell>
+											{entry.unitaryFinalPrice !== null
+												? formatCurrencyMXN(
+														entry.unitaryFinalPrice
+												  )
+												: "N/A"}
+										</TableCell>
+									</>
+								)}
 							</TableRow>
 						))}
 					</TableBody>

@@ -673,7 +673,8 @@ async function getPendingProviderQuotes(phone: string, query: string) {
 async function getCompleteQuotes(
 	phone: string,
 	query: string,
-	page: number = 1
+	page: number = 1,
+	role: Role
 ) {
 	try {
 		const user = await prisma.user.findUnique({
@@ -688,13 +689,15 @@ async function getCompleteQuotes(
 
 		const where: QuoteInformationFilter & RoleFilter = {
 			...getRoleFilter(user.role, phone),
-			finalizedAt: { not: null },
 		};
 		if (query.trim()) {
 			where.serial = {
 				contains: query.trim(),
 				mode: "insensitive",
 			};
+		}
+		if (role !== Role.PROVIDER) {
+			where.finalizedAt = { not: null };
 		}
 
 		const total = await prisma.quoteInformation.count({ where });

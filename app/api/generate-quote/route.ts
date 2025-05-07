@@ -59,6 +59,7 @@ export async function GET(request: Request) {
 				{ status: 400 }
 			);
 		}
+		const isProvider = searchParams.get("provider") === "true";
 
 		const quoteInformation = await prisma.quoteInformation.findUnique({
 			where: {
@@ -99,6 +100,12 @@ export async function GET(request: Request) {
 		});
 
 		console.log("Rendering PDF for quote ID:", quoteId);
+
+		const context = {
+			...quoteInformation,
+			provider: isProvider,
+		};
+
 		const templatePath = path.resolve(
 			process.cwd(),
 			"app",
@@ -107,7 +114,7 @@ export async function GET(request: Request) {
 		);
 		const templateHtml = fs.readFileSync(templatePath, "utf8");
 		const template = handlebars.compile(templateHtml);
-		const html = template(quoteInformation);
+		const html = template(context);
 
 		const isDevelopment = process.env.NODE_ENV === "development";
 

@@ -6,6 +6,7 @@ import { MoveLeft } from "lucide-react";
 import Link from "next/link";
 import Searchbar from "../components/Searchbar";
 import HistoryPagination from "../components/HistoryPagination";
+import { Role } from "@prisma/client";
 
 type DashboardPageProps = {
 	searchParams: Promise<{
@@ -21,18 +22,14 @@ export default async function Dashboard({ searchParams }: DashboardPageProps) {
 
 	const session = await auth();
 
-	if (!session) {
-		return null;
-	}
-
-	if (session.user.role === "PROVIDER") {
-		return null;
-	}
+	const phone = session?.user.phone || "";
+	const role = (session?.user.role as Role) || "";
 
 	const { success, quoteInformations, pagination } = await getCompleteQuotes(
-		session.user.phone,
+		phone,
 		query,
-		page
+		page,
+		role
 	);
 
 	if (!success) {
@@ -68,7 +65,7 @@ export default async function Dashboard({ searchParams }: DashboardPageProps) {
 				{qIs.length > 0 &&
 					qIs.map((qi) => (
 						<QuoteCard
-							role={session.user.role}
+							role={role}
 							key={qi.id}
 							quoteInformation={qi}
 							link={`/renders/history/${qi.id}`}

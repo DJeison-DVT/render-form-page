@@ -92,15 +92,27 @@
     </thead>
     <tbody>
       {{#each quotes.[0].entries}}
-      <tr>
-        <td><img class="product-image" src="{{imageUrl}}" /></td>
-        <td>{{concept}}</td>
-        <td>{{sizes}}</td>
-        <td>{{material}}</td>
-        <td>{{range}}</td>
-        <td>{{formatCurrencyMXN unitaryFinalPrice}}</td>
-        <td>{{formatCurrencyMXN (multiply unitaryFinalPrice range)}}</td>
-      </tr>
+        <tr>
+          <td><img class="product-image" src="{{imageUrl}}" /></td>
+          <td>{{concept}}</td>
+          <td>{{sizes}}</td>
+          <td>{{material}}</td>
+          <td>{{range}}</td>
+          <td>
+            {{#if ../provider}}
+              {{formatCurrencyMXN unitaryCost}}
+            {{else}}
+              {{formatCurrencyMXN unitaryFinalPrice}}
+            {{/if}}
+          </td>
+          <td>
+            {{#if ../provider}}
+              {{formatCurrencyMXN (multiply unitaryCost range)}}
+            {{else}}
+              {{formatCurrencyMXN (multiply unitaryFinalPrice range)}}
+            {{/if}}
+          </td>
+      </tr> 
       {{/each}}
     </tbody>
   </table>
