@@ -43,13 +43,11 @@ export default async function PopUpMenu() {
 						<Button variant="link">
 							<Link href="/renders/dashboard">Dashboard</Link>
 						</Button>
-						{role !== Role.PROVIDER && (
-							<Button variant="link">
-								<Link href="/renders/dashboard/history">
-									Historial
-								</Link>
-							</Button>
-						)}
+						<Button variant="link">
+							<Link href="/renders/dashboard/history">
+								Historial
+							</Link>
+						</Button>
 						{adminRoles.includes(role as Role) && (
 							<Button variant="link">
 								<Link href="/renders/registration">
