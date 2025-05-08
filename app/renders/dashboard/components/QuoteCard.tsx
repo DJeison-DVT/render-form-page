@@ -80,13 +80,12 @@ export default async function QuoteCard({
 }
 
 function formatDateString(date: Date): string {
+	// date + 6 hours to account for UTC-6
+	const dateWithOffset = new Date(date.getTime() + 6 * 60 * 60 * 1000);
 	return new Intl.DateTimeFormat("es-MX", {
 		day: "2-digit",
 		month: "2-digit",
 		year: "numeric",
-		hour: "2-digit",
-		minute: "2-digit",
-		hour12: false, // 24-hour format
 		timeZone: "America/Mexico_City",
-	}).format(date);
+	}).format(dateWithOffset);
 }
