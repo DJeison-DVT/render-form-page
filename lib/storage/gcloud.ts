@@ -41,36 +41,34 @@ const hashImage = async (image: File): Promise<string> => {
 	return hash;
 };
 const upsertImage = async (image: File) => {
-	try {
-		const fileHash = await hashImage(image);
-		const extension = image.name.split(".").pop();
-		if (!extension || !["png", "jpg", "jpeg", "webp"].includes(extension)) {
-			throw new Error("Extension invalida");
-		}
-
-		const filePath = `${fileHash}.${extension}`;
-
-		const exists = await fileExistsInBucket(fileHash, `.${extension}`);
-		if (exists) {
-			return filePath;
-		}
-
-		const buffer = await image.arrayBuffer();
-
-		const url = await generateV4UploadSignedUrl(filePath, image.type);
-		const response = await fetch(url, {
-			method: "PUT",
-			headers: {
-				"Content-Type": image.type,
-			},
-			body: Buffer.from(buffer),
-		});
-
-		console.log("Uploaded image to GCP:", response.status);
-		return filePath;
-	} catch (error) {
-		console.error("Error upserting image", error);
+	const fileHash = await hashImage(image);
+	const extension = image.name.split(".").pop();
+	if (!extension || !["png", "jpg", "jpeg", "webp"].includes(extension)) {
+		throw new Error(
+			"Extension invalida, solo se permiten png, jpg, jpeg y webp"
+		);
 	}
+
+	const filePath = `${fileHash}.${extension}`;
+
+	const exists = await fileExistsInBucket(fileHash, `.${extension}`);
+	if (exists) {
+		return filePath;
+	}
+
+	const buffer = await image.arrayBuffer();
+
+	const url = await generateV4UploadSignedUrl(filePath, image.type);
+	const response = await fetch(url, {
+		method: "PUT",
+		headers: {
+			"Content-Type": image.type,
+		},
+		body: Buffer.from(buffer),
+	});
+
+	console.log("Uploaded image to GCP:", response.status);
+	return filePath;
 };
 
 const savePDF = async (pdf: File, path: string) => {

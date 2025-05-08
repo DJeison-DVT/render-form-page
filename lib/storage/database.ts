@@ -156,7 +156,6 @@ async function createQuote(
 	options: CreateQuoteOptions = {}
 ) {
 	const parsedData = RenderUploadSchema.safeParse(data);
-
 	if (!parsedData.success) {
 		console.error("Validation Error:", parsedData.error);
 		throw new Error("Invalid data provided to createQuoteInformation");
@@ -256,7 +255,11 @@ async function createQuote(
 		return { success: true, quote: newQuote };
 	} catch (error) {
 		console.error("Error in createQuoteInformation:", error);
-		throw new Error("Error al crear la cotización");
+		if (error instanceof Error) {
+			throw new Error(error.message);
+		} else {
+			throw new Error("Error al crear la cotización");
+		}
 	}
 }
 
@@ -443,7 +446,11 @@ async function createProviderQuote(
 		return updatedQuote;
 	} catch (error) {
 		console.error("Error in createProviderQuote:", error);
-		throw new Error("Error al crear la cotización");
+		if (error instanceof Error) {
+			throw new Error(error.message);
+		} else {
+			throw new Error("Error al crear la cotización");
+		}
 	}
 }
 
