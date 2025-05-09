@@ -195,6 +195,10 @@ function EntryForm({
 																				`entries.${index}.imageUrl`,
 																				null
 																			);
+																			form.setValue(
+																				`entries.${index}.image`,
+																				null
+																			);
 																		}}
 																	>
 																		<X />
