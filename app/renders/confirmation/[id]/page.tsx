@@ -48,6 +48,7 @@ export default function Confirmation() {
 	});
 
 	const {
+		fields,
 		append: fieldArrayAppend,
 		insert: fieldArrayInsert,
 		remove: fieldArrayRemove,
@@ -357,6 +358,7 @@ export default function Confirmation() {
 							{role && (
 								<EntryForm
 									form={form}
+									fields={fields}
 									fieldArrayAppend={fieldArrayAppend}
 									fieldArrayInsert={fieldArrayInsert}
 									fieldArrayRemove={fieldArrayRemove}

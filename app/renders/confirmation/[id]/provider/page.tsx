@@ -64,6 +64,7 @@ export default function ProviderConfirmation() {
 	});
 
 	const {
+		fields,
 		append: fieldArrayAppend,
 		insert: fieldArrayInsert,
 		remove: fieldArrayRemove,
@@ -378,6 +379,7 @@ export default function ProviderConfirmation() {
 									{role && (
 										<EntryForm
 											form={form}
+											fields={fields}
 											fieldArrayAppend={fieldArrayAppend}
 											fieldArrayInsert={fieldArrayInsert}
 											fieldArrayRemove={fieldArrayRemove}

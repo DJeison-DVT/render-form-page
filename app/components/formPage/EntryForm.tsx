@@ -1,4 +1,5 @@
 import {
+	EntrySchema,
 	initializeEntry,
 	materialEnum,
 	RenderUploadSchema,
@@ -20,6 +21,7 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import {
+	FieldArrayWithId,
 	UseFieldArrayAppend,
 	UseFieldArrayInsert,
 	UseFieldArrayRemove,
@@ -56,6 +58,7 @@ import ZoomableImage from "../ZoomableImage";
 
 function EntryForm({
 	form,
+	fields,
 	fieldArrayAppend,
 	fieldArrayInsert,
 	fieldArrayRemove,
@@ -66,6 +69,7 @@ function EntryForm({
 	modal = false,
 }: {
 	form: UseFormReturn<z.infer<typeof RenderUploadSchema>>;
+	fields: FieldArrayWithId<z.infer<typeof EntrySchema>>[];
 	fieldArrayAppend: UseFieldArrayAppend<z.infer<typeof RenderUploadSchema>>;
 	fieldArrayInsert: UseFieldArrayInsert<z.infer<typeof RenderUploadSchema>>;
 	fieldArrayRemove: UseFieldArrayRemove;
@@ -88,6 +92,8 @@ function EntryForm({
 	const [selectedSolutionNames, setSelectedSolutionNames] = useState<
 		string[]
 	>([]);
+	const [selectedIndexForDeletion, setSelectedIndexForDeletion] =
+		useState<number>(0);
 
 	function handleAppendMaterial(
 		index: number,
@@ -150,12 +156,14 @@ function EntryForm({
 					</TooltipProvider>
 				)}
 			</div>
-
 			<div className="overflow-x-auto w-full">
 				<div className="inline-block min-w-max">
 					<div className="flex flex-col">
-						{form.getValues().entries.map((entry, index) => (
-							<div key={index} className="flex gap-4 p-2">
+						{fields.map((entry, index) => (
+							<div
+								key={entry.id}
+								className="flex gap-4 p-2 relative"
+							>
 								<FormField
 									control={form.control}
 									name={`entries.${index}.image`}
@@ -599,6 +607,9 @@ function EntryForm({
 																	1 &&
 																!disabled
 															) {
+																setSelectedIndexForDeletion(
+																	index
+																);
 																setIsModalOpen(
 																	true
 																);
@@ -623,52 +634,46 @@ function EntryForm({
 														<p>Borrar Entrada</p>
 													</TooltipContent>
 												</Tooltip>
-												<AlertDialog
-													open={isModalOpen}
-													onOpenChange={
-														setIsModalOpen
-													}
-												>
-													<AlertDialogContent>
-														<AlertDialogHeader>
-															<AlertDialogTitle>
-																Borrar Entrada
-															</AlertDialogTitle>
-															<AlertDialogDescription>
-																Esta acción no
-																se puede
-																deshacer.
-															</AlertDialogDescription>
-														</AlertDialogHeader>
-														<AlertDialogFooter>
-															<AlertDialogCancel>
-																Cancelar
-															</AlertDialogCancel>
-															<AlertDialogAction
-																onClick={() => {
-																	if (
-																		form.getValues()
-																			.entries
-																			.length ==
-																		1
-																	)
-																		return;
-																	fieldArrayRemove(
-																		index
-																	);
-																}}
-															>
-																Continuar
-															</AlertDialogAction>
-														</AlertDialogFooter>
-													</AlertDialogContent>
-												</AlertDialog>
 											</TooltipProvider>
 										</>
 									)}
 								</div>
 							</div>
 						))}
+						<AlertDialog
+							open={isModalOpen}
+							onOpenChange={setIsModalOpen}
+						>
+							<AlertDialogContent>
+								<AlertDialogHeader>
+									<AlertDialogTitle>
+										Borrar Entrada
+									</AlertDialogTitle>
+									<AlertDialogDescription>
+										Esta acción no se puede deshacer.
+									</AlertDialogDescription>
+								</AlertDialogHeader>
+								<AlertDialogFooter>
+									<AlertDialogCancel>
+										Cancelar
+									</AlertDialogCancel>
+									<AlertDialogAction
+										onClick={() => {
+											if (
+												form.getValues().entries
+													.length <= 1
+											)
+												return;
+											fieldArrayRemove(
+												selectedIndexForDeletion
+											);
+										}}
+									>
+										Continuar
+									</AlertDialogAction>
+								</AlertDialogFooter>
+							</AlertDialogContent>
+						</AlertDialog>
 					</div>
 				</div>
 			</div>
