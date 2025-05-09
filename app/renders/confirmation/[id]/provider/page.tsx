@@ -393,17 +393,45 @@ export default function ProviderConfirmation() {
 							</div>
 							<div className="fixed bottom-4 right-4 flex justify-end gap-4">
 								<div className="flex gap-2">
-									{quote?.createdByRole !== role && (
-										<>
-											<CommentDialog
-												form={form}
-												disabled={disabled}
-												upload={handleUpload}
-												rejection={
-													role === Role.PETITIONER
-												}
-											>
-												{role !== Role.PETITIONER ? (
+									{quote?.createdByRole !== role &&
+										role !== Role.SUPERVISOR && (
+											<>
+												<CommentDialog
+													form={form}
+													disabled={disabled}
+													upload={handleUpload}
+													rejection={
+														role === Role.PETITIONER
+													}
+												>
+													{role !==
+													Role.PETITIONER ? (
+														<div
+															className={`cursor-pointer bg-gray-800/90 text-white rounded-md hover:bg-gray-700/90 gap-2 p-1 px-2 transition flex justify-center items-center text-xl ${
+																form.formState
+																	.isValid
+																	? ""
+																	: "opacity-50 pointer-events-none"
+															}`}
+														>
+															<Upload />
+															Entregar
+														</div>
+													) : (
+														<div
+															className={`cursor-pointer bg-gray-800/90 text-white rounded-md hover:bg-gray-700/90 gap-2 p-1 px-2 transition flex justify-center items-center text-xl ${
+																form.formState
+																	.isValid
+																	? ""
+																	: "opacity-50 pointer-events-none"
+															}`}
+														>
+															<Undo />
+															Rechazar
+														</div>
+													)}
+												</CommentDialog>
+												{role === Role.PETITIONER && (
 													<div
 														className={`cursor-pointer bg-gray-800/90 text-white rounded-md hover:bg-gray-700/90 gap-2 p-1 px-2 transition flex justify-center items-center text-xl ${
 															form.formState
@@ -411,43 +439,18 @@ export default function ProviderConfirmation() {
 																? ""
 																: "opacity-50 pointer-events-none"
 														}`}
+														onClick={() => {
+															onSubmitFinalize(
+																form.getValues()
+															);
+														}}
 													>
-														<Upload />
-														Entregar
-													</div>
-												) : (
-													<div
-														className={`cursor-pointer bg-gray-800/90 text-white rounded-md hover:bg-gray-700/90 gap-2 p-1 px-2 transition flex justify-center items-center text-xl ${
-															form.formState
-																.isValid
-																? ""
-																: "opacity-50 pointer-events-none"
-														}`}
-													>
-														<Undo />
-														Rechazar
+														<CheckCheck />
+														Seleccionar
 													</div>
 												)}
-											</CommentDialog>
-											{role === Role.PETITIONER && (
-												<div
-													className={`cursor-pointer bg-gray-800/90 text-white rounded-md hover:bg-gray-700/90 gap-2 p-1 px-2 transition flex justify-center items-center text-xl ${
-														form.formState.isValid
-															? ""
-															: "opacity-50 pointer-events-none"
-													}`}
-													onClick={() => {
-														onSubmitFinalize(
-															form.getValues()
-														);
-													}}
-												>
-													<CheckCheck />
-													Seleccionar
-												</div>
-											)}
-										</>
-									)}
+											</>
+										)}
 								</div>
 							</div>
 						</form>

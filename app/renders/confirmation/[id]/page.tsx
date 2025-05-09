@@ -370,14 +370,35 @@ export default function Confirmation() {
 							)}
 							<div className="fixed bottom-4 right-4 flex justify-end gap-4">
 								<div className="flex gap-2">
-									{quote?.targetRole === role && (
-										<>
-											{role === Role.PETITIONER && (
+									{quote?.targetRole === role &&
+										role !== Role.SUPERVISOR && (
+											<>
+												{role === Role.PETITIONER && (
+													<CommentDialog
+														form={form}
+														disabled={disabled}
+														upload={
+															handleRenegotiate
+														}
+														rejection
+													>
+														<div
+															className={`cursor-pointer bg-gray-800/90 text-white rounded-md hover:bg-gray-700/90 gap-2 p-1 px-2 transition flex justify-center items-center lg:text-xl md:text-lg text-sm ${
+																form.formState
+																	.isValid
+																	? ""
+																	: "opacity-50 pointer-events-none"
+															}`}
+														>
+															<Undo />
+															Renegociar
+														</div>
+													</CommentDialog>
+												)}
 												<CommentDialog
 													form={form}
 													disabled={disabled}
-													upload={handleRenegotiate}
-													rejection
+													upload={handleUpload}
 												>
 													<div
 														className={`cursor-pointer bg-gray-800/90 text-white rounded-md hover:bg-gray-700/90 gap-2 p-1 px-2 transition flex justify-center items-center lg:text-xl md:text-lg text-sm ${
@@ -387,54 +408,41 @@ export default function Confirmation() {
 																: "opacity-50 pointer-events-none"
 														}`}
 													>
-														<Undo />
-														Renegociar
+														{role ===
+														Role.VALIDATOR ? (
+															<>
+																<Undo />
+																Rechazar
+															</>
+														) : (
+															<>
+																<Redo />
+																Actualizar
+															</>
+														)}
 													</div>
 												</CommentDialog>
-											)}
-											<CommentDialog
-												form={form}
-												disabled={disabled}
-												upload={handleUpload}
-											>
-												<div
-													className={`cursor-pointer bg-gray-800/90 text-white rounded-md hover:bg-gray-700/90 gap-2 p-1 px-2 transition flex justify-center items-center lg:text-xl md:text-lg text-sm ${
-														form.formState.isValid
-															? ""
-															: "opacity-50 pointer-events-none"
-													}`}
-												>
-													{role === Role.VALIDATOR ? (
-														<>
-															<Undo />
-															Rechazar
-														</>
-													) : (
-														<>
-															<Redo />
-															Actualizar
-														</>
-													)}
-												</div>
-											</CommentDialog>
-											{(role === Role.VALIDATOR ||
-												role === Role.PETITIONER) && (
-												<div
-													className={`cursor-pointer bg-gray-800/90 text-white rounded-md hover:bg-gray-700/90 gap-2 p-1 px-2 transition flex justify-center items-center lg:text-xl md:text-lg text-sm ${
-														form.formState.isValid
-															? ""
-															: "opacity-50 pointer-events-none"
-													}`}
-													onClick={handleAccept}
-												>
-													<CheckCheck />
-													{role === Role.PETITIONER
-														? "Finalizar"
-														: "Aceptar"}
-												</div>
-											)}
-										</>
-									)}
+												{(role === Role.VALIDATOR ||
+													role ===
+														Role.PETITIONER) && (
+													<div
+														className={`cursor-pointer bg-gray-800/90 text-white rounded-md hover:bg-gray-700/90 gap-2 p-1 px-2 transition flex justify-center items-center lg:text-xl md:text-lg text-sm ${
+															form.formState
+																.isValid
+																? ""
+																: "opacity-50 pointer-events-none"
+														}`}
+														onClick={handleAccept}
+													>
+														<CheckCheck />
+														{role ===
+														Role.PETITIONER
+															? "Finalizar"
+															: "Aceptar"}
+													</div>
+												)}
+											</>
+										)}
 								</div>
 							</div>
 						</form>
