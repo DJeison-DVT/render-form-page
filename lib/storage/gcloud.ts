@@ -42,7 +42,7 @@ const hashImage = async (image: File): Promise<string> => {
 };
 const upsertImage = async (image: File) => {
 	const fileHash = await hashImage(image);
-	const extension = image.name.split(".").pop();
+	const extension = image.name.split(".").pop()?.toLowerCase() || null;
 	if (!extension || !["png", "jpg", "jpeg", "webp"].includes(extension)) {
 		throw new Error(
 			"Extension invalida, solo se permiten png, jpg, jpeg y webp"
