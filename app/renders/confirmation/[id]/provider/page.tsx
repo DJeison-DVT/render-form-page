@@ -346,26 +346,30 @@ export default function ProviderConfirmation() {
 			) : (
 				<div className="h-screen overflow-y-hidden p-4">
 					<div className="m-2 flex justify-end">
-						{providers && Object.keys(providers).length >= 1 && (
-							<Select
-								value={provider}
-								onValueChange={setProvider}
-							>
-								<SelectTrigger className="max-w-[180px]">
-									<SelectValue />
-								</SelectTrigger>
-								<SelectContent>
-									{Object.keys(providers).map((provider) => (
-										<SelectItem
-											key={provider}
-											value={provider}
-										>
-											{provider}
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
-						)}
+						{providers &&
+							Object.keys(providers).length >= 1 &&
+							role !== Role.PROVIDER && (
+								<Select
+									value={provider}
+									onValueChange={setProvider}
+								>
+									<SelectTrigger className="max-w-[180px]">
+										<SelectValue />
+									</SelectTrigger>
+									<SelectContent>
+										{Object.keys(providers).map(
+											(provider) => (
+												<SelectItem
+													key={provider}
+													value={provider}
+												>
+													{provider}
+												</SelectItem>
+											)
+										)}
+									</SelectContent>
+								</Select>
+							)}
 					</div>
 					<Form {...form}>
 						<form onSubmit={form.handleSubmit(onSubmitUpdate)}>
