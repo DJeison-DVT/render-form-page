@@ -27,7 +27,7 @@ const EntryPriceField = ({
 
 	useEffect(() => {
 		if (unitaryCost && unitaryCost !== 0 && unitaryPrice === 0) {
-			const price = unitaryCost * 1.65;
+			const price = unitaryCost * 1.61;
 			form.setValue(`entries.${index}.unitaryPrice`, price);
 		}
 	}, [unitaryCost, index, form, unitaryPrice]);
