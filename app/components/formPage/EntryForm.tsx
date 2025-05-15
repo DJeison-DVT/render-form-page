@@ -160,8 +160,6 @@ function EntryForm({
 				<div className="inline-block min-w-max">
 					<div className="flex flex-col">
 						{fields.map((entry, index) => {
-							const { id: _id, ...entryData } = entry;
-
 							return (
 								<div
 									key={entry.id}
