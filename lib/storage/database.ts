@@ -649,6 +649,9 @@ async function getPendingProviderQuotes(phone: string, query: string) {
 						approver: true,
 						requester: true,
 						quotes: {
+							where: {
+								providerQuotesUserId: user.id,
+							},
 							orderBy: {
 								createdAt: "desc",
 							},
@@ -664,7 +667,7 @@ async function getPendingProviderQuotes(phone: string, query: string) {
 
 		const filtered = providerQuotes.filter((pq) => {
 			const qArr = pq.quoteInformation.quotes;
-			return qArr.length === 0 || qArr[0].targetRole === Role.PROVIDER;
+			return pq.quoteId === null || qArr[0].targetRole === Role.PROVIDER;
 		});
 
 		return {
