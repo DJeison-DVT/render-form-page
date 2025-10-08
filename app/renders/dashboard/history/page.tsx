@@ -48,13 +48,7 @@ export default async function Dashboard({ searchParams }: DashboardPageProps) {
 				<div className="flex justify-center items-center text-xl lg:text-3xl text-center">
 					Cotizaciones Completadas
 				</div>
-				<div className="flex justify-end items-center">
-					<Link href="/renders/dashboard" className="hidden lg:block">
-						<div className="hover:bg-slate-200 rounded-lg transition-colors duration-200 cursor-pointer p-2 flex items-center gap-2 text-lg font-semibold">
-							<MoveLeft size={32} /> Volver
-						</div>
-					</Link>
-				</div>
+				<div className="flex justify-end items-center"></div>
 			</div>
 			<HistoryPagination
 				page={pagination.page}
