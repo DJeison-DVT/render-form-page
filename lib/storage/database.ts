@@ -545,21 +545,98 @@ function getRoleFilter(userRole: string, phone: string) {
 	}
 }
 
-async function getPendingQuotes(phone: string, userRole: Role, query: string) {
+export interface Pagination {
+	page: number;
+	pageSize: number;
+	total: number;
+	totalPages: number;
+}
+
+async function getPendingQuotes(
+	phone: string,
+	userRole: Role,
+	query: string,
+	page: number = 1,
+	pending = true
+) {
+	const PAGE_SIZE = 5;
+	const skip = (page - 1) * PAGE_SIZE;
+
 	try {
-		const where: QuoteInformationPendingFilter & RoleFilter = {
-			...getRoleFilter(userRole, phone),
-			finalizedAt: null,
-		};
-		if (query.trim()) {
-			where.serial = {
-				contains: query.trim(),
-				mode: "insensitive",
-			};
+		const roleFilter = getRoleFilter(userRole, phone);
+		const baseConditions: string[] = ['"finalizedAt" IS NULL'];
+
+		// Add role-specific filter
+		if (roleFilter) {
+			if ("requestContact" in roleFilter && roleFilter.requestContact) {
+				baseConditions.push(
+					`"requestContact" = '${roleFilter.requestContact}'`
+				);
+			} else if (
+				"approvalContact" in roleFilter &&
+				roleFilter.approvalContact
+			) {
+				baseConditions.push(
+					`"approvalContact" = '${roleFilter.approvalContact}'`
+				);
+			} else if (
+				"providerContact" in roleFilter &&
+				roleFilter.providerContact
+			) {
+				baseConditions.push(
+					`"providerContact" = '${roleFilter.providerContact}'`
+				);
+			}
 		}
 
+		// Add search filter
+		if (query.trim()) {
+			baseConditions.push(`"serial" ILIKE '%${query.trim()}%'`);
+		}
+
+		if (pending) {
+			baseConditions.push(`
+				EXISTS (
+					SELECT 1 FROM "Quote" q
+					WHERE q."quoteInformationId" = "QuoteInformation"."id"
+					AND q."id" = (
+						SELECT "id" FROM "Quote"
+						WHERE "quoteInformationId" = "QuoteInformation"."id"
+						ORDER BY "createdAt" DESC
+						LIMIT 1
+					)
+					AND q."targetRole" = '${userRole}'
+				)
+			`);
+		}
+
+		const whereClause = baseConditions.join(" AND ");
+
+		// Get total count
+		const countResult = await prisma.$queryRawUnsafe<[{ count: bigint }]>(
+			`SELECT COUNT(*) as count FROM "QuoteInformation" WHERE ${whereClause}`
+		);
+		const total = Number(countResult[0].count);
+		const totalPages = Math.ceil(total / PAGE_SIZE);
+
+		// Get paginated results
+		const quoteInfoIds = await prisma.$queryRawUnsafe<[{ id: string }]>(
+			`SELECT "id" FROM "QuoteInformation" 
+			WHERE ${whereClause}
+			ORDER BY "createdAt" ASC
+			LIMIT ${PAGE_SIZE} OFFSET ${skip}`
+		);
+
+		// Fetch full records with relations
 		const quoteInformations = await prisma.quoteInformation.findMany({
-			where,
+			where: {
+				id: {
+					in: quoteInfoIds.map((qi) => qi.id),
+				},
+			},
+			orderBy: {
+				createdAt: "asc",
+			},
 			include: {
 				provider: true,
 				approver: true,
@@ -572,18 +649,16 @@ async function getPendingQuotes(phone: string, userRole: Role, query: string) {
 			},
 		});
 
-		const filteredQuotes =
-			userRole === "SUPERVISOR"
-				? quoteInformations.filter((qi) => qi.quotes.length > 0)
-				: quoteInformations.filter(
-						(qi) =>
-							qi.quotes.length > 0 &&
-							qi.quotes[0].targetRole === userRole
-				  );
-
 		return {
 			success: true,
-			quoteInformations: filteredQuotes as QuoteInformationWithQuotes[],
+			quoteInformations:
+				quoteInformations as QuoteInformationWithQuotes[],
+			pagination: {
+				page,
+				pageSize: PAGE_SIZE,
+				total,
+				totalPages,
+			} as Pagination,
 		};
 	} catch (error) {
 		console.error("Error in getPendingQuotes:", error);
@@ -701,7 +776,7 @@ async function getCompleteQuotes(
 				pageSize: PAGE_SIZE,
 				total,
 				totalPages,
-			},
+			} as Pagination,
 		};
 	} catch (error) {
 		console.error("Error in getCompleteQuotes:", error);

@@ -2,11 +2,9 @@ import { auth } from "@/lib/auth";
 import { getCompleteQuotes } from "@/lib/storage/database";
 import QuoteCard from "../components/QuoteCard";
 import { QuoteInformationWithQuotes } from "@/lib/types";
-import { MoveLeft } from "lucide-react";
-import Link from "next/link";
 import Searchbar from "../components/Searchbar";
-import HistoryPagination from "../components/HistoryPagination";
 import { Role } from "@prisma/client";
+import PagePagination from "../components/PagePagination";
 
 type DashboardPageProps = {
 	searchParams: Promise<{
@@ -48,9 +46,9 @@ export default async function Dashboard({ searchParams }: DashboardPageProps) {
 				<div className="flex justify-center items-center text-xl lg:text-3xl text-center">
 					Cotizaciones Completadas
 				</div>
-				<div className="flex justify-end items-center"></div>
 			</div>
-			<HistoryPagination
+			<PagePagination
+				url="/renders/dashboard/history"
 				page={pagination.page}
 				totalPages={pagination.totalPages}
 				query={query}

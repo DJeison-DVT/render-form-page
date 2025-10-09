@@ -19,24 +19,24 @@ import {
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
-interface HistoryPaginationProps {
+interface PagePaginationProps {
+	url: string;
 	page: number;
 	totalPages: number;
 	query: string;
 }
 
-export default function HistoryPagination({
+export default function PagePagination({
+	url,
 	page = 1,
 	totalPages = 1,
 	query,
-}: HistoryPaginationProps) {
+}: PagePaginationProps) {
 	const router = useRouter();
 	const [jump, setJump] = useState("");
 
 	const baseHref = (p: number) =>
-		`/renders/dashboard/history?page=${p}&query=${encodeURIComponent(
-			query
-		)}`;
+		`${url}?page=${p}&query=${encodeURIComponent(query)}`;
 
 	// handler for Enter in quick jump
 	const onJump = () => {

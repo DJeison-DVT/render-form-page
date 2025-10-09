@@ -1,49 +1,39 @@
 import { auth } from "@/lib/auth";
-import {
-	getPendingProviderQuotes,
-	getPendingQuotes,
-} from "@/lib/storage/database";
+import { getPendingQuotes } from "@/lib/storage/database";
 import { Role } from "@prisma/client";
-import QuoteCard from "./components/QuoteCard";
-import { QuoteInformationWithQuotes } from "@/lib/types";
-import Searchbar from "./components/Searchbar";
-import PagePagination from "./components/PagePagination";
-import { Separator } from "@/components/ui/separator";
+import QuoteCard from "../components/QuoteCard";
+import Searchbar from "../components/Searchbar";
+import PagePagination from "../components/PagePagination";
 
-type DashboardPageProps = {
+type ActiveDashboardPageProps = {
 	searchParams: Promise<{
 		query?: string;
 		page?: string;
 	}>;
 };
 
-export default async function Dashboard({ searchParams }: DashboardPageProps) {
+export default async function ActiveDashboard({
+	searchParams,
+}: ActiveDashboardPageProps) {
 	const sp = await searchParams;
 	const query = sp.query?.trim() ?? "";
 	const page = parseInt(sp.page ?? "1", 10);
 	const session = await auth();
 
-	if (!session) {
+	if (
+		!session ||
+		(session.user.role !== Role.SUPERVISOR &&
+			session.user.role !== Role.PETITIONER)
+	) {
 		return null;
-	}
-
-	let providerQuotes: QuoteInformationWithQuotes[] = [];
-	if (session.user.role === Role.PROVIDER) {
-		const { success, quoteInformations } = await getPendingProviderQuotes(
-			session.user.phone,
-			query
-		);
-		if (!success) {
-			return null;
-		}
-		providerQuotes = quoteInformations;
 	}
 
 	const { success, quoteInformations, pagination } = await getPendingQuotes(
 		session.user.phone,
 		session.user.role as Role,
 		query,
-		page
+		page,
+		false
 	);
 
 	if (!success) {
@@ -60,27 +50,10 @@ export default async function Dashboard({ searchParams }: DashboardPageProps) {
 						initialQuery={query}
 					/>
 					<div className="flex justify-center items-center text-xl lg:text-3xl text-center">
-						Cotizaciones pendientes
+						Cotizaciones Activas
 					</div>
 				</div>
 				<div className="flex flex-wrap lg:flex-col items-center gap-4 justify-center">
-					{providerQuotes.length > 0 &&
-						session.user.role === Role.PROVIDER &&
-						providerQuotes.map((quoteInformation) => (
-							<QuoteCard
-								role={session.user.role as Role}
-								key={quoteInformation.id}
-								quoteInformation={quoteInformation}
-								link={`/renders/confirmation/${
-									quoteInformation.id
-								}${
-									quoteInformation.providerContact
-										? ""
-										: "/provider"
-								}`}
-							/>
-						))}
-					<Separator />
 					{quoteInformations && quoteInformations.length > 0 && (
 						<>
 							<PagePagination

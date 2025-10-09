@@ -5,18 +5,28 @@ import {
 } from "@/components/ui/popover";
 import { SignOut } from "@/components/auth/signout-button";
 import { auth } from "@/lib/auth";
-import { AlignJustify } from "lucide-react";
+import {
+	AlignJustify,
+	FilePlus,
+	HistoryIcon,
+	MessageSquare,
+	RepeatIcon,
+	Users,
+} from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { RoleTranslations } from "@/lib/types";
 import { Role } from "@prisma/client";
 import { formatMexicanPhoneNumber } from "@/lib/utils";
 
-const menuButton = (title: string, href: string) => {
+const menuButton = (title: string, href: string, icon: React.ReactNode) => {
 	return (
-		<div className="text-xl hover:bg-gray-500 rounded-md w-full cursor-pointer flex">
-			<Link className="flex-1 p-2" href={href}>
+		<div className="text-xl hover:bg-gray-200 rounded-md w-full cursor-pointer flex">
+			<Link
+				className="flex-1 p-2 px-4 flex items-center gap-2"
+				href={href}
+			>
+				{icon}
 				{title}
 			</Link>
 		</div>
@@ -49,16 +59,33 @@ export default async function PopUpMenu() {
 				<Separator />
 				<div className="flex justify-start w-full text-xl">
 					<div className="flex flex-col items-start justify-start py-2 w-full">
-						{menuButton("Pendientes", "/renders/dashboard")}
-						{menuButton("Activos", "/renders/dashboard/active")}
-						{menuButton("Historial", "/renders/dashboard/history")}
+						{menuButton(
+							"Pendientes",
+							"/renders/dashboard",
+							<MessageSquare />
+						)}
+						{menuButton(
+							"Activos",
+							"/renders/dashboard/active",
+							<RepeatIcon />
+						)}
+						{menuButton(
+							"Historial",
+							"/renders/dashboard/history",
+							<HistoryIcon />
+						)}
 						{adminRoles.includes(role as Role) && (
 							<>
 								{menuButton(
-									"Registro",
-									"/renders/registration"
+									"Nueva Cotización",
+									"/renders/registration",
+									<FilePlus />
 								)}
-								{menuButton("Usuarios", "/renders/users")}
+								{menuButton(
+									"Usuarios",
+									"/renders/users",
+									<Users />
+								)}
 							</>
 						)}
 					</div>
