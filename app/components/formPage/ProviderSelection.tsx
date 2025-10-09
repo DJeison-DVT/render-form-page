@@ -47,7 +47,7 @@ export default function ProviderSelection({
 								</FormDescription>
 							</div>
 							<Input
-								placeholder="Buscar proveedor..."
+								placeholder="Buscar proveedor por nombre, número o descripción"
 								value={filter}
 								onChange={(e) => setFilter(e.target.value)}
 							/>

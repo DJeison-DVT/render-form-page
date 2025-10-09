@@ -161,9 +161,24 @@ export const userCreationSchema = z.object({
 	name: z.string().nonempty(),
 	email: z.string().email(),
 	role: z.nativeEnum(Role),
+	description: z.string().optional(),
 	password: z
 		.string()
 		.min(8, "La contraseña debe tener al menos 8 caracteres."),
+	phone: z.string().length(10, "El teléfono debe tener 10 dígitos."),
+});
+
+export const userUpdateSchema = z.object({
+	id: z.string(),
+	name: z.string().nonempty("El nombre no puede estar vacío."),
+	email: z.string().email("Debe ser un correo válido."),
+	role: z.nativeEnum(Role),
+	description: z.string().optional(),
+	password: z
+		.string()
+		.min(8, "La contraseña debe tener al menos 8 caracteres.")
+		.optional()
+		.or(z.literal("")),
 	phone: z.string().length(10, "El teléfono debe tener 10 dígitos."),
 });
 

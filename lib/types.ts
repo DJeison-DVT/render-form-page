@@ -33,6 +33,7 @@ export interface QuoteInformationFilter {
 
 export interface QuoteInformationPendingFilter {
 	finalizedAt: null;
+	providerContact: { not: null };
 	serial?: ContainsFilter;
 }
 
@@ -47,3 +48,23 @@ export interface ContainsFilter {
 }
 
 export type RoleFilter = Record<string, unknown>;
+
+// User filter types
+export interface UserWhereClause {
+	active: boolean;
+	role?: Role;
+	OR?: Array<{
+		name?: ContainsFilter;
+		description?: ContainsFilter;
+		phone?: ContainsFilter;
+	}>;
+}
+
+export interface UserUpdateData {
+	phone: string;
+	name: string;
+	email: string;
+	role: Role;
+	description?: string;
+	password?: string;
+}

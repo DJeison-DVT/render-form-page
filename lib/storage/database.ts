@@ -9,10 +9,10 @@ import { savePDF, upsertImage } from "./gcloud";
 import {
 	ProviderQuoteFilter,
 	QuoteInformationFilter,
-	QuoteInformationPendingFilter,
 	QuoteInformationWithQuotes,
 	RoleFilter,
 } from "../types";
+import { GetUser, GetUserById } from "./users";
 
 const MESSAGE_TEMPLATE = "HX92dca13fd40b55ff25d9e3ffa3e10429";
 const PROVIDER_SELECTED_TEMPLATE = "HX33c698bec0b2902e42812d47e5812666";
@@ -380,14 +380,7 @@ async function createProviderQuote(
 	options?: { rejectedQuoteId?: number }
 ) {
 	try {
-		const user = await prisma.user.findUnique({
-			where: {
-				id: providerId,
-			},
-		});
-		if (!user) {
-			throw new Error("Usuario no encontrado");
-		}
+		const user = await GetUserById(providerId);
 
 		const target =
 			data.createdByRole === Role.PROVIDER
@@ -470,23 +463,7 @@ async function saveProvider(
 			},
 		});
 
-		const user = await prisma.user.findUnique({
-			where: {
-				id: providerId,
-			},
-		});
-		if (!user) {
-			throw new Error("Usuario no encontrado");
-		}
-
-		const provider = await prisma.user.findUnique({
-			where: {
-				id: providerId,
-			},
-		});
-		if (!provider) {
-			throw new Error("Proveedor no encontrado");
-		}
+		const provider = await GetUserById(providerId);
 
 		await createQuote(
 			quoteInfoId,
@@ -687,15 +664,7 @@ async function getCompleteQuotes(
 	role: Role
 ) {
 	try {
-		const user = await prisma.user.findUnique({
-			where: {
-				phone,
-			},
-		});
-
-		if (!user) {
-			throw new Error("Usuario no encontrado");
-		}
+		const user = await GetUser(phone);
 
 		const where: QuoteInformationFilter & RoleFilter = {
 			...getRoleFilter(user.role, phone),
@@ -739,43 +708,6 @@ async function getCompleteQuotes(
 		throw new Error("Error al obtener las cotizaciones");
 	}
 }
-
-const getUsers = async (role?: Role, filter?: string) => {
-	const whereClause: any = {
-		role: role ? role : undefined,
-	};
-
-	if (filter) {
-		whereClause.OR = [
-			{
-				name: {
-					contains: filter,
-					mode: "insensitive",
-				},
-			},
-			{
-				description: {
-					contains: filter,
-					mode: "insensitive",
-				},
-			},
-		];
-	}
-
-	const users = await prisma.user.findMany({
-		where: whereClause,
-	});
-	return users;
-};
-
-const getUserByPhone = async (phone: string) => {
-	const user = await prisma.user.findUnique({
-		where: {
-			phone,
-		},
-	});
-	return user;
-};
 
 // async function cloneQuoteInformationWithRelations(
 // 	originalId: string,
@@ -867,13 +799,11 @@ export {
 	getClients,
 	getPendingQuotes,
 	getCompleteQuotes,
-	getUsers,
 	getQuoteProviders,
 	createProviderQuote,
 	saveProvider,
 	getQuoteProvidersCount,
 	getPendingProviderQuotes,
-	getUserByPhone,
 	updateValidator,
 	// cloneQuoteInformationWithRelations,
 };

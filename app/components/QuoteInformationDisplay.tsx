@@ -1,7 +1,7 @@
 import { QuoteInformation, Role, User } from "@prisma/client";
 import CompanyImage from "./CompanyImage";
 import { formatMexicanPhoneNumber } from "@/lib/utils";
-import { getUserByPhone } from "@/lib/storage/database";
+import { GetUser } from "@/lib/storage/users";
 import { useEffect, useState } from "react";
 import { buildImageURL } from "@/lib/serverUtils";
 import { FileSearch } from "lucide-react";
@@ -43,7 +43,7 @@ export default function QuoteInformationDisplay({
 
 		buildPDFUrl();
 		if (quoteInformation.providerContact) {
-			getUserByPhone(quoteInformation.providerContact).then((provider) =>
+			GetUser(quoteInformation.providerContact).then((provider) =>
 				setProvider(provider)
 			);
 		}

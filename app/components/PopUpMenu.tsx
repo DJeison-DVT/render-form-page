@@ -11,8 +11,17 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { RoleTranslations } from "@/lib/types";
 import { Role } from "@prisma/client";
-import UserCreation from "@/app/components/UserCreation";
 import { formatMexicanPhoneNumber } from "@/lib/utils";
+
+const menuButton = (title: string, href: string) => {
+	return (
+		<div className="text-xl hover:bg-gray-500 rounded-md w-full cursor-pointer flex">
+			<Link className="flex-1 p-2" href={href}>
+				{title}
+			</Link>
+		</div>
+	);
+};
 
 export default async function PopUpMenu() {
 	const session = await auth();
@@ -31,41 +40,30 @@ export default async function PopUpMenu() {
 				<AlignJustify />
 			</PopoverTrigger>
 			<PopoverContent>
-				<div className="flex flex-col gap-2 items-center pb-2">
+				<div className="flex flex-col gap-2 items-start pb-2 text-md">
 					<p>{RoleTranslations[user.role as Role]}</p>
 					<p>{formatMexicanPhoneNumber(user.phone)}</p>
 					<p>{user.email}</p>
 					<p>{user.name}</p>
 				</div>
 				<Separator />
-				<div className="flex justify-center">
-					<div className="flex flex-col items-start py-2 justify-center max-w-fit">
-						<Button variant="link">
-							<Link href="/renders/dashboard">Dashboard</Link>
-						</Button>
-						<Button variant="link">
-							<Link href="/renders/dashboard/history">
-								Historial
-							</Link>
-						</Button>
+				<div className="flex justify-start w-full text-xl">
+					<div className="flex flex-col items-start justify-start py-2 w-full">
+						{menuButton("Pendientes", "/renders/dashboard")}
+						{menuButton("Activos", "/renders/dashboard/active")}
+						{menuButton("Historial", "/renders/dashboard/history")}
 						{adminRoles.includes(role as Role) && (
-							<Button variant="link">
-								<Link href="/renders/registration">
-									Registro
-								</Link>
-							</Button>
+							<>
+								{menuButton(
+									"Registro",
+									"/renders/registration"
+								)}
+								{menuButton("Usuarios", "/renders/users")}
+							</>
 						)}
 					</div>
 				</div>
 				<Separator />
-				{adminRoles.includes(role as Role) && (
-					<>
-						<div className="py-2 flex justify-center items-center">
-							<UserCreation />
-						</div>
-						<Separator />
-					</>
-				)}
 				<div className="pt-2">
 					<SignOut />
 				</div>

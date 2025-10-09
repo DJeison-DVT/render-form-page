@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getUsers } from "@/lib/storage/database";
+import { GetUsers } from "@/lib/storage/users";
 import { Role } from "@prisma/client";
 
 export interface UserOption {
@@ -8,29 +8,25 @@ export interface UserOption {
 	name: string;
 }
 
-export function useUsersByRole(role: Role, filter: string): UserOption[] {
+export function useUsersByRole(
+	role?: Role,
+	filter?: string,
+	refreshKey?: number
+): UserOption[] {
 	const [users, setUsers] = useState<UserOption[]>([]);
 
 	useEffect(() => {
 		const fetchOptions = async () => {
 			try {
-				const users = await getUsers(role, filter);
-				setUsers(
-					users.map((user) => ({
-						id: user.id,
-						phone: user.phone,
-						name: user.name,
-					}))
-				);
+				const users = await GetUsers(role, filter);
+				setUsers(users);
 			} catch (error) {
 				console.error("Error fetching users:", error);
 			}
 		};
 
-		if (role) {
-			fetchOptions();
-		}
-	}, [role, filter]);
+		fetchOptions();
+	}, [role, filter, refreshKey]);
 
 	return users;
 }

@@ -31,10 +31,15 @@ import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { Role } from "@prisma/client";
 import { UserPlus } from "lucide-react";
-import { registerUser } from "@/lib/storage/auth";
+import { RegisterUser } from "@/lib/storage/users";
 import { RoleTranslations } from "@/lib/types";
+import { Textarea } from "@/components/ui/textarea";
 
-export default function UserCreation() {
+export default function UserCreation({
+	onUserCreation,
+}: {
+	onUserCreation: () => void;
+}) {
 	const [open, setOpen] = useState(false);
 
 	const { toast } = useToast();
@@ -43,6 +48,7 @@ export default function UserCreation() {
 		defaultValues: {
 			email: "",
 			name: "",
+			description: "",
 			password: "",
 			phone: "",
 			role: "PETITIONER",
@@ -50,7 +56,7 @@ export default function UserCreation() {
 	});
 
 	function onSubmit(values: z.infer<typeof userCreationSchema>) {
-		registerUser(values)
+		RegisterUser(values)
 			.then((user) => {
 				if (!user || !user.phone) {
 					throw new Error("User creation failed, no phone returned");
@@ -63,6 +69,7 @@ export default function UserCreation() {
 					title: "Usuario creado",
 					description: `El usuario ${user.phone} ha sido creado.`,
 				});
+				onUserCreation();
 			})
 			.catch((error) => {
 				const message =
@@ -81,8 +88,8 @@ export default function UserCreation() {
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger>
-				<div className="flex gap-2 text-md justify-center items-center">
-					<UserPlus size={18} /> Crear Usuario
+				<div className="flex gap-2 w-fit text-md justify-center items-center hover:bg-gray-100 cursor-pointer p-2 rounded-md border m-2">
+					<UserPlus size={18} />
 				</div>
 			</DialogTrigger>
 			<DialogContent>
@@ -161,6 +168,19 @@ export default function UserCreation() {
 											))}
 										</SelectContent>
 									</Select>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+						<FormField
+							control={form.control}
+							name="description"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Descripción</FormLabel>
+									<FormControl>
+										<Textarea {...field} />
+									</FormControl>
 									<FormMessage />
 								</FormItem>
 							)}

@@ -142,6 +142,7 @@ model User {
   role           Role             @default(PETITIONER)
   password       String
   description    String?
+  active         Boolean          @default(true)
   accounts       Account[]
   sessions       Session[]
   ProviderQuotes ProviderQuotes[]
