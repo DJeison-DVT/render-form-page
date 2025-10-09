@@ -10,11 +10,13 @@ import {
 	FormLabel,
 	FormMessage,
 } from "@/components/ui/form";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Upload } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
 import { z } from "zod";
-import { UserOption, useUsersByRole } from "./useUsersByRole";
+import { useUsersByRole } from "./useUsersByRole";
+import { useState } from "react";
 
 export default function ProviderSelection({
 	form,
@@ -23,7 +25,10 @@ export default function ProviderSelection({
 	form: UseFormReturn<z.infer<typeof ProposalUploadSchema>>;
 	disabled?: boolean;
 }) {
-	const providers: UserOption[] = useUsersByRole("PROVIDER");
+	const [filter, setFilter] = useState<string>("");
+
+	const providers = useUsersByRole("PROVIDER", filter);
+
 	return (
 		<div>
 			<div className="flex gap-12">
@@ -41,52 +46,59 @@ export default function ProviderSelection({
 									enviará la cotización.
 								</FormDescription>
 							</div>
-							{providers.map((item) => (
-								<FormField
-									key={item.id}
-									control={form.control}
-									name="providers"
-									render={({ field }) => {
-										return (
-											<FormItem
-												key={item.id}
-												className="flex flex-row items-start space-x-3 space-y-0"
-											>
-												<FormControl>
-													<Checkbox
-														checked={field.value?.includes(
-															item.id
-														)}
-														onCheckedChange={(
-															checked
-														) => {
-															return checked
-																? field.onChange(
-																		[
-																			...field.value,
-																			item.id,
-																		]
-																  )
-																: field.onChange(
-																		field.value?.filter(
-																			(
-																				value
-																			) =>
-																				value !==
-																				item.id
-																		)
-																  );
-														}}
-													/>
-												</FormControl>
-												<FormLabel className="text-sm font-normal">
-													{item.name}
-												</FormLabel>
-											</FormItem>
-										);
-									}}
-								/>
-							))}
+							<Input
+								placeholder="Buscar proveedor..."
+								value={filter}
+								onChange={(e) => setFilter(e.target.value)}
+							/>
+							<ScrollArea className="h-32 border px-4 py-1 rounded-sm">
+								{providers.map((item) => (
+									<FormField
+										key={item.id}
+										control={form.control}
+										name="providers"
+										render={({ field }) => {
+											return (
+												<FormItem
+													key={item.id}
+													className="flex flex-row items-start space-x-3 space-y-0"
+												>
+													<FormControl>
+														<Checkbox
+															checked={field.value?.includes(
+																item.id
+															)}
+															onCheckedChange={(
+																checked
+															) => {
+																return checked
+																	? field.onChange(
+																			[
+																				...field.value,
+																				item.id,
+																			]
+																	  )
+																	: field.onChange(
+																			field.value?.filter(
+																				(
+																					value
+																				) =>
+																					value !==
+																					item.id
+																			)
+																	  );
+															}}
+														/>
+													</FormControl>
+													<FormLabel className="text-sm font-normal">
+														{item.name}
+													</FormLabel>
+												</FormItem>
+											);
+										}}
+									/>
+								))}
+							</ScrollArea>
 							<FormMessage />
 						</FormItem>
 					)}

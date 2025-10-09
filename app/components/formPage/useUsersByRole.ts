@@ -8,13 +8,13 @@ export interface UserOption {
 	name: string;
 }
 
-export function useUsersByRole(role: Role): UserOption[] {
+export function useUsersByRole(role: Role, filter: string): UserOption[] {
 	const [users, setUsers] = useState<UserOption[]>([]);
 
 	useEffect(() => {
 		const fetchOptions = async () => {
 			try {
-				const users = await getUsers(role);
+				const users = await getUsers(role, filter);
 				setUsers(
 					users.map((user) => ({
 						id: user.id,
@@ -30,7 +30,7 @@ export function useUsersByRole(role: Role): UserOption[] {
 		if (role) {
 			fetchOptions();
 		}
-	}, [role]);
+	}, [role, filter]);
 
 	return users;
 }

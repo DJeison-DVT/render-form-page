@@ -141,6 +141,7 @@ model User {
   image          String?
   role           Role             @default(PETITIONER)
   password       String
+  description    String?
   accounts       Account[]
   sessions       Session[]
   ProviderQuotes ProviderQuotes[]

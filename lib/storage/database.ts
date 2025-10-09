@@ -740,11 +740,30 @@ async function getCompleteQuotes(
 	}
 }
 
-const getUsers = async (role?: Role) => {
+const getUsers = async (role?: Role, filter?: string) => {
+	const whereClause: any = {
+		role: role ? role : undefined,
+	};
+
+	if (filter) {
+		whereClause.OR = [
+			{
+				name: {
+					contains: filter,
+					mode: "insensitive",
+				},
+			},
+			{
+				description: {
+					contains: filter,
+					mode: "insensitive",
+				},
+			},
+		];
+	}
+
 	const users = await prisma.user.findMany({
-		where: {
-			role: role ? role : undefined,
-		},
+		where: whereClause,
 	});
 	return users;
 };
