@@ -40,13 +40,13 @@ function CompanySelection({
 									/>
 								</ToggleGroupItem>
 								<ToggleGroupItem
-									value="demente"
-									aria-label="Toggle demente"
+									value="treid"
+									aria-label="Toggle treid"
 									className="h-full flex items-center justify-center p-4"
 								>
 									<Image
-										src="/demente-logo.png"
-										alt="DeMente"
+										src="/treid-logo.png"
+										alt="Treid"
 										width={200}
 										height={200}
 									/>

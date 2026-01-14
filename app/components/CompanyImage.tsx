@@ -1,19 +1,18 @@
 import Image from "next/image";
 
-type Company = "alquipop" | "demente";
+type Company = "alquipop" | "treid";
 
 export default function CompanyImage({ company }: { company: string }) {
 	if (!company) return null;
-	if (!["alquipop", "demente"].includes(company)) return null;
-
+	if (!["alquipop", "treid"].includes(company)) return null;
 	const srcs: Record<Company, string> = {
 		alquipop: "/alquipop-logo.svg",
-		demente: "/demente-logo.png",
+		treid: "/treid-logo.png",
 	};
 
 	const alts: Record<Company, string> = {
 		alquipop: "alquipop",
-		demente: "DeMente",
+		treid: "Treid",
 	};
 
 	const key = company as Company;

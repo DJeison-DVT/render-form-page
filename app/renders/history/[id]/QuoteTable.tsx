@@ -106,7 +106,7 @@ export default function QuoteTable({
 							)}
 							{role !== Role.PROVIDER && (
 								<>
-									<TableHead>Precio DeMente</TableHead>
+									<TableHead>Precio Treid</TableHead>
 									<TableHead>Precio Final</TableHead>
 								</>
 							)}

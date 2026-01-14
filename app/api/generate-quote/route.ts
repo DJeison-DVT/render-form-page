@@ -31,19 +31,19 @@ handlebars.registerHelper("multiply", (a: number, b: number) => {
 
 const companyImageUrls = {
 	alquipop: "/alquipop-logo.svg",
-	demente: "/demente-logo.png",
+	treid: "/treid-logo.png",
 };
 
 const companyTemplates = {
 	alquipop: "alquipopQuote.hbs",
-	demente: "dementeQuote.hbs",
+	treid: "treidQuote.hbs",
 };
 
 const companySettings = {
 	alquipop: {
 		landscape: true,
 	},
-	demente: {
+	treid: {
 		landscape: false,
 	},
 };

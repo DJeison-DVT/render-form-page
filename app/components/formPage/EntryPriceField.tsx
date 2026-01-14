@@ -40,7 +40,7 @@ const EntryPriceField = ({
 				<FormItem>
 					{index === 0 && (
 						<FormLabel className="text-nowrap">
-							Precio DeMente
+							Precio Treid
 						</FormLabel>
 					)}
 					<FormControl>
