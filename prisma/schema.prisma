@@ -27,6 +27,7 @@ model QuoteInformation {
   serial                String
   stage                 Stage     @default(QUOTING)
   pdfUrl                String?
+  active                Boolean   @default(true)
 
   approvalContact String
   requestContact  String

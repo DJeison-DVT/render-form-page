@@ -7,6 +7,9 @@ import { buildImageURL } from "@/lib/serverUtils";
 import { FileSearch } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { GenerateQuote } from "./GenerateQuote";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import { DisableQuote, EnableQuote } from "@/lib/storage/database";
 
 const sixHoursInMs = 6 * 60 * 60 * 1000;
 
@@ -32,6 +35,26 @@ export default function QuoteInformationDisplay({
 	const [provider, setProvider] = useState<User | null>(null);
 	const [pdfUrl, setPdfUrl] = useState<string | null>(null);
 	const { data: session } = useSession();
+	const { toast } = useToast();
+
+	const handleToggleActive = async (active: boolean) => {
+		try {
+			if (active) {
+				await EnableQuote(quoteInformation.id);
+				toast({ title: "Cotización activada" });
+			} else {
+				await DisableQuote(quoteInformation.id);
+				toast({ title: "Cotización desactivada" });
+			}
+			window.location.reload();
+		} catch (error) {
+			console.error(error);
+			toast({
+				title: "Error al actualizar estado",
+				variant: "destructive",
+			});
+		}
+	};
 
 	useEffect(() => {
 		const buildPDFUrl = async () => {
@@ -144,6 +167,20 @@ export default function QuoteInformationDisplay({
 						quoteURL={`/api/generate-quote?quoteId=${quoteInformation.id}&provider=true`}
 					/>
 				)}
+				{(session?.user.role as Role) === Role.PETITIONER &&
+					!quoteInformation.finalizedAt &&
+					(quoteInformation.active ? (
+						<Button
+							onClick={() => handleToggleActive(false)}
+							variant="destructive"
+						>
+							Desactivar Cotización
+						</Button>
+					) : (
+						<Button onClick={() => handleToggleActive(true)}>
+							Activar Cotización
+						</Button>
+					))}
 			</div>
 		</div>
 	);

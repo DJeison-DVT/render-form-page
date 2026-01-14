@@ -348,7 +348,7 @@ async function getQuoteProviders(id: string) {
 
 async function getQuoteProvidersCount(id: string) {
 	const total = await prisma.quoteInformation.findUnique({
-		where: { id },
+		where: { id, active: true },
 		include: {
 			ProviderQuotes: {
 				include: { quote: true },
@@ -564,7 +564,9 @@ async function getPendingQuotes(
 
 	try {
 		const roleFilter = getRoleFilter(userRole, phone);
-		const baseConditions: string[] = ['"finalizedAt" IS NULL'];
+		const baseConditions: string[] = [
+			'"finalizedAt" IS NULL AND "active" = true',
+		];
 
 		// Add role-specific filter
 		if (roleFilter) {
@@ -681,7 +683,10 @@ async function getPendingProviderQuotes(phone: string, query: string) {
 			throw new Error("Usuario no encontrado");
 		}
 
-		const where: ProviderQuoteFilter = { providerContact: null };
+		const where: ProviderQuoteFilter = {
+			providerContact: null,
+			active: true,
+		};
 		if (query.trim()) {
 			where.serial = {
 				contains: query.trim(),
@@ -732,6 +737,79 @@ async function getPendingProviderQuotes(phone: string, query: string) {
 	}
 }
 
+async function DisableQuote(id: string) {
+	try {
+		await prisma.quoteInformation.update({
+			where: { id },
+			data: { active: false },
+		});
+	} catch (error) {
+		console.error("Error in DisableQuote:", error);
+		throw new Error("Error al desactivar la cotización");
+	}
+}
+
+async function EnableQuote(id: string) {
+	try {
+		await prisma.quoteInformation.update({
+			where: { id },
+			data: { active: true },
+		});
+	} catch (error) {
+		console.error("Error in EnableQuote:", error);
+		throw new Error("Error al activar la cotización");
+	}
+}
+
+async function GetDisabledQuotes(query: string, page: number = 1) {
+	try {
+		const total = await prisma.quoteInformation.count({
+			where: {
+				serial: query.trim()
+					? {
+							contains: query.trim(),
+							mode: "insensitive",
+					  }
+					: undefined,
+				active: false,
+			},
+		});
+		const PAGE_SIZE = 5;
+		const skip = (page - 1) * PAGE_SIZE;
+		const totalPages = Math.ceil(total / PAGE_SIZE);
+		const quoteInformations = await prisma.quoteInformation.findMany({
+			where: {
+				serial: query.trim()
+					? {
+							contains: query.trim(),
+							mode: "insensitive",
+					  }
+					: undefined,
+				active: false,
+			},
+			skip,
+			take: PAGE_SIZE,
+			orderBy: {
+				createdAt: "desc",
+			},
+		});
+
+		return {
+			success: true,
+			quoteInformations,
+			pagination: {
+				page,
+				pageSize: PAGE_SIZE,
+				total,
+				totalPages,
+			} as Pagination,
+		};
+	} catch (error) {
+		console.error("Error in getDisabledQuotes:", error);
+		throw new Error("Error al obtener las cotizaciones");
+	}
+}
+
 async function getCompleteQuotes(
 	phone: string,
 	query: string,
@@ -743,6 +821,7 @@ async function getCompleteQuotes(
 
 		const where: QuoteInformationFilter & RoleFilter = {
 			...getRoleFilter(user.role, phone),
+			active: true,
 		};
 		if (query.trim()) {
 			where.serial = {
@@ -880,5 +959,8 @@ export {
 	getQuoteProvidersCount,
 	getPendingProviderQuotes,
 	updateValidator,
+	GetDisabledQuotes,
+	DisableQuote,
+	EnableQuote,
 	// cloneQuoteInformationWithRelations,
 };

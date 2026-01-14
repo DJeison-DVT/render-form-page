@@ -29,6 +29,7 @@ export type QuoteWithEntries = Prisma.QuoteGetPayload<{
 export interface QuoteInformationFilter {
 	finalizedAt?: { not: null };
 	serial?: ContainsFilter;
+	active?: boolean;
 }
 
 export interface QuoteInformationPendingFilter {
@@ -40,6 +41,7 @@ export interface QuoteInformationPendingFilter {
 export interface ProviderQuoteFilter {
 	providerContact: null;
 	serial?: ContainsFilter;
+	active?: boolean;
 }
 
 export interface ContainsFilter {
