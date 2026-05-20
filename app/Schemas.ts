@@ -142,8 +142,8 @@ export const ProposalUploadSchema = uploadSchema.merge(
 		pdf: z
 			.any()
 			.refine(
-				(file) => file?.type === "application/pdf",
-				"El archivo debe ser un PDF."
+				(file) => file?.type === "application/pdf" || file?.type === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+				"El archivo debe ser un PDF o un Excel."
 			),
 		providers: z
 			.array(z.string())
